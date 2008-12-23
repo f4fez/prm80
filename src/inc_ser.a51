@@ -1079,7 +1079,7 @@ sf_end:
 
 Message01:    DB   00Dh,00Ah
               DB   "PRM8060 Firmware (c) F4FEZ / F8EGQ ",00Dh,00Ah
-              DB   "Version 3.0 Beta 1, 01/09/2008.",00Dh,00Ah
+              DB   "Version 3.0 SA9, 23/12/2008.",00Dh,00Ah
 	      DB   ">",0
 Message03:    DB   "P1 = $",0 
 Message04:    DB   "P2 = $",0 
