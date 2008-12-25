@@ -141,7 +141,7 @@ ll_send:
 ;----------------------------------------
 ; Affichage de chiffres sur le lcd
 ;----------------------------------------
-; Afficher unités, valeur dans R0
+; Afficher unites, valeur dans R0
 lcd_print_digit_d10:
         mov	dptr, #ld_r10_table
 	sjmp	lcd_print_digit
@@ -187,7 +187,7 @@ lcd_print_digit:
 	ret
 
 ;----------------------------------------
-; Affichage d'une valeur en décimal
+; Affichage d'une valeur en decimal
 ;----------------------------------------
 ; Valeur dans R0
 lcd_print_dec:
@@ -201,7 +201,7 @@ lcd_print_dec:
 	call	lcd_print_digit_d1
 	ret
 ;----------------------------------------
-; Affichage d'une valeur en hexadécimal
+; Affichage d'une valeur en hexadecimal
 ;----------------------------------------
 ; Valeur dans R0
 lcd_print_hex:
@@ -232,35 +232,35 @@ lcd_clear_digits_r:
 ;----------------------------------------
 ; Mise a jour des symboles
 ;----------------------------------------
-update_symb:
-	mov	a, #0fbh
-	anl	a, lcd_dataA0
-	mov	c, disp_state.5
-	mov	Acc.2, c
-	mov	lcd_dataA0, a
-	
-	mov	a, #070h
-	anl	a, lcd_dataB0
-	mov	c, disp_state.4
-	mov	Acc.2, c
-	mov	c, disp_state.3
-	mov	Acc.3, c
-	mov	c, disp_state.2
-	mov	Acc.0, c
-
-	mov	lcd_dataB0, a
-	
-	mov	a, #0fch
-	anl	a, lcd_dataB1
-	mov	c, disp_state.0
-	mov	Acc.0, c
-	mov	c, disp_state.1
-	mov	Acc.1, c
-	mov	lcd_dataB1, a
-	
-;	mov	a, #08fh
+display_update_symb:
+;	mov	a, #0fbh
+;	anl	a, lcd_dataA0
+;	mov	c, disp_state.5
+;	mov	Acc.2, c
+;	mov	lcd_dataA0, a
+;	
+;	mov	a, #070h
+;	anl	a, lcd_dataB0
+;	mov	c, disp_state.4
+;	mov	Acc.2, c
+;	mov	c, disp_state.3
+;	mov	Acc.3, c
+;	mov	c, disp_state.2
 ;	mov	Acc.0, c
-;	mov	lcd_dataB2, a
+;
+;	mov	lcd_dataB0, a
+;	
+;	mov	a, #0fch
+;	anl	a, lcd_dataB1
+;	mov	c, disp_state.0
+;	mov	Acc.0, c
+;	mov	c, disp_state.1
+;	mov	Acc.1, c
+;	mov	lcd_dataB1, a
+;	
+;;	mov	a, #08fh
+;;	mov	Acc.0, c
+;;	mov	lcd_dataB2, a
 	
 	ret
 
@@ -305,6 +305,19 @@ cb_but8:
 	setb	b.7
 cb_end:
 	mov	a, b
+	ret
+
+;----------------------------------------
+; Test du bouton 1750
+; Avec un call : 20us
+;----------------------------------------
+check_button_1750:
+	mov	b, #0
+	call	wdt_reset
+	mov	dptr, #0d000h
+	movx	a, @dptr
+	mov	r0, a
+	mov	c, acc.2
 	ret
 
 ;----------------------------------------

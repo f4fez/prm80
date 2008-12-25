@@ -13,7 +13,7 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-CONFIG_CHAN_COUNT       EQU     005h
+CONFIG_CHAN_COUNT       EQU     004h
 CONFIG_SHIFT            EQU     080h
 CONFIG_PLL_DIV_HI	EQU	020h
 CONFIG_PLL_DIV_LO	EQU	090h

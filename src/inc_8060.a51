@@ -70,7 +70,7 @@ ll_send:
 ;----------------------------------------
 ; Affichage de chiffres sur le lcd
 ;----------------------------------------
-; Afficher unités, valeur dans R0
+; Afficher unites, valeur dans R0
 lcd_print_digit10:
         mov	dptr, #lpg10_table
 	sjmp	lcd_print_digit
@@ -95,7 +95,7 @@ lcd_print_digit:
 	ret
 
 ;----------------------------------------
-; Affichage d'une valeur en décimal
+; Affichage d'une valeur en decimal
 ;----------------------------------------
 ; Valeur dans R0
 lcd_print_dec:

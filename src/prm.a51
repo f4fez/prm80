@@ -46,70 +46,79 @@ $INCLUDE (83c552.mcu)
 ;----------------------------------------
 AUXR1		EQU	0a2h
 
+RAM		EQU	030h
+RAMbit		EQU	020h
 ;----------------------------------------
 ; Variables
 ;----------------------------------------
-serial_latch_lo	EQU	23h	; Valeur du premier verrou
-serial_latch_hi	EQU	24h	; Valeur du deuxieme verrou
+serial_latch_lo	EQU	RAMbit+0	; Valeur du premier verrou
+serial_latch_hi	EQU	RAMbit+1	; Valeur du deuxieme verrou
 
-lcd_data0	EQU	32h	; Premier octet pour le lcd
-lcd_data1	EQU	33h	; Deuxieme octet pour le lcd
-lcd_data2	EQU	34h	; Troisieme octet pour le lcd (4 bits seulement)
-
-vol_hold	EQU	20h	; Sauvegarde le volume
-disp_hold	EQU	38h	; Sauvegarde de de l'affichage des symboles
+vol_hold	EQU	RAMbit+2	; Sauvegarde le volume
 
 
-mode		EQU	21h	; Mode courant
-				; b0: Squelch		b1: puissance
-				; b2: Squelch ouvert	b3: TX
-				; b4: PLL verouille	b5: Appui long memorise
-				; b6: Anti-rebond actif	b7: Rafraichier lcd
+mode		EQU	RAMbit+3    	; Mode courant
+			    		; b0: Squelch		b1: puissance
+					; b2: Squelch ouvert	b3: TX
+					; b4: PLL verouille	b5: Appui long memorise
+					; b6: Anti-rebond actif	b7: Rafraichier lcd
 
-chan_state	EQU	22h	; Option du canal
-				; b0: shift		b1: reverse
-				; b2: 			b3:
-				; b4: 			b5: 
-				; b6: 			b7:
+chan_state	EQU	RAMbit+4	; Option du canal
+					; b0: shift		b1: reverse
+					; b2: 			b3:
+					; b4: 			b5: 
+					; b6: 			b7:
 
-RS232status	EQU	25h	; Registre d'etat du port serie.
-charType	EQU	26h	; Contien le resultat de l'analyse d'n caractere
-lock		EQU	27h	; Verroullage
-				; b0: Touches		b1: TX
-				; b2: Volume          	b3: RX
-				; b4: 			b5: 
-				; b6: 			b7:
+RS232status	EQU	RAMbit+5	; Registre d'etat du port serie.
+charType	EQU	RAMbit+6	; Contien le resultat de l'analyse d'n caractere
+lock		EQU	RAMbit+7	; Verroullage
+					; b0: Touches		b1: TX
+					; b2: Volume          	b3: RX
+					; b4: 			b5: 
+					; b6: 			b7:
 
-but_timer	EQU	36h	; compteur pour l'anti rebond
-but_timer2	EQU	41h
-but_hold_state	EQU	3bh
-but_repeat	EQU	3ch	; Tempo pour la repetion et l'appui long
-
-;ref_div_hi	EQU	39h
-;ref_div_lo	EQU	40h
-
-rx_freq_hi	EQU	42h
-rx_freq_lo	EQU	43h
-tx_freq_hi	EQU	44h
-tx_freq_lo	EQU	45h
+disp_hold	EQU	RAM+0		; Sauvegarde de de l'affichage des symboles
 
 
+lcd_dataA0	EQU	RAM+1		; Premier octet pour le lcd
+lcd_dataA1	EQU	RAM+2		; Deuxieme octet pour le lcd
+lcd_dataA2	EQU	RAM+3		; Troisieme octet pour le lcd (4 bits seulement)
+lcd_dataA3	EQU	RAM+4		; Quatrieme octet pour le lcd (4 bits seulement)
+lcd_dataB0	EQU	RAM+5		; Premier octet pour le lcd
+lcd_dataB1	EQU	RAM+6		; Deuxieme octet pour le lcd
+lcd_dataB2	EQU	RAM+7		; Troisieme octet pour le lcd (4 bits seulement)
+lcd_dataB3	EQU	RAM+8		; Quatrieme octet pour le lcd (4 bits seulement)
 
-shift		EQU	3ah	; Shift code sur 8 Bits (environ 3MHz max avec un pas de 12.5KHz)
+but_timer	EQU	RAM+9		; compteur pour l'anti rebond
+but_timer2	EQU	RAM+10
+but_hold_state	EQU	RAM+11
+but_repeat	EQU	RAM+12		; Tempo pour la repetion et l'appui long
 
-PtrRXin         EQU     46h        ;   .Pointeur d'entree buffer RX
-PtrRXout        EQU     47h        ;   .Pointeur de sortie buffer RX
-RXnbo           EQU     48h        ;   .Nombre d'octets dans buffer RX
-PtrTXin         EQU     49h        ;   .Pointeur d'entree buffer TX
-PtrTXout        EQU     4ah        ;   .Pointeur d'entree buffer TX
-TXnbo           EQU     4bh        ;   .Nombre d'octets dans buffer TX.
-Page            EQU     4ch        ; - Numero de la page de octets.
-RS_ASCmaj       EQU     4dh        ; - Octet RS232 conv. en majuscule.
-RS_HexDec       EQU     4eh        ; - Octet RS232 converti en hexa.
-AdrH            EQU     4fh        ; - Adresse passee par RS232 (MSB).
-AdrL            EQU     50h        ; - Adresse passee par RS232 (LSB).
-DataRS          EQU     51h        ; - Donnee passee par le port serie.
-I2C_err         EQU     52h        ; - Renvoi d'erreur acces bus I2C.
+;ref_div_hi	EQU	RAM+13
+;ref_div_lo	EQU	RAM+14
+
+rx_freq_hi	EQU	RAM+15
+rx_freq_lo	EQU	RAM+16
+tx_freq_hi	EQU	RAM+17
+tx_freq_lo	EQU	RAM+18
+
+
+
+shift		EQU	RAM+19		; Shift code sur 8 Bits (environ 3MHz max avec un pas de 12.5KHz)
+
+PtrRXin         EQU     RAM+20    	;   .Pointeur d'entree buffer RX
+PtrRXout        EQU     RAM+21        	;   .Pointeur de sortie buffer RX
+RXnbo           EQU     RAM+22       	;   .Nombre d'octets dans buffer RX
+PtrTXin         EQU     RAM+23       	;   .Pointeur d'entree buffer TX
+PtrTXout        EQU     RAM+24       	;   .Pointeur d'entree buffer TX
+TXnbo           EQU     RAM+25       	;   .Nombre d'octets dans buffer TX.
+Page            EQU     RAM+26       	; - Numero de la page de octets.
+RS_ASCmaj       EQU     RAM+27       	; - Octet RS232 conv. en majuscule.
+RS_HexDec       EQU     RAM+28       	; - Octet RS232 converti en hexa.
+AdrH            EQU     RAM+29       	; - Adresse passee par RS232 (MSB).
+AdrL            EQU     RAM+30       	; - Adresse passee par RS232 (LSB).
+DataRS          EQU     RAM+31       	; - Donnee passee par le port serie.
+I2C_err         EQU     RAM+32       	; - Renvoi d'erreur acces bus I2C.
 
 
 ;----------------------------------------
@@ -201,6 +210,8 @@ CH_enter        EQU     charType.6    ; - Caractere recu = ENTER.
 ;----------------------------------------
 IF TARGET EQ 8060
  $include (inc_8060.a51)	; Fonctions de gestion de l'afficheur et des touches
+ELSEIF TARGET EQ 8070
+ $include (inc_8070.a51)	; Fonctions de gestion de l'afficheur et des touches
 ENDIF
 
  $include (inc_sys.a51)	; Diverse fonctions systeme
@@ -232,10 +243,15 @@ init:
 	mov	pwmp, r0
 
 	; Initialisation des variables
-	mov	lcd_data0, #0ffh
-	mov	lcd_data1, #0ffh
-	mov	lcd_data2, #0ffh
-	
+	mov	lcd_dataA0, #0ffh
+	mov	lcd_dataA1, #0ffh
+	mov	lcd_dataA2, #0ffh
+	mov	lcd_dataA3, #0ffh
+	mov	lcd_dataB0, #0ffh
+	mov	lcd_dataB1, #0ffh
+	mov	lcd_dataB2, #0ffh
+	mov	lcd_dataB3, #0ffh	
+
 	mov	lock, #00
 	mov	vol_hold, #01h 		; Pour etre a peut pres sur de charger le volume au premier lancement
 	mov	but_timer, #00
@@ -456,7 +472,7 @@ tx_cont:
 	setb	mode.3
 	; Affichage du mode
 	mov	a, #04h
-	orl	lcd_data0, a
+	orl	lcd_dataA0, a
 	call	wdt_reset
 	call	load_lcd
 	
@@ -480,7 +496,7 @@ tx_lp:
 
 	; Affichage du mode
 	mov	a, #0fbh
-	anl	lcd_data0, a
+	anl	lcd_dataA0, a
 	call	wdt_reset
 	call	load_lcd
 
