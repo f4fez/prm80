@@ -13,6 +13,13 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+;-----------------------------------------------
+; TARGET should be 8060 or 8070
+; FREQ	144 A9
+;	430 U0
+;-----------------------------------------------
+
+
 $NOBUILTIN
 $NOSYMBOLS
 $NOMOD51
@@ -24,10 +31,13 @@ $NOPAGING
 IFNDEF TARGET
 
 $ERROR(TARGET not defined)
-END
+    END
+
+ELSEIFNDEF FREQ
+$ERROR(FREQ not defined)
+    END
 
 ELSE
-
 
 $INCLUDE (83c552.mcu)
 
@@ -485,8 +495,11 @@ tx_lp:
 
 	ret
 
-
-$include (inc_conf.a51) ; Chargement de la configuration
+IF FREQ EQ 144
+$include (inc_144.a51) ; Chargement de la configuration version 144MHz
+ELSEIF FREQ EQ 430
+$include (inc_430.a51) ; Chargement de la configuration version 430MHz
+ENDIF
 	end
 
 ENDIF ; IFNDEF TARGET

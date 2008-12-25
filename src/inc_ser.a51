@@ -1078,8 +1078,19 @@ sf_end:
 ; Messages ASCII predefinis, pour le dialogue par la liaison serie :
 
 Message01:    DB   00Dh,00Ah
-              DB   "PRM8060 SA9 Firmware (c) F4FEZ / F8EGQ ",00Dh,00Ah
-              DB   "Version 3.0, 23/12/2008.",00Dh,00Ah
+IF TARGET EQ 8060
+              DB   "PRM8060"
+ELSEIF TARGET EQ 8070
+              DB   "PRM8070"
+ENDIF
+
+IF FREQ EQ 144
+	      DB   " 144"
+ELSEIF FREQ EQ 430
+	      DB   " 430"
+ENDIF
+	      DB   " Firmware (c) F4FEZ / F8EGQ ",00Dh,00Ah
+              DB   "Version 4.0 DEV, XX/XX/2009.",00Dh,00Ah
 	      DB   ">",0
 Message03:    DB   "P1 = $",0 
 Message04:    DB   "P2 = $",0 
