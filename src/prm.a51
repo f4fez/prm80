@@ -77,6 +77,11 @@ lock		EQU	RAMbit+7	; Verroullage
 					; b4: 			b5: 
 					; b6: 			b7:
 
+disp_state	EQU	RAMbit+8	; Symbole à afficherpour prm8070
+					; b0: Squelch ouvert	b1: mode squelch
+					; b2: Puissance haute	b3: reverse
+					; b4: shift		b5: tx
+
 disp_hold	EQU	RAM+0		; Sauvegarde de de l'affichage des symboles
 
 
@@ -292,6 +297,15 @@ init_no_reset:
 	call	wdt_reset
 	
 	; Affichage du canal
+	mov	lcd_dataA0, #0h
+	mov	lcd_dataA1, #0h
+	mov	lcd_dataA2, #0h
+	mov	lcd_dataA3, #0h
+	mov	lcd_dataB0, #0h
+	mov	lcd_dataB1, #0h
+	mov	lcd_dataB2, #0h
+	mov	lcd_dataB3, #0h	
+
 	call	update_lcd
 	
 	mov	r7, #0fh
@@ -339,129 +353,9 @@ m_notx:
 m_end:
 	jmp	m_loop
 
-
 ;----------------------------------------
-; Gestion des fonctions des boutons
+; Boucle TX
 ;----------------------------------------
-buttons:
-	; Test verroullage touches
-	jnb	lock.0, b_no_lock
-	jmp	b_endbut
-b_no_lock:
-	inc	but_timer			; Incrementation des timers
-	mov	a, but_timer
-	jnz	b_ar
-	inc	but_timer2
-b_ar:
-	jnb	mode.6, b_ar_end		; Passer si antirebond inactif
-	clr	c
-	mov	a, but_timer2
-	subb	a, #1				; trebond = 1
-	jnc	b_ar_end			; si cpt > trebond : sauter
-	ret					; sinon fin
-b_ar_end:
-	call	check_buttons			; Charger etat bouton
-	mov	r0, a
-	cjne	a, but_hold_state, b_state_dif	; Si etat differant sauter
-	clr	mode.6				; Desactiver AR
-	jnz	b_cont
-	ret
-b_cont:
-	clr	c
-	mov	a, but_timer2
-	subb	a, but_repeat			; Soit tlong, soit trepeat
-	jnc	b_long				; si cpt > but_repeat : sauter
-	ret					; sinon fin	
-b_long:
-	mov	a, #but_repeat_mask		; Verifier si repetition autorise
-	anl	a, r0
-	mov	b, r0
-	cjne	a, b, b_l_norepeat
-	mov	but_repeat, #but_repeat_duration
-	jmp	b_l_cont
-b_l_norepeat:
-	jb	mode.5, b_long_end
-b_l_cont:
-	setb	mode.5				; Appui long
-	mov	r1, #01
-	mov	a, r0
-	mov	but_timer, #0
-	mov	but_timer2, #0
-	jmp	b_decoding
-b_long_end:
-	ret
-	
-b_state_dif:
-	setb	mode.6				; Activer AR
-	mov	but_timer, #0
-	mov	but_timer2, #0
-	clr	c
-	mov	a, but_hold_state
-	subb	a, r0
-	jnc	b_key_release			; Si Etat < Etat precedent : saute car touche relach�e
-	mov	but_hold_state, r0		; sinon une touche vient d'etre appuye
-	ret
-
-b_key_release:
-	jb	mode.5, b_kr_long		; Si appui long : sauter
-	mov	r1, #0				; Effacent flag appui long
-	mov	a, r0
-	jz	b_decoding			; Si les touches sont relachées
-	ret
-b_kr_long:
-	clr	mode.5
-	mov	but_hold_state, r0
-	mov	but_repeat, #but_long_duration
-	ret
-
-; Decodage des touches appuyees
-b_decoding:
-	mov	a, but_hold_state
-	mov	but_hold_state, r0
-
-	mov	b, r1				; Test appui long
-	jb	b.0, b_but1l			; si vrai sauter
-b_but1:	; Gauche bas
-	cjne	a, #1, b_but2
-	call	chan_dec
-	jmp	b_endbut
-b_but2: ; Droit
-	cjne	a, #2, b_but3
-	call	switch_reverse
-	jmp	b_endbut
-b_but3: ; Gauche milieu
-	cjne	a, #4, b_but4
-	call	switch_mode
-	jmp	b_endbut
-b_but4: ; Gauche haut
-	cjne	a, #8, b_endbut
-	call	chan_inc
-	jmp	b_endbut
-b_but1l:
-	cjne	a, #1, b_but2l
-	call	chan_dec
-	jmp	b_endbut
-b_but2l:
-	cjne	a, #2, b_but3l
-	call	switch_power	
-	call	bip
-	jmp	b_endbut
-	
-b_but3l:
-	cjne	a, #4, b_but4l
-	call	switch_shift_mode
-	call	bip
-	jmp	b_endbut
-b_but4l:
-	cjne	a, #8, b_endbut
-	call	chan_inc
-	jmp	b_endbut
-
-b_endbut:
-	ret
-
-	
-;***** Boucle emission *****
 tx:
 	; Suppression du squelch si besoin
 	jnb	mode.0, tx_cont
@@ -471,8 +365,7 @@ tx:
 tx_cont:
 	setb	mode.3
 	; Affichage du mode
-	mov	a, #04h
-	orl	lcd_dataA0, a
+	call	display_update_symb
 	call	wdt_reset
 	call	load_lcd
 	
@@ -494,9 +387,9 @@ tx_lp:
 	call	TERMINAL		; Passer la main au terminal
 	jnb	P4.0, tx_lp
 
+	clr	mode.3
 	; Affichage du mode
-	mov	a, #0fbh
-	anl	lcd_dataA0, a
+	call	display_update_symb
 	call	wdt_reset
 	call	load_lcd
 
@@ -506,8 +399,6 @@ tx_lp:
 	anl	serial_latch_hi, a
 	call	load_serial_latch
 	call	load_synth
-	
-	clr	mode.3
 
 	ret
 

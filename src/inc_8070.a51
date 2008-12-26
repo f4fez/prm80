@@ -233,37 +233,53 @@ lcd_clear_digits_r:
 ; Mise a jour des symboles
 ;----------------------------------------
 display_update_symb:
-;	mov	a, #0fbh
-;	anl	a, lcd_dataA0
-;	mov	c, disp_state.5
-;	mov	Acc.2, c
-;	mov	lcd_dataA0, a
-;	
-;	mov	a, #070h
-;	anl	a, lcd_dataB0
-;	mov	c, disp_state.4
-;	mov	Acc.2, c
-;	mov	c, disp_state.3
-;	mov	Acc.3, c
-;	mov	c, disp_state.2
-;	mov	Acc.0, c
-;
-;	mov	lcd_dataB0, a
-;	
-;	mov	a, #0fch
-;	anl	a, lcd_dataB1
-;	mov	c, disp_state.0
-;	mov	Acc.0, c
-;	mov	c, disp_state.1
-;	mov	Acc.1, c
-;	mov	lcd_dataB1, a
-;	
-;;	mov	a, #08fh
-;;	mov	Acc.0, c
-;;	mov	lcd_dataB2, a
+	mov	c, mode.3 ; TX
+	mov	disp_state.5, c
+	mov	c, chan_state.0 ;Shift
+	mov	disp_state.4, c
+	mov	c, chan_state.1 ;Reverse
+	mov	disp_state.3, c
+	mov	c, mode.1 ; Puissance
+	cpl	c
+	mov	disp_state.2, c
+	mov	c, mode.0 ;squelch mode
+	mov	disp_state.1, c
+	mov	c, mode.2
+	mov	disp_state, c
 	
+	mov	a, disp_state
+	cjne	a, disp_hold, m_symb_update
 	ret
+	
+m_symb_update:
+	;Emission
+	mov	a, #0fbh
+	anl	a, lcd_dataA0
+	mov	c, disp_state.5
+	mov	Acc.2, c
+	mov	lcd_dataA0, a
+	
+	mov	a, #070h
+	anl	a, lcd_dataB0
+	mov	c, disp_state.4
+	mov	Acc.2, c
+	mov	c, disp_state.3
+	mov	Acc.3, c
+	mov	c, disp_state.2
+	mov	Acc.0, c
 
+	mov	lcd_dataB0, a
+	
+	mov	a, #0fch
+	anl	a, lcd_dataB1
+	mov	c, disp_state.0
+	mov	Acc.0, c
+	mov	c, disp_state.1
+	mov	Acc.1, c
+	mov	lcd_dataB1, a
+	
+	mov	disp_hold, disp_state
+	ret
 
 ;----------------------------------------
 ; Test des boutons
@@ -318,6 +334,83 @@ check_button_1750:
 	movx	a, @dptr
 	mov	r0, a
 	mov	c, acc.2
+	ret
+
+;----------------------------------------
+; Decodage des touches appuyees
+;----------------------------------------
+b_decoding:
+	mov	a, but_hold_state
+	mov	but_hold_state, r0
+
+	mov	b, r1				; Test appui long
+	jb	b.0, b_but1l			; si vrai sauter
+b_but1:	; 
+	cjne	a, #1, b_but2
+	call	switch_power
+	jmp	b_endbut
+b_but2: ; 
+	cjne	a, #2, b_but3
+	call	switch_shift_mode
+	jmp	b_endbut
+b_but3: ; 
+	cjne	a, #4, b_but4
+	call	chan_inc
+	jmp	b_endbut
+b_but4: ; 
+	cjne	a, #8, b_but5
+	call	chan_dec
+	jmp	b_endbut
+b_but5: ; 
+	cjne	a, #16, b_but6
+	call	switch_reverse
+	jmp	b_endbut
+b_but6: ; 
+	cjne	a, #32, b_but7
+	call	switch_mode
+	jmp	b_endbut
+b_but7: ; 
+	cjne	a, #64, b_but8
+
+	jmp	b_endbut
+b_but8: ; 
+	cjne	a, #128, b_endbut
+
+	jmp	b_endbut
+b_but1l:
+	cjne	a, #1, b_but2l
+
+	jmp	b_endbut
+b_but2l:
+	cjne	a, #2, b_but3l
+
+	jmp	b_endbut
+b_but3l:
+	cjne	a, #4, b_but4l
+	call	chan_inc
+	jmp	b_endbut
+b_but4l:
+	cjne	a, #8, b_but5l
+	call	chan_dec
+	jmp	b_endbut
+b_but5l:
+	cjne	a, #16, b_but6l
+
+	jmp	b_endbut
+b_but6l:
+	cjne	a, #32, b_but7l
+
+	jmp	b_endbut
+b_but7l:
+	cjne	a, #64, b_but8l
+
+	jmp	b_endbut
+b_but8l:
+	cjne	a, #128, b_endbut
+
+	jmp	b_endbut
+
+b_endbut:
 	ret
 
 ;----------------------------------------

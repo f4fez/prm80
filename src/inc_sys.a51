@@ -435,14 +435,14 @@ I2C_RD_ACK:      CLR        SCL            ;
                  NOP                       ; 
                  RET                       ; 
 
-; "I2C_RD_Page" : Transfère 16 octets de l'EEPROM vers la RAM externe.
-; Paramètres à fournir : "Page" et "DPTR".
-; La variable "Page" contient le numéro (de $00 à $7F) de la page de 16 
-; octets à lire dans l'EEPROM ; le registre DPTR pointe sur la première 
-; adresse de la zone de 16 octets en RAM externe, où les données lues seront 
-; placées : cette zone va donc de l'adresse [DPTR+0] à l'adresse [DPTR+15] ;
-; à la fin de la routine, DPTR a été augmenté de 16.
-; Code d'erreur renvoyé dans "I2C_err" : 0 si tout est OK sinon 1, 2 ou 3.
+; "I2C_RD_Page" : Transfere 16 octets de l'EEPROM vers la RAM externe.
+; Parametres a fournir : "Page" et "DPTR".
+; La variable "Page" contient le numero (de $00 a $7F) de la page de 16 
+; octets a lire dans l'EEPROM ; le registre DPTR pointe sur la premiere 
+; adresse de la zone de 16 octets en RAM externe, ou les donnees lues seront 
+; placees : cette zone va donc de l'adresse [DPTR+0] a l'adresse [DPTR+15] ;
+; a la fin de la routine, DPTR a ete augmente de 16.
+; Code d'erreur renvoye dans "I2C_err" : 0 si tout est OK sinon 1, 2 ou 3.
 
 I2C_RD_Page:     PUSH       ACC            ; 
                  PUSH       1              ; 
@@ -489,11 +489,11 @@ finrdpage:       CALL       I2C_Stop       ;
                  RET                       ; 
 
 ; "I2C_WR_Page" : Programme 16 octets de la RAM externe dans l'EEPROM.
-; Paramètres à fournir : "Page" et "DPTR".
-; La variable "Page" contient le numéro (de $00 à $7F) de la page de 16 
-; octets à programmer dans l'EEPROM ; le registre DPTR pointe sur la première
-; adresse de la zone de 16 octets en RAM externe, où les données à programmer
-; dans l'EEPROM seront prélevées ; à la fin, DPTR a donc été augmenté de 16.
+; Parametres a fournir : "Page" et "DPTR".
+; La variable "Page" contient le numero (de $00 a $7F) de la page de 16 
+; octets a programmer dans l'EEPROM ; le registre DPTR pointe sur la première
+; adresse de la zone de 16 octets en RAM externe, ou les donnees a programmer
+; dans l'EEPROM seront prelevees ; a la fin, DPTR a donc ete augmenté de 16.
 
 I2C_WR_Page:     PUSH       ACC            ; 
                  PUSH       1              ; 
@@ -537,5 +537,78 @@ finwrpage:       CALL       I2C_Stop       ;
                  POP        ACC            ; 
                  RET
 
-
+;----------------------------------------
+; Gestion des fonctions des boutons
+;----------------------------------------
+buttons:
+	; Test verroullage touches
+	jnb	lock.0, b_no_lock
+	jmp	b_endbut
+b_no_lock:
+	inc	but_timer			; Incrementation des timers
+	mov	a, but_timer
+	jnz	b_ar
+	inc	but_timer2
+b_ar:
+	jnb	mode.6, b_ar_end		; Passer si antirebond inactif
+	clr	c
+	mov	a, but_timer2
+	subb	a, #1				; trebond = 1
+	jnc	b_ar_end			; si cpt > trebond : sauter
+	ret					; sinon fin
+b_ar_end:
+	call	check_buttons			; Charger etat bouton
+	mov	r0, a
+	cjne	a, but_hold_state, b_state_dif	; Si etat differant sauter
+	clr	mode.6				; Desactiver AR
+	jnz	b_cont
+	ret
+b_cont:
+	clr	c
+	mov	a, but_timer2
+	subb	a, but_repeat			; Soit tlong, soit trepeat
+	jnc	b_long				; si cpt > but_repeat : sauter
+	ret					; sinon fin	
+b_long:
+	mov	a, #but_repeat_mask		; Verifier si repetition autorise
+	anl	a, r0
+	mov	b, r0
+	cjne	a, b, b_l_norepeat
+	mov	but_repeat, #but_repeat_duration
+	jmp	b_l_cont
+b_l_norepeat:
+	jb	mode.5, b_long_end
+b_l_cont:
+	setb	mode.5				; Appui long
+	mov	r1, #01
+	mov	a, r0
+	mov	but_timer, #0
+	mov	but_timer2, #0
+	jmp	b_decoding
+b_long_end:
+	ret
 	
+b_state_dif:
+	setb	mode.6				; Activer AR
+	mov	but_timer, #0
+	mov	but_timer2, #0
+	clr	c
+	mov	a, but_hold_state
+	subb	a, r0
+	jnc	b_key_release			; Si Etat < Etat precedent : saute car touche relachÃe
+	mov	but_hold_state, r0		; sinon une touche vient d'etre appuye
+	ret
+
+b_key_release:
+	jb	mode.5, b_kr_long		; Si appui long : sauter
+	mov	r1, #0				; Effacent flag appui long
+	mov	a, r0
+	jnz	b_key_release_end
+	jmp	b_decoding			; Si les touches sont relachÃ©es
+b_key_release_end:
+	ret
+b_kr_long:
+	clr	mode.5
+	mov	but_hold_state, r0
+	mov	but_repeat, #but_long_duration
+	ret

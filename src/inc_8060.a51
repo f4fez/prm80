@@ -30,13 +30,13 @@ load_lcd:
 	nop
 	clr	ser_scl		; Fin premier bit
 	mov	r0, #8		; 8 Bits a transemettre
-	mov	A, lcd_data0
+	mov	A, lcd_dataA0
 	call	ll_send
 	mov	r0, #8		; 8 Bits a transemettre
-	mov	A, lcd_data1
+	mov	A, lcd_dataA1
 	call	ll_send	
 	mov	r0, #5		; 4 Bits a transemettre + load bit
-	mov	A, lcd_data2
+	mov	A, lcd_dataA2
 	setb	Acc.4		; Bit 21 a 1 pour charger BP1
 	call	ll_send
 	clr	lcd_dlen	; Fin envoi donnees
@@ -83,15 +83,15 @@ lcd_print_digit:
 	rl	a
 	mov	r0, a
 	movc	a, @a+dptr
-	orl	lcd_data0,a
+	orl	lcd_dataA0,a
 	inc	r0
 	mov 	a, r0
 	movc	a, @a+dptr
-	orl	lcd_data1,a
+	orl	lcd_dataA1,a
 	inc	r0
 	mov 	a, r0
 	movc	a, @a+dptr
-	orl	lcd_data2,a
+	orl	lcd_dataA2,a
 	ret
 
 ;----------------------------------------
@@ -131,9 +131,9 @@ lcd_print_hex:
 ;----------------------------------------
 lcd_clear_digits_r:
 	call	wdt_reset
-	anl	lcd_data0, #8fh
-	anl	lcd_data1, #20h
-	mov	lcd_data2, #0
+	anl	lcd_dataA0, #8fh
+	anl	lcd_dataA1, #20h
+	mov	lcd_dataA2, #0
 	ret
 	
 ;----------------------------------------
@@ -141,9 +141,9 @@ lcd_clear_digits_r:
 ;----------------------------------------
 display_update_symb:
 	mov	a, #070h
-	anl	lcd_data0, a
+	anl	lcd_dataA0, a
 	mov	a, #0dfh
-	anl	lcd_data1, a
+	anl	lcd_dataA1, a
 	clr	a
 	mov	b, P5
 	; Reverse
@@ -152,18 +152,20 @@ display_update_symb:
 	; Mode squelch
 	mov	c, mode.0
 	mov	Acc.0, c
-
+	; TX
+	mov	c, mode.3
+	mov	Acc.2, c	
 	; Haute puissance
 	mov	c, mode.1
 	cpl	c
 	mov	Acc.7, c
-	orl	lcd_data0, a
+	orl	lcd_dataA0, a
 	; Shift
 	mov	c, chan_state.0
 	mov	Acc.5, c
 	mov	r0, a
 	anl	a, #020h
-	orl	lcd_data1, a
+	orl	lcd_dataA1, a
 	mov	a, r0
 	cjne	a, disp_hold, m_symb_update
 
@@ -212,7 +214,55 @@ check_button_1750:
 	mov	r0, a
 	mov	c, acc.2
 	ret
+
+;----------------------------------------
+; Decodage des touches appuyees
+;----------------------------------------
+b_decoding:
+	mov	a, but_hold_state
+	mov	but_hold_state, r0
+
+	mov	b, r1				; Test appui long
+	jb	b.0, b_but1l			; si vrai sauter
+b_but1:	; Gauche bas
+	cjne	a, #1, b_but2
+	call	chan_dec
+	jmp	b_endbut
+b_but2: ; Droit
+	cjne	a, #2, b_but3
+	call	switch_reverse
+	jmp	b_endbut
+b_but3: ; Gauche milieu
+	cjne	a, #4, b_but4
+	call	switch_mode
+	jmp	b_endbut
+b_but4: ; Gauche haut
+	cjne	a, #8, b_endbut
+	call	chan_inc
+	jmp	b_endbut
+b_but1l:
+	cjne	a, #1, b_but2l
+	call	chan_dec
+	jmp	b_endbut
+b_but2l:
+	cjne	a, #2, b_but3l
+	call	switch_power	
+	call	bip
+	jmp	b_endbut
 	
+b_but3l:
+	cjne	a, #4, b_but4l
+	call	switch_shift_mode
+	call	bip
+	jmp	b_endbut
+b_but4l:
+	cjne	a, #8, b_endbut
+	call	chan_inc
+	jmp	b_endbut
+
+b_endbut:
+	ret
+
 ;----------------------------------------
 ; Tables pour l'afficheur
 ;----------------------------------------
