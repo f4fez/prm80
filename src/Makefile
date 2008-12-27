@@ -1,4 +1,5 @@
-all: prm8060
+
+all: prm8060 prm8070
 
 prm8060: prm8060_144 prm8060_430
 prm8060debug: prm8060_144debug prm8060_430debug
