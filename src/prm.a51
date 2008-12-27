@@ -148,7 +148,7 @@ fi_hi		EQU	006h
 
 but_long_duration	EQU	15
 but_repeat_duration	EQU	3
-but_repeat_mask		EQU	09h
+;but_repeat_mask		EQU	09h
 
 pwm_freq	EQU	28
 

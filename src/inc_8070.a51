@@ -14,6 +14,11 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;----------------------------------------
+; Constantes
+;----------------------------------------
+but_repeat_mask		EQU	0ch
+
+;----------------------------------------
 ; Chargement du lcd
 ;----------------------------------------
 load_lcd:
@@ -245,7 +250,7 @@ display_update_symb:
 	mov	c, mode.0 ;squelch mode
 	mov	disp_state.1, c
 	mov	c, mode.2
-	mov	disp_state, c
+	mov	disp_state.0, c
 	
 	mov	a, disp_state
 	cjne	a, disp_hold, m_symb_update
@@ -279,6 +284,7 @@ m_symb_update:
 	mov	lcd_dataB1, a
 	
 	mov	disp_hold, disp_state
+	setb	mode.7
 	ret
 
 ;----------------------------------------
