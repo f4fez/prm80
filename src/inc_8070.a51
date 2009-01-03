@@ -506,51 +506,52 @@ ld_r1_table:
 	db	0h	; A
 	db	0h
 	db	0h
+	db	0A0h
+	db	001h
 	db	0h
 	db	0h
-	db	0h
-	db	0h
-	db	0h
+	db	0E0h
 	db	0h	; B
 	db	0h
 	db	0h
+	db	0E0h
+	db	000h
 	db	0h
 	db	0h
-	db	0h
-	db	0h
-	db	0h
+	db	060h
 	db	0h	; C
 	db	0h
 	db	0h
+	db	060h
+	db	001h
 	db	0h
 	db	0h
-	db	0h
-	db	0h
-	db	0h
+	db	020h
 	db	0h	; D
 	db	0h
 	db	0h
+	db	0E0h
+	db	000h
 	db	0h
 	db	0h
-	db	0h
-	db	0h
-	db	0h
+	db	0C0h
 	db	0h	; E
 	db	0h
 	db	0h
+	db	060h
+	db	001h
 	db	0h
 	db	0h
-	db	0h
-	db	0h
-	db	080h
+	db	060h
 	db	0h	; F
 	db	0h
 	db	0h
+	db	020h
+	db	001h
 	db	0h
 	db	0h
-	db	0h
-	db	0h
-	db	0h
+	db	060h
+
 ld_r10_table:
 	db	0h	; 0
 	db	0h
@@ -635,49 +636,49 @@ ld_r10_table:
 	db	0h	; A
 	db	0h
 	db	0h
+	db	018h
+	db	002h
 	db	0h
 	db	0h
-	db	0h
-	db	0h
-	db	0h
+	db	01Ch
 	db	0h	; B
 	db	0h
 	db	0h
+	db	01Ch
+	db	000h
 	db	0h
 	db	0h
-	db	0h
-	db	0h
-	db	0h
+	db	00Ch
 	db	0h	; C
 	db	0h
 	db	0h
+	db	00Ch
+	db	002h
 	db	0h
 	db	0h
-	db	0h
-	db	0h
-	db	0h
+	db	004h
 	db	0h	; D
 	db	0h
 	db	0h
+	db	018h
+	db	000h
 	db	0h
 	db	0h
-	db	0h
-	db	0h
-	db	0h
+	db	01Ch
 	db	0h	; E
 	db	0h
 	db	0h
+	db	00Ch
+	db	002h
 	db	0h
 	db	0h
+	db	00Ch
+	db	0h	; F
 	db	0h
 	db	0h
-	db	0h
-	db	008h	; F
-	db	0h
-	db	0h
+	db	004h
+	db	002h
 	db	0h
 	db	0h
-	db	0h
-	db	0h
-	db	0h
+	db	00Ch
 	
