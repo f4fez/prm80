@@ -34,9 +34,11 @@ Under Linux :
 	just type "make" to build the source
     
 Under Windows / Dos
-	Make sure asem51 binaries are in the system path, if not, you can also copy 
-	asem.exe, hexbin.exe and 83c552.mcu in the "src" directory
-	Run "build.bat"
+      Make sure asem51 binaries are in the system path, if not, you can also copy 
+      asem.exe, hexbin.exe and 83c552.mcu in the "src" directory ; beware of the 
+      length of files & directories names ("8.3" DOS names must be used ; the root 
+      of the drive would be a good choice as the main directory).
+      Run "build.bat"
 
 To build it manualy (Without make or build.bat)
 	Don't forget to add the TARGET constant in the command line.
