@@ -612,3 +612,30 @@ b_kr_long:
 	mov	but_hold_state, r0
 	mov	but_repeat, #but_long_duration
 	ret
+
+;----------------------------------------
+; Interuption du Timer 0
+;----------------------------------------
+int_Timer0:					; ATTENTION, le timer n'est
+	push	PSW				; jamais arrete
+	push	Acc
+	push	dph
+	push	dpl
+	setb	RS1				; Passage en banque 1
+	
+	;Modifier le contenu du compteur pour qu'il s'execute toutes les 50ms
+	mov	a, #0b2h
+	add	a, TL0
+	mov	TL0, a
+	mov	a, #03ch
+	addc	a, TH0
+	mov	TH0, a
+	
+	; Code ici
+	
+it0_end:
+	pop	dpl
+	pop	dph
+	pop	Acc
+	pop	PSW
+	reti

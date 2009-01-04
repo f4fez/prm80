@@ -125,7 +125,8 @@ AdrL            EQU     RAM+30       	; - Adresse passee par RS232 (LSB).
 DataRS          EQU     RAM+31       	; - Donnee passee par le port serie.
 I2C_err         EQU     RAM+32       	; - Renvoi d'erreur acces bus I2C.
 
-
+TMR0_counter	EQU	RAM+33		; Utiliser par l'interuption du timer 0
+TMR0_display	EQU	RAM+34		; Pour le raffraichissement du lcd
 ;----------------------------------------
 ; Constantes
 ;----------------------------------------
@@ -148,7 +149,6 @@ fi_hi		EQU	006h
 
 but_long_duration	EQU	15
 but_repeat_duration	EQU	3
-;but_repeat_mask		EQU	09h
 
 pwm_freq	EQU	28
 
@@ -179,17 +179,19 @@ CH_enter        EQU     charType.6    ; - Caractere recu = ENTER.
 
 	ORG        EXTI0        ; Tant que les interruptions ne
 	RETI                   	; sont pas utilisees, le code de
-	ORG        TIMER0      	; fin d'interruption (RETI) ne sert 
-	RETI                   	; a rien ; il est la uniquement à
-	ORG        EXTI1       	; titre de precaution...
+	      			; fin d'interruption (RETI) ne sert 	
+	                   	; a rien ; il est la uniquement à
+				; titre de precaution...
+	ORG        TIMER0	; Interuption du Timer0
+	LJMP	   Int_Timer0
+	
+	ORG        EXTI1       	
 	RETI                   	; 
 	ORG        TIMER1      	; 
 	RETI                   	; 
 	
 	ORG        SINT        	; Routine d'interrution du port  
 	LJMP       Int_RX_TX   	; serie 
-				; seule interruption
-				; utilisee pour l'instant !
 	ORG        I2CBUS      	; 
 	RETI                   	; 
 	ORG        T2CAP0      	; 
@@ -246,6 +248,7 @@ init:
 	mov	auxr1, r0
 	mov	r0, pwm_freq			; Frequence de la pwm
 	mov	pwmp, r0
+	mov	TMOD, #00100001b
 
 	; Initialisation des variables
 	mov	lcd_dataA0, #0ffh
@@ -264,7 +267,11 @@ init:
 	mov	disp_hold, #0ffh
 	mov	but_hold_state, #0
 	mov	but_repeat, #but_long_duration
-	
+	mov	TMR0_counter, #0
+	mov	TMR0_display, #0
+	; Initialisation du timer 0
+	setb	TR0
+	setb	ET0			; Interuption active
 ;----------------------------------------
 ; Initialisation de haut niveau
 ;----------------------------------------

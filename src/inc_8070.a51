@@ -636,7 +636,7 @@ ld_r10_table:
 	db	0h	; A
 	db	0h
 	db	0h
-	db	018h
+	db	014h
 	db	002h
 	db	0h
 	db	0h
@@ -660,11 +660,11 @@ ld_r10_table:
 	db	0h	; D
 	db	0h
 	db	0h
-	db	018h
+	db	01Ch
 	db	000h
 	db	0h
 	db	0h
-	db	01Ch
+	db	018h
 	db	0h	; E
 	db	0h
 	db	0h

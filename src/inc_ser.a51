@@ -42,7 +42,7 @@ InitRS232_1200:  		                ; En cas de réinitialisation
                  MOV        TXnbo,#0           ; - Initialiser le hardware :
                  ANL        PCON,#01111111b    ; K=1 mettre SMOD=PCON.7 à "0". 
                  MOV        S0CON,#01110010b   ; Initialiser la liaison série
-                 MOV        TMOD,#00100000b    ; en mode 1200 bauds, 1 start,
+;                 MOV        TMOD,#00100000b    ; en mode 1200 bauds, 1 start,
                  MOV        TH1,#230           ; 8 bits, 1 stop ; utiliser le
                  MOV        TL1,#230           ; Timer 1 comme fréquence de
                  SETB       TR1                ; référence (avec Xtal=12MHz).
@@ -72,7 +72,7 @@ InitRS232_4800:  	                       ; En cas de réinitialisation
                  MOV        TXnbo,#0           ; - Initialiser le hardware :
                  ORL        PCON,#10000000b    ; K=2 mettre SMOD=PCON.7 à "1". 
                  MOV        S0CON,#01110010b   ; Initialiser la liaison série
-                 MOV        TMOD,#00100000b    ; en mode 4800 bauds, 1 start,
+;                 MOV        TMOD,#00100000b    ; en mode 4800 bauds, 1 start,
                  MOV        TH1,#243           ; 8 bits, 1 stop ; utiliser le
                  MOV        TL1,#243           ; Timer 1 comme fréquence de
                  SETB       TR1                ; référence (avec Xtal=12MHz).
