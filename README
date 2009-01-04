@@ -41,5 +41,5 @@ Under Windows / Dos
       Run "build.bat"
 
 To build it manualy (Without make or build.bat)
-	Don't forget to add the TARGET constant in the command line.
-        i.e : "asem -d TARGET:8060 prm.a51"
+	Don't forget to add the TARGET and FREQ constants in the command line.
+        i.e : "asem -d TARGET:8060 -d FREQ:144 prm.a51"

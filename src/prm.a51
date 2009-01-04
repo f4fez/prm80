@@ -269,8 +269,9 @@ init:
 	mov	but_repeat, #but_long_duration
 	mov	TMR0_counter, #0
 	mov	TMR0_display, #0
+	
 	; Initialisation du timer 0
-	setb	TR0
+	setb	TR0			; Activer le timer
 	setb	ET0			; Interuption active
 ;----------------------------------------
 ; Initialisation de haut niveau

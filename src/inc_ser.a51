@@ -42,12 +42,13 @@ InitRS232_1200:  		                ; En cas de réinitialisation
                  MOV        TXnbo,#0           ; - Initialiser le hardware :
                  ANL        PCON,#01111111b    ; K=1 mettre SMOD=PCON.7 à "0". 
                  MOV        S0CON,#01110010b   ; Initialiser la liaison série
-;                 MOV        TMOD,#00100000b    ; en mode 1200 bauds, 1 start,
+					       ; en mode 1200 bauds, 1 start,
                  MOV        TH1,#230           ; 8 bits, 1 stop ; utiliser le
                  MOV        TL1,#230           ; Timer 1 comme fréquence de
                  SETB       TR1                ; référence (avec Xtal=12MHz).
                  SETB       ES0                ; Désinhiber l'interruption de
                  		               ; pilotage du port série.
+		 setb	    PS0		       ; Priorite port serie
                  call       Tempo50ms          ; Temporisation 50 ms.
                  PUSH       DPH                ; Sauvegarder DPTR.
                  PUSH       DPL                ; 
@@ -72,12 +73,13 @@ InitRS232_4800:  	                       ; En cas de réinitialisation
                  MOV        TXnbo,#0           ; - Initialiser le hardware :
                  ORL        PCON,#10000000b    ; K=2 mettre SMOD=PCON.7 à "1". 
                  MOV        S0CON,#01110010b   ; Initialiser la liaison série
-;                 MOV        TMOD,#00100000b    ; en mode 4800 bauds, 1 start,
+					       ; en mode 4800 bauds, 1 start,
                  MOV        TH1,#243           ; 8 bits, 1 stop ; utiliser le
                  MOV        TL1,#243           ; Timer 1 comme fréquence de
                  SETB       TR1                ; référence (avec Xtal=12MHz).
                  SETB       ES0                ; Désinhiber l'interruption de
                  	                       ; pilotage du port série.
+		 setb	    PS0		       ; Priorite port serie
                  call       Tempo50ms          ; Temporisation 50 ms
                  PUSH       DPH                ; Sauvegarder DPTR.
                  PUSH       DPL                ; 
@@ -1071,9 +1073,13 @@ sf_tx:	; Si mode TX
 	mov	r0, tx_freq_lo
 	mov	r1, tx_freq_hi	    
 	call	load_synth
-	
 sf_end:
-	    ret
+	call	lcd_clear_digits_r
+	clr	mode.0
+	mov	chan_state, #0
+	call	display_update_symb
+	setb	mode.7	
+	ret
 	    
 ; Messages ASCII predefinis, pour le dialogue par la liaison serie :
 
@@ -1128,7 +1134,18 @@ Message37:    DB   "Lock : ",0
 Message38:    DB   "Volume : ",0
 Message39:    DB   "Mode : ",0
 
-MessageVersion: DB   "PRM8060 V3.0", 0
+MessageVersion: 
+IF TARGET EQ 8060
+              DB   "PRM8060 V4.0"
+ELSEIF TARGET EQ 8070
+              DB   "PRM8070 V4.0"
+ENDIF
+
+IF FREQ EQ 144
+	      DB   " 144", 0
+ELSEIF FREQ EQ 430
+	      DB   " 430", 0
+ENDIF
 
 MessageAide:  DB   "H",0Dh,0Ah
               DB   " Commandes disponibles :",0Dh,0Ah
