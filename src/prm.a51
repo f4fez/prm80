@@ -64,8 +64,8 @@ mode		EQU	RAMbit+3    	; Mode courant
 					; b6: Anti-rebond actif	b7: Rafraichier lcd
 
 chan_state	EQU	RAMbit+4	; Option du canal
-					; b0: shift		b1: reverse
-					; b2: 			b3:
+					; b0: shift actif	b1: reverse
+					; b2: shift +		b3:
 					; b4: 			b5: 
 					; b6: 			b7:
 
@@ -109,7 +109,7 @@ tx_freq_lo	EQU	RAM+18
 
 
 
-shift		EQU	RAM+19		; Shift code sur 8 Bits (environ 3MHz max avec un pas de 12.5KHz)
+shift_lo	EQU	RAM+19		; Shift code sur 16Bits, LSB
 
 PtrRXin         EQU     RAM+20    	;   .Pointeur d'entree buffer RX
 PtrRXout        EQU     RAM+21        	;   .Pointeur de sortie buffer RX
@@ -125,8 +125,7 @@ AdrL            EQU     RAM+30       	; - Adresse passee par RS232 (LSB).
 DataRS          EQU     RAM+31       	; - Donnee passee par le port serie.
 I2C_err         EQU     RAM+32       	; - Renvoi d'erreur acces bus I2C.
 
-TMR0_counter	EQU	RAM+33		; Utiliser par l'interuption du timer 0
-TMR0_display	EQU	RAM+34		; Pour le raffraichissement du lcd
+shift_hi	EQU	RAM+33		; Shift code sur 16Bits, MSB
 ;----------------------------------------
 ; Constantes
 ;----------------------------------------
@@ -267,8 +266,6 @@ init:
 	mov	disp_hold, #0ffh
 	mov	but_hold_state, #0
 	mov	but_repeat, #but_long_duration
-	mov	TMR0_counter, #0
-	mov	TMR0_display, #0
 	
 	; Initialisation du timer 0
 	setb	TR0			; Activer le timer

@@ -25,11 +25,12 @@ ram_chan	EQU	010h
 ram_mode	EQU	011h
 ram_squelch	EQU	012h
 ram_max_chan	EQU	013h
-ram_shift	EQU	014h
-ram_pll_div_hi	EQU	015h
-ram_pll_div_lo	EQU	016h
+ram_shift_hi	EQU	014h
+ram_shift_lo	EQU	015h
+ram_pll_div_hi	EQU	016h
+ram_pll_div_lo	EQU	017h
 
-id_code		EQU	004h
+id_code		EQU	040h
 
 ;----------------------------------------
 ; Chargement des registre de frequence
@@ -84,13 +85,27 @@ ELSEIF FREQ EQ 430
 ENDIF
 	; Activation du shift au besoin
 	jnb	chan_state.0, gfn_end
+	jnb	chan_state.2, gnf_shift_n	; Test si shift - ou +
+gnf_shift_p:		; Shift positif
+	mov	r0, shift_lo
+	mov	a, tx_freq_lo
+	add	a, r0
+	mov	tx_freq_lo, a
+	jnb	cy, gfn_end
+	mov	a, shift_hi
+	addc	a, tx_freq_hi
+	mov	tx_freq_hi, a
+gnf_shift_n:		; Shift negatif
 	clr	c
-	mov	r0, shift
+	mov	r0, shift_lo
 	mov	a, tx_freq_lo
 	subb	a, r0
 	mov	tx_freq_lo, a
-	jnb	cy, gfn_end
-	dec	tx_freq_hi
+	jnb	cy, gfn_end	
+	mov	a, tx_freq_hi 
+	subb	a, shift_hi
+	mov	tx_freq_hi, a
+	
 gfn_end:
 	ret
 
@@ -111,23 +126,43 @@ get_freq_reverse:
 	mov	a, r0
 	movc	a, @a+dptr
 	mov	tx_freq_lo, a
-	
+
+IF FREQ EQ 144
 	mov	a, #fi_lo
 	add	a, tx_freq_lo
 	mov	rx_freq_lo, a
 	mov	a, #fi_hi
 	addc	a, tx_freq_hi
 	mov	rx_freq_hi, a
-	
-
+ELSEIF FREQ EQ 430
+	mov	a, tx_freq_lo
 	clr	c
-	mov	r0, shift
+	subb	a, #fi_lo
+	mov	rx_freq_lo, a
+	mov	a, tx_freq_hi
+	subb	a, #fi_hi
+	mov	rx_freq_hi, a
+ENDIF
+	jnb	chan_state.2, grf_shift_n	; Test si shift - ou +
+grf_shift_p:		; Shift positif
+	mov	r0, shift_lo
+	mov	a, rx_freq_lo
+	add	a, r0
+	mov	rx_freq_lo, a
+	jnb	cy, r_end
+	mov	a, shift_hi
+	addc	a, rx_freq_hi
+	mov	rx_freq_hi, a
+grf_shift_n:		; Shift negatif
+	clr	c
+	mov	r0, shift_lo
 	mov	a, rx_freq_lo
 	subb	a, r0
 	mov	rx_freq_lo, a
 	jnb	cy, r_end
-	dec	rx_freq_hi	
-
+	mov	a, rx_freq_hi
+	subb	a, shift_hi
+	mov	rx_freq_hi, a
 r_end:
 	ret
 
@@ -151,9 +186,12 @@ lp_load:
 	movx	a, @dptr
 	mov	mode, a
 	
-	mov	dpl, #ram_shift
+	mov	dpl, #ram_shift_lo
 	movx	a, @dptr
-	mov	shift, a
+	mov	shift_lo, a
+	mov	dpl, #ram_shift_hi
+	movx	a, @dptr
+	mov	shift_hi, a
 
 	ret
 
@@ -226,7 +264,8 @@ load_ram_default:
 load_ram_default_config:
 	call	wdt_reset
 	mov	dph, #ram_area_config
-	mov	shift, #CONFIG_SHIFT
+	mov	shift_lo, #CONFIG_SHIFT_LO
+	mov	shift_hi, #CONFIG_SHIFT_HI
 	mov	mode, #00h
 
 	mov	dpl, #ram_chan
@@ -241,8 +280,11 @@ load_ram_default_config:
 	mov	dpl, #ram_max_chan
 	mov	a, #CONFIG_CHAN_COUNT
 	movx	@dptr, a
-	mov	dpl, #ram_shift
-	mov	a, #CONFIG_SHIFT
+	mov	dpl, #ram_shift_lo
+	mov	a, #CONFIG_SHIFT_LO
+	movx	@dptr, a
+	mov	dpl, #ram_shift_hi
+	mov	a, #CONFIG_SHIFT_HI
 	movx	@dptr, a
 	mov	dpl, #ram_id_code
 	mov	a, #id_code

@@ -357,7 +357,7 @@ b_but1:	;
 	jmp	b_endbut
 b_but2: ; 
 	cjne	a, #2, b_but3
-	call	switch_shift_mode
+	call	switch_reverse
 	jmp	b_endbut
 b_but3: ; 
 	cjne	a, #4, b_but4
@@ -369,7 +369,7 @@ b_but4: ;
 	jmp	b_endbut
 b_but5: ; 
 	cjne	a, #16, b_but6
-	call	switch_reverse
+
 	jmp	b_endbut
 b_but6: ; 
 	cjne	a, #32, b_but7
@@ -389,7 +389,7 @@ b_but1l:
 	jmp	b_endbut
 b_but2l:
 	cjne	a, #2, b_but3l
-
+	call	switch_shift_mode
 	jmp	b_endbut
 b_but3l:
 	cjne	a, #4, b_but4l
