@@ -310,6 +310,9 @@ init_no_reset:
 	
 	mov	r7, #0fh
 
+	; Activation des interruption
+	setb	EA
+
 ;----------------------------------------
 ; Boucle RX
 ;----------------------------------------

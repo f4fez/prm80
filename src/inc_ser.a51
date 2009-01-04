@@ -27,7 +27,7 @@
 ;   Avec TH1 = TL1 = 243 on obtient un débit réel de 4807,67 bauds.
 ;
 
-InitRS232_1200:  CLR        EA                 ; En cas de réinitialisation 
+InitRS232_1200:  		                ; En cas de réinitialisation 
                  CLR        ES0                ; du port déjà configuré (ex :
                  CLR        TR1                ; changement de la vitesse),
                                                ; commencer par désactiver
@@ -47,7 +47,7 @@ InitRS232_1200:  CLR        EA                 ; En cas de réinitialisation
                  MOV        TL1,#230           ; Timer 1 comme fréquence de
                  SETB       TR1                ; référence (avec Xtal=12MHz).
                  SETB       ES0                ; Désinhiber l'interruption de
-                 SETB       EA                 ; pilotage du port série.
+                 		               ; pilotage du port série.
                  call       Tempo50ms          ; Temporisation 50 ms.
                  PUSH       DPH                ; Sauvegarder DPTR.
                  PUSH       DPL                ; 
@@ -57,7 +57,7 @@ InitRS232_1200:  CLR        EA                 ; En cas de réinitialisation
                  POP        DPH                ; 
                  RET                           ; Fin de routine.
 
-InitRS232_4800:  CLR        EA                 ; En cas de réinitialisation 
+InitRS232_4800:  	                       ; En cas de réinitialisation 
                  CLR        ES0                ; du port déjà configuré (ex :
                  CLR        TR1                ; changement de la vitesse),
                                                ; commencer par désactiver
@@ -77,7 +77,7 @@ InitRS232_4800:  CLR        EA                 ; En cas de réinitialisation
                  MOV        TL1,#243           ; Timer 1 comme fréquence de
                  SETB       TR1                ; référence (avec Xtal=12MHz).
                  SETB       ES0                ; Désinhiber l'interruption de
-                 SETB       EA                 ; pilotage du port série.
+                 	                       ; pilotage du port série.
                  call       Tempo50ms          ; Temporisation 50 ms
                  PUSH       DPH                ; Sauvegarder DPTR.
                  PUSH       DPL                ; 
@@ -92,7 +92,7 @@ InitRS232_4800:  CLR        EA                 ; En cas de réinitialisation
 ; éventuellement l'état du bit "BufRXvide" ; sinon, le bit "RD_err" sera 
 ; activé. Le buffer de réception se trouve en RAM externe de $0800 à $08FF.
 
-Read_RS232:      CLR        EA            ; 
+Read_RS232:      CLR        ES0           ; 
                  PUSH       DPH           ; 
                  PUSH       DPL           ; 
                  PUSH       ACC           ; 
@@ -110,7 +110,7 @@ rd_rx_buf:       POP        ACC           ;
                  DEC        RXnbo         ; 
 end_rdr:         POP        DPL           ; 
                  POP        DPH           ; 
-                 SETB       EA            ; 
+                 SETB       ES0           ; 
                  RET                      ; 
 
 ; "Write_RS232" : Place le caractère à envoyer (contenu dans A) dans le
@@ -123,7 +123,7 @@ readTXnbo:       MOV        A,TXnbo          ;
                  CJNE       A,#255,txnotfull ; 
                  call       wdt_reset    ; 
                  JMP        readTXnbo        ; 
-txnotfull:       CLR        EA               ; 
+txnotfull:       CLR        ES0              ; 
                  MOV        DPH,#09h         ; 
                  MOV        DPL,PtrTXin      ; 
                  POP        ACC              ; 
@@ -134,7 +134,7 @@ txnotfull:       CLR        EA               ;
                  SETB       TI               ; 
 end_wr:          POP        DPL              ; 
                  POP        DPH              ; 
-                 SETB       EA               ; 
+                 SETB       ES0              ; 
                  RET                         ; 
 
 ; "SPACE_RS232" : envoie un espace ' ' sur la liaison série.
