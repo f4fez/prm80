@@ -82,6 +82,12 @@ disp_state	EQU	RAMbit+8	; Symbole à afficherpour prm8070
 					; b2: Puissance haute	b3: reverse
 					; b4: shift		b5: tx
 
+mode2		EQU	RAMbit+9	; Mode, 2eme octet
+					; b0: scan running	b1: scan increment chan
+					; b2: 			b3:
+					; b4: 			b5: 
+					; b6: 			b7:
+
 disp_hold	EQU	RAM+0		; Sauvegarde de de l'affichage des symboles
 
 
@@ -99,7 +105,7 @@ but_timer2	EQU	RAM+10
 but_hold_state	EQU	RAM+11
 but_repeat	EQU	RAM+12		; Tempo pour la repetion et l'appui long
 
-;ref_div_hi	EQU	RAM+13
+scan_counter	EQU	RAM+13		; Utiliser pour le scanner
 ;ref_div_lo	EQU	RAM+14
 
 rx_freq_hi	EQU	RAM+15
@@ -344,6 +350,9 @@ m_loop:
 	call	tx
 m_notx:
 
+;*** Scanner
+	call	scan
+
 ;*** Affichage des symboles speciaux
 	call	wdt_reset
 	call	display_update_symb
@@ -365,6 +374,8 @@ m_end:
 ; Boucle TX
 ;----------------------------------------
 tx:
+	clr	mode2.0			; stop scanning
+
 	; Suppression du squelch si besoin
 	jnb	mode.0, tx_cont
 	clr	mode.0

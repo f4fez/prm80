@@ -614,6 +614,20 @@ b_kr_long:
 	ret
 
 ;----------------------------------------
+; Gestion du scanner
+;----------------------------------------
+scan:
+	jnb	mode2.0, scan_end		; skip if scanner disable
+	jb	mode.2, scan_end		; skip if squelch open
+	jnb	mode2.1, scan_end		; skip if increment flag not set
+	
+	clr	mode2.1
+	call	chan_inc
+scan_end:
+	ret
+
+
+;----------------------------------------
 ; Interuption du Timer 0
 ;----------------------------------------
 int_Timer0:					; ATTENTION, le timer n'est
@@ -631,7 +645,11 @@ int_Timer0:					; ATTENTION, le timer n'est
 	addc	a, TH0
 	mov	TH0, a
 	
-	; Code ici
+	; Scanner
+	djnz	scan_counter, it0_scan_end
+	setb	mode2.1
+	mov	scan_counter, #10
+it0_scan_end:	
 	
 it0_end:
 	pop	dpl
@@ -639,3 +657,4 @@ it0_end:
 	pop	Acc
 	pop	PSW
 	reti
+

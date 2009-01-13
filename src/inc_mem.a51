@@ -91,17 +91,16 @@ gnf_shift_p:		; Shift positif
 	mov	a, tx_freq_lo
 	add	a, r0
 	mov	tx_freq_lo, a
-	jnb	cy, gfn_end
 	mov	a, shift_hi
 	addc	a, tx_freq_hi
 	mov	tx_freq_hi, a
+	jmp	gfn_end
 gnf_shift_n:		; Shift negatif
 	clr	c
 	mov	r0, shift_lo
 	mov	a, tx_freq_lo
 	subb	a, r0
 	mov	tx_freq_lo, a
-	jnb	cy, gfn_end	
 	mov	a, tx_freq_hi 
 	subb	a, shift_hi
 	mov	tx_freq_hi, a
@@ -149,17 +148,16 @@ grf_shift_p:		; Shift positif
 	mov	a, rx_freq_lo
 	add	a, r0
 	mov	rx_freq_lo, a
-	jnb	cy, r_end
 	mov	a, shift_hi
 	addc	a, rx_freq_hi
 	mov	rx_freq_hi, a
+	jmp	r_end
 grf_shift_n:		; Shift negatif
 	clr	c
 	mov	r0, shift_lo
 	mov	a, rx_freq_lo
 	subb	a, r0
 	mov	rx_freq_lo, a
-	jnb	cy, r_end
 	mov	a, rx_freq_hi
 	subb	a, shift_hi
 	mov	rx_freq_hi, a

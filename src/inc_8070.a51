@@ -361,10 +361,12 @@ b_but2: ;
 	jmp	b_endbut
 b_but3: ; 
 	cjne	a, #4, b_but4
+	clr	mode2.0
 	call	chan_inc
 	jmp	b_endbut
 b_but4: ; 
 	cjne	a, #8, b_but5
+	clr	mode2.0
 	call	chan_dec
 	jmp	b_endbut
 b_but5: ; 
@@ -381,7 +383,7 @@ b_but7: ;
 	jmp	b_endbut
 b_but8: ; 
 	cjne	a, #128, b_endbut
-
+;	cpl	mode2.0				; Scan
 	jmp	b_endbut
 b_but1l:
 	cjne	a, #1, b_but2l
