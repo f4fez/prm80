@@ -254,11 +254,10 @@ b_but2l:
 	cjne	a, #2, b_but3l
 	call	switch_power	
 	call	bip
-	jmp	b_endbut
-	
+	jmp	b_endbut	
 b_but3l:
 	cjne	a, #4, b_but4l
-	call	switch_shift_mode
+	cpl	mode2.0				; Scan
 	call	bip
 	jmp	b_endbut
 b_but4l:
