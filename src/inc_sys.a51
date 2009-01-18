@@ -622,7 +622,37 @@ scan:
 	jnb	mode2.1, scan_end		; skip if increment flag not set
 	
 	clr	mode2.1
-	call	chan_inc
+scan_loop:
+	mov	dph, #ram_area_config
+	mov	dpl, #ram_chan
+	movx	a, @dptr
+	inc	a
+	movx	@dptr, a
+	mov	b, a
+	mov	dpl, #ram_max_chan
+	movx	a, @dptr
+	inc	a
+	cjne	a, b, scan_chan_update
+	mov	a, #0
+	mov	dpl, #ram_chan
+	movx	@dptr, a
+
+scan_chan_update:
+	; Calcul de la checksum
+	call	load_config_area_checksum
+	mov	dph, #ram_area_config
+	mov	dpl, #ram_config_sum
+	movx	@dptr, a
+	
+	call	get_freq
+	jb	chan_state.3, scan_loop
+	
+	mov	r0, rx_freq_lo
+	mov	r1, rx_freq_hi
+	call	load_synth
+
+	call	update_lcd
+	mov	scan_counter, scan_duration	; Reset scan counter
 scan_end:
 	ret
 
@@ -636,7 +666,7 @@ int_Timer0:					; ATTENTION, le timer n'est
 	push	dph
 	push	dpl
 	setb	RS1				; Passage en banque 1
-	
+
 	;Modifier le contenu du compteur pour qu'il s'execute toutes les 50ms
 	mov	a, #0b2h
 	add	a, TL0
@@ -646,9 +676,11 @@ int_Timer0:					; ATTENTION, le timer n'est
 	mov	TH0, a
 	
 	; Scanner
+	jb	mode.2, it0_scan_reset_counter	; if squelch open, clear scan 
 	djnz	scan_counter, it0_scan_end
 	setb	mode2.1
-	mov	scan_counter, #10
+it0_scan_reset_counter:
+	mov	scan_counter, scan_duration
 it0_scan_end:	
 	
 it0_end:

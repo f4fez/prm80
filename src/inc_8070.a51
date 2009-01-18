@@ -238,16 +238,18 @@ lcd_clear_digits_r:
 ; Mise a jour des symboles
 ;----------------------------------------
 display_update_symb:
-	mov	c, mode.3 ; TX
+	mov	c, chan_state.3		; Lock out
+	mov	disp_state.6, c
+	mov	c, mode.3 		; TX
 	mov	disp_state.5, c
-	mov	c, chan_state.0 ;Shift
+	mov	c, chan_state.0 	; Shift
 	mov	disp_state.4, c
-	mov	c, chan_state.1 ;Reverse
+	mov	c, chan_state.1 	; Reverse
 	mov	disp_state.3, c
-	mov	c, mode.1 ; Puissance
+	mov	c, mode.1 		; Power
 	cpl	c
 	mov	disp_state.2, c
-	mov	c, mode.0 ;squelch mode
+	mov	c, mode.0 		; Squelch mode
 	mov	disp_state.1, c
 	mov	c, mode.2
 	mov	disp_state.0, c
@@ -257,7 +259,6 @@ display_update_symb:
 	ret
 	
 m_symb_update:
-	;Emission
 	mov	a, #0fbh
 	anl	a, lcd_dataA0
 	mov	c, disp_state.5
@@ -272,7 +273,6 @@ m_symb_update:
 	mov	Acc.3, c
 	mov	c, disp_state.2
 	mov	Acc.0, c
-
 	mov	lcd_dataB0, a
 	
 	mov	a, #0fch
@@ -282,6 +282,12 @@ m_symb_update:
 	mov	c, disp_state.1
 	mov	Acc.1, c
 	mov	lcd_dataB1, a
+
+	mov	a, #00fh
+	anl	a, lcd_dataB2
+	mov	c, disp_state.6
+	mov	Acc.4, c
+	mov	lcd_dataB2, a
 	
 	mov	disp_hold, disp_state
 	setb	mode.7
@@ -369,7 +375,7 @@ b_but4: ;
 	jmp	b_endbut
 b_but5: ; 
 	cjne	a, #16, b_but6
-
+	call	switch_lock_out
 	jmp	b_endbut
 b_but6: ; 
 	cjne	a, #32, b_but7

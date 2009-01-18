@@ -65,7 +65,7 @@ mode		EQU	RAMbit+3    	; Mode courant
 
 chan_state	EQU	RAMbit+4	; Option du canal
 					; b0: shift actif	b1: reverse
-					; b2: shift +		b3:
+					; b2: shift +		b3: lock out
 					; b4: 			b5: 
 					; b6: 			b7:
 
@@ -105,8 +105,8 @@ but_timer2	EQU	RAM+10
 but_hold_state	EQU	RAM+11
 but_repeat	EQU	RAM+12		; Tempo pour la repetion et l'appui long
 
-scan_counter	EQU	RAM+13		; Utiliser pour le scanner
-;ref_div_lo	EQU	RAM+14
+scan_counter	EQU	RAM+13		; Use to compue scanner timming
+scan_duration	EQU	RAM+14		; Time to wait between channel : value * 50ms
 
 rx_freq_hi	EQU	RAM+15
 rx_freq_lo	EQU	RAM+16

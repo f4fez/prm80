@@ -13,22 +13,23 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-ram_area_config	EQU	000h
-ram_area_freq	EQU	001h
-ram_area_state	EQU	002h
+ram_area_config		EQU	000h
+ram_area_freq		EQU	001h
+ram_area_state		EQU	002h
 
-ram_id_code	EQU	000h
-ram_config_sum	EQU	001h
-ram_freq_sum	EQU	002h
-ram_state_sum	EQU	003h
-ram_chan	EQU	010h
-ram_mode	EQU	011h
-ram_squelch	EQU	012h
-ram_max_chan	EQU	013h
-ram_shift_hi	EQU	014h
-ram_shift_lo	EQU	015h
-ram_pll_div_hi	EQU	016h
-ram_pll_div_lo	EQU	017h
+ram_id_code		EQU	000h
+ram_config_sum		EQU	001h
+ram_freq_sum		EQU	002h
+ram_state_sum		EQU	003h
+ram_chan		EQU	010h
+ram_mode		EQU	011h
+ram_squelch		EQU	012h
+ram_max_chan		EQU	013h
+ram_shift_hi		EQU	014h
+ram_shift_lo		EQU	015h
+ram_pll_div_hi		EQU	016h
+ram_pll_div_lo		EQU	017h
+ram_scan_duration	EQU	018h
 
 id_code		EQU	040h
 
@@ -190,7 +191,10 @@ lp_load:
 	mov	dpl, #ram_shift_hi
 	movx	a, @dptr
 	mov	shift_hi, a
-
+	
+	mov	dpl, #ram_scan_duration
+	movx	a, @dptr
+	mov	scan_duration, a
 	ret
 
 ;----------------------------------------
@@ -292,6 +296,9 @@ load_ram_default_config:
 	movx	@dptr, a
 	mov	dpl, #ram_pll_div_lo
 	mov	a, #CONFIG_PLL_DIV_LO
+	movx	@dptr, a
+	mov	dpl, #ram_scan_duration
+	mov	a, #CONFIG_SCAN_DURATION
 	movx	@dptr, a
 	
 	; Calcul de la checksum
@@ -702,5 +709,30 @@ load_state:
 	swap	a
 	mov	pwm0, a
 	ret
+
+;----------------------------------------
+; Enable or diisable channel lock out
+; for scanning
+;----------------------------------------
+switch_lock_out:
+	call	wdt_reset
 	
+	mov	dph, #ram_area_config
+	mov	dpl, #ram_chan
+	movx	a, @dptr
+	mov	r1, a
 	
+	mov	dph, #ram_area_state
+	mov	dpl, r1
+	cpl	chan_state.3
+	mov	a, chan_state
+	movx	@dptr, a
+
+	setb	mode.7
+
+	; Calcul de la checksum
+	call	load_state_area_checksum
+	mov	dph, #ram_area_config
+	mov	dpl, #ram_state_sum
+	movx	@dptr, a
+	ret

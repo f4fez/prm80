@@ -45,4 +45,4 @@ clean:
 	rm -rf *.lst
 
 mrproper: clean
-	rm -rf *.bin *.hex
+	rm -rf *.bin *.hex *~
