@@ -266,16 +266,17 @@ init:
 	mov	lcd_dataB3, #0ffh	
 
 	mov	lock, #00
-	mov	vol_hold, #01h 		; Pour etre a peut pres sur de charger le volume au premier lancement
+	mov	vol_hold, #01h 			; Pour etre a peut pres sur de charger le volume au premier lancement
 	mov	but_timer, #00
 	mov	but_timer2, #0fbh
 	mov	disp_hold, #0ffh
 	mov	but_hold_state, #0
 	mov	but_repeat, #but_long_duration
+	mov	mode2, #0			; Clear scanning
 	
 	; Initialisation du timer 0
-	setb	TR0			; Activer le timer
-	setb	ET0			; Interuption active
+	setb	TR0				; Activer le timer
+	setb	ET0				; Interuption active
 ;----------------------------------------
 ; Initialisation de haut niveau
 ;----------------------------------------

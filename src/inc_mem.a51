@@ -430,6 +430,49 @@ switch_shift_mode:
 	
 	ret
 
+;----------------------------------------
+; Shift activation / desactivation 
+; and switch positive / negative
+;----------------------------------------
+switch_shift_mode2:
+	mov	dph, #ram_area_config
+	mov	dpl, #ram_chan
+	movx	a, @dptr
+	mov	r0, a
+	
+	clr	chan_state.1
+	
+	mov	a, chan_state
+	jb	Acc.0, ssm2_shift_enable
+	setb	Acc.0					; Shift disable : enable it
+	clr	Acc.2
+	jmp	ssm2_cont
+ssm2_shift_enable:
+	jb	Acc.2, ssm2_shift_pos
+	setb	Acc.2
+	jmp	ssm2_cont
+ssm2_shift_pos:
+	clr	Acc.0
+	clr	Acc.2
+ssm2_cont:
+	mov	chan_state, a
+	
+	mov	dph, #ram_area_state
+	mov	dpl, r0
+	movx	@dptr, a
+	
+	; Calcul de la checksum
+	call	load_state_area_checksum
+	mov	dph, #ram_area_config
+	mov	dpl, #ram_state_sum
+	movx	@dptr, a
+	
+	call	get_freq
+	mov	r0, rx_freq_lo
+	mov	r1, rx_freq_hi
+	call	load_synth
+	
+	ret
 
 ;----------------------------------------
 ; Passage en mode reverse

@@ -238,6 +238,8 @@ lcd_clear_digits_r:
 ; Mise a jour des symboles
 ;----------------------------------------
 display_update_symb:
+	mov	c, chan_state.2 	; Shift +
+	mov	disp_state.7, c
 	mov	c, chan_state.3		; Lock out
 	mov	disp_state.6, c
 	mov	c, mode.3 		; TX
@@ -264,11 +266,21 @@ m_symb_update:
 	mov	c, disp_state.5
 	mov	Acc.2, c
 	mov	lcd_dataA0, a
+
+	mov	a, #00fh
+	anl	a, lcd_dataA2
+	jnb	disp_state.4, msu_shift_end	; If no shift : jump
+	setb	Acc.5
+	jb	disp_state.7, msu_shift_pos	; Test if shift is positive or negative
+	setb	Acc.4
+	jmp	msu_shift_end
+msu_shift_pos:
+	setb	Acc.6
+msu_shift_end:	
+	mov	lcd_dataA2, a
 	
 	mov	a, #070h
 	anl	a, lcd_dataB0
-	mov	c, disp_state.4
-	mov	Acc.2, c
 	mov	c, disp_state.3
 	mov	Acc.3, c
 	mov	c, disp_state.2
@@ -375,7 +387,7 @@ b_but4: ;
 	jmp	b_endbut
 b_but5: ; 
 	cjne	a, #16, b_but6
-	call	switch_lock_out
+	cpl	mode2.0				; Scan
 	jmp	b_endbut
 b_but6: ; 
 	cjne	a, #32, b_but7
@@ -387,7 +399,7 @@ b_but7: ;
 	jmp	b_endbut
 b_but8: ; 
 	cjne	a, #128, b_endbut
-	cpl	mode2.0				; Scan
+
 	jmp	b_endbut
 b_but1l:
 	cjne	a, #1, b_but2l
@@ -395,7 +407,7 @@ b_but1l:
 	jmp	b_endbut
 b_but2l:
 	cjne	a, #2, b_but3l
-	call	switch_shift_mode
+	call	switch_shift_mode2
 	call	bip
 	jmp	b_endbut
 b_but3l:
@@ -408,7 +420,8 @@ b_but4l:
 	jmp	b_endbut
 b_but5l:
 	cjne	a, #16, b_but6l
-
+	call	switch_lock_out
+	call	bip
 	jmp	b_endbut
 b_but6l:
 	cjne	a, #32, b_but7l
