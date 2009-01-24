@@ -43,3 +43,4 @@ chan_state_table:
         DB      00h    ; Channel : 2
         DB      00h    ; Channel : 3
         DB      00h    ; Channel : 4
+

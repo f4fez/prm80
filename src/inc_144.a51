@@ -287,3 +287,4 @@ chan_state_table:
         DB      00h    ; Channel : 63
         DB      00h    ; Channel : 64
         DB      00h    ; Channel : 65
+

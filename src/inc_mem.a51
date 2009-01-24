@@ -779,3 +779,4 @@ switch_lock_out:
 	mov	dpl, #ram_state_sum
 	movx	@dptr, a
 	ret
+

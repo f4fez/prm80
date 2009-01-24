@@ -466,21 +466,13 @@ tch_4:           CJNE       A,#'4',tch_5       ; - Touche [4] ?
                  call       HEX_RS232          ; 
                  JMP        tch_suiv           ; 
                                                ; 
-tch_5:           CJNE       A,#'5',tch_A       ; - Touche [5] ?
+tch_5:           CJNE       A,#'5',tch_C       ; - Touche [5] ?
                  MOV        DPTR,#Message07    ;   afficher l'état du port P5.
                  call       MESS_RS232         ; 
                  MOV        A,P5               ; 
                  call       HEX_RS232          ; 
                  JMP        tch_suiv           ; 
                                                ; 
-tch_A:           CJNE       A,#'A',tch_B       ; - Touche [A] ?
-                 call       InitRS232_1200     ;   réinitialiser la liaison
-                 JMP        tch_suiv           ;   série 1200 bauds minitel.
-                                               ; 
-tch_B:           CJNE       A,#'B',tch_C       ; - Touche [B] ?
-                 call       InitRS232_4800     ;   réinitialiser la liaison
-                 JMP        tch_suiv           ;   série 4800 bauds normale.
-
 tch_C:           CJNE       A,#'C',tch_D       ; - Touche [C] ?
 		 CALL	    list_chan
                  JMP        tch_suiv           ;
@@ -1151,8 +1143,6 @@ MessageAide:  DB   "H",0Dh,0Ah
               DB   " Commandes disponibles :",0Dh,0Ah
               DB   " [0] = Reset.",0Dh,0Ah
               DB   " [1] a [5] = Show 80c552 port state P1 to P5.",0Dh,0Ah
-              DB   " [A] = Set serial communication to 1200 bps.",0Dh,0Ah
-              DB   " [B] = Set serial communication to 4800 bps.",0Dh,0Ah
               DB   " [C] = Print channels list.",0Dh,0Ah
               DB   " [D] = Set system byte.",0Dh,0Ah
               DB   " [E] = Show system state (Mode-Chan-Chanstate-Sql-Vol-Lock-RX freq-TX freq).",0Dh,0Ah
