@@ -13,25 +13,25 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-ram_area_config		EQU	000h
-ram_area_freq		EQU	001h
-ram_area_state		EQU	002h
+RAM_AREA_CONFIG		EQU	000h
+RAM_AREA_FREQ		EQU	001h
+RAM_AREA_STATE		EQU	002h
 
-ram_id_code		EQU	000h
-ram_config_sum		EQU	001h
-ram_freq_sum		EQU	002h
-ram_state_sum		EQU	003h
-ram_chan		EQU	010h
-ram_mode		EQU	011h
-ram_squelch		EQU	012h
-ram_max_chan		EQU	013h
-ram_shift_hi		EQU	014h
-ram_shift_lo		EQU	015h
-ram_pll_div_hi		EQU	016h
-ram_pll_div_lo		EQU	017h
-ram_scan_duration	EQU	018h
+RAM_ID_CODE		EQU	000h
+RAM_CONFIG_SUM		EQU	001h
+RAM_FREQ_SUM		EQU	002h
+RAM_STATE_SUM		EQU	003h
+RAM_CHAN		EQU	010h
+RAM_MODE		EQU	011h
+RAM_SQUELCH		EQU	012h
+RAM_MAX_CHAN		EQU	013h
+RAM_SHIFT_HI		EQU	014h
+RAM_SHIFT_LO		EQU	015h
+RAM_PLL_DIV_HI		EQU	016h
+RAM_PLL_DIV_LO		EQU	017h
+RAM_SCAN_DURATION	EQU	018h
 
-id_code		EQU	040h
+ID_CODE			EQU	040h
 
 ;----------------------------------------
 ; Chargement des registre de frequence
@@ -40,13 +40,13 @@ id_code		EQU	040h
 get_freq:
 	call	wdt_reset
 	; Recuperation du canal
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_chan
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_CHAN
 	movx	a, @dptr
 	mov	r1, a
 	
 	; Recuperation du chan_state
-	mov	dph, #ram_area_state
+	mov	dph, #RAM_AREA_STATE
 	mov	dpl, r1
 	movx	a, @dptr
 	mov	chan_state, a
@@ -58,7 +58,7 @@ get_freq2:
 get_freq_normal:
 	; Recuperation de la frequence
 	mov	a, r1
-	mov	dph, #ram_area_freq
+	mov	dph, #RAM_AREA_FREQ
 	rl	a
 	mov	dpl, a
 	movx	a, @dptr
@@ -112,8 +112,8 @@ gfn_end:
 get_freq_reverse:
 	call	wdt_reset
 
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_chan
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_CHAN
 	movx	a, @dptr
 	mov	dptr,	#freq_list
 	mov	r1, a
@@ -180,19 +180,19 @@ load_parameters:
 	call	bip
 lp_load:
 	;Charger les donnees de la ram
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_mode
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_MODE
 	movx	a, @dptr
 	mov	mode, a
 	
-	mov	dpl, #ram_shift_lo
+	mov	dpl, #RAM_SHIFT_LO
 	movx	a, @dptr
 	mov	shift_lo, a
-	mov	dpl, #ram_shift_hi
+	mov	dpl, #RAM_SHIFT_HI
 	movx	a, @dptr
 	mov	shift_hi, a
 	
-	mov	dpl, #ram_scan_duration
+	mov	dpl, #RAM_SCAN_DURATION
 	movx	a, @dptr
 	mov	scan_duration, a
 	ret
@@ -207,19 +207,19 @@ test_checksums:
 	mov	r7, #0
 	
 	; Verifier l'octet de controle
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_id_code
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_ID_CODE
 	movx	a, @dptr
 	clr	c
-	subb	a, #id_code
+	subb	a, #ID_CODE
 	jz	tc_check_sum0
 	inc	r7
 	
 tc_check_sum0:	
 	; Verfication checksum de la zone config
 	call	load_config_area_checksum
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_config_sum
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_CONFIG_SUM
 	movx	a, @dptr
 	clr	c
 	subb	a, r0
@@ -228,8 +228,8 @@ tc_check_sum0:
 tc_check_sum1:	
 	; Verfication checksum de la zone freq
 	call	load_freq_area_checksum
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_freq_sum
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_FREQ_SUM
 	movx	a, @dptr
 	clr	c
 	subb	a, r0
@@ -238,8 +238,8 @@ tc_check_sum1:
 tc_check_sum2:
 	; Verfication checksum de la zone state
 	call	load_state_area_checksum
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_state_sum
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_STATE_SUM
 	movx	a, @dptr
 	clr	c
 	subb	a, r0
@@ -265,46 +265,46 @@ load_ram_default:
 ;----------------------------------------
 load_ram_default_config:
 	call	wdt_reset
-	mov	dph, #ram_area_config
+	mov	dph, #RAM_AREA_CONFIG
 	mov	shift_lo, #CONFIG_SHIFT_LO
 	mov	shift_hi, #CONFIG_SHIFT_HI
 	mov	mode, #00h
 
-	mov	dpl, #ram_chan
+	mov	dpl, #RAM_CHAN
 	mov	a, #0
 	movx	@dptr, a
-	mov	dpl, #ram_mode
+	mov	dpl, #RAM_MODE
 	mov	a, #0
 	movx	@dptr, a
-	mov	dpl, #ram_squelch
+	mov	dpl, #RAM_SQUELCH
 	mov	a, #05h
 	movx	@dptr, a
-	mov	dpl, #ram_max_chan
+	mov	dpl, #RAM_MAX_CHAN
 	mov	a, #CONFIG_CHAN_COUNT
 	movx	@dptr, a
-	mov	dpl, #ram_shift_lo
+	mov	dpl, #RAM_SHIFT_LO
 	mov	a, #CONFIG_SHIFT_LO
 	movx	@dptr, a
-	mov	dpl, #ram_shift_hi
+	mov	dpl, #RAM_SHIFT_HI
 	mov	a, #CONFIG_SHIFT_HI
 	movx	@dptr, a
-	mov	dpl, #ram_id_code
-	mov	a, #id_code
+	mov	dpl, #RAM_ID_CODE
+	mov	a, #ID_CODE
 	movx	@dptr, a
-	mov	dpl, #ram_pll_div_hi
+	mov	dpl, #RAM_PLL_DIV_HI
 	mov	a, #CONFIG_PLL_DIV_HI
 	movx	@dptr, a
-	mov	dpl, #ram_pll_div_lo
+	mov	dpl, #RAM_PLL_DIV_LO
 	mov	a, #CONFIG_PLL_DIV_LO
 	movx	@dptr, a
-	mov	dpl, #ram_scan_duration
+	mov	dpl, #RAM_SCAN_DURATION
 	mov	a, #CONFIG_SCAN_DURATION
 	movx	@dptr, a
 	
 	; Calcul de la checksum
 	call	load_config_area_checksum
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_config_sum
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_CONFIG_SUM
 	movx	@dptr, a
 	ret
 
@@ -315,8 +315,8 @@ load_ram_default_config:
 load_ram_default_freq:	
 	;Load channels frequencies from program EPROM to RAM
 	call	wdt_reset
-	mov	dph, #ram_area_config	; Load max chan value in r0
-	mov	dpl, #ram_max_chan
+	mov	dph, #RAM_AREA_CONFIG	; Load max chan value in r0
+	mov	dpl, #RAM_MAX_CHAN
 	movx	a, @dptr
 	mov	r0, a
 lrd_copyloop1:
@@ -330,7 +330,7 @@ lrd_copyloop1:
 	inc	a
 	movc	a, @a+dptr
 	mov	r2, a			; r2 : freq_hi
-	mov	dph, #ram_area_freq	; Copy to RAM
+	mov	dph, #RAM_AREA_FREQ	; Copy to RAM
 	mov	a, r0
 	rl	a
 	mov	dpl, a
@@ -343,8 +343,8 @@ lrd_copyloop1:
 	cjne	r0, #0ffh, lrd_copyloop1
 	
 	call	load_freq_area_checksum
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_freq_sum
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_FREQ_SUM
 	movx	@dptr, a
 	ret
 
@@ -355,8 +355,8 @@ lrd_copyloop1:
 load_ram_default_state:	
 	;Load channels states from program EPROM to RAM
 	call	wdt_reset
-	mov	dph, #ram_area_config	; Load max chan value in r0
-	mov	dpl, #ram_max_chan
+	mov	dph, #RAM_AREA_CONFIG	; Load max chan value in r0
+	mov	dpl, #RAM_MAX_CHAN
 	movx	a, @dptr
 	mov	r0, a
 lrd_copyloop2:
@@ -365,7 +365,7 @@ lrd_copyloop2:
 	movc	a, @a+dptr
 	mov	r1, a			; r1 : state
 
-	mov	dph, #ram_area_state	; Copy to RAM
+	mov	dph, #RAM_AREA_STATE	; Copy to RAM
 	mov	a, r0
 	mov	dpl, a
 	mov	a, r1
@@ -375,8 +375,8 @@ lrd_copyloop2:
 	
 	; Calcul de la checksum
 	call	load_state_area_checksum
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_state_sum
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_STATE_SUM
 	movx	@dptr, a
 	
 	ret
@@ -387,14 +387,14 @@ lrd_copyloop2:
 save_mode:
 	mov	a, #0ah
 	anl	a, mode
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_mode
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_MODE
 	movx	@dptr, a
 	
 	; Calcul de la checksum
 	call	load_config_area_checksum
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_config_sum
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_CONFIG_SUM
 	movx	@dptr, a
 	ret
 
@@ -402,8 +402,8 @@ save_mode:
 ; Activation / desactivation du shift
 ;----------------------------------------
 switch_shift_mode:
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_chan
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_CHAN
 	movx	a, @dptr
 	mov	r0, a
 	
@@ -413,14 +413,14 @@ switch_shift_mode:
 	cpl	acc.0
 	mov	chan_state, a
 	
-	mov	dph, #ram_area_state
+	mov	dph, #RAM_AREA_STATE
 	mov	dpl, r0
 	movx	@dptr, a
 	
 	; Calcul de la checksum
 	call	load_state_area_checksum
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_state_sum
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_STATE_SUM
 	movx	@dptr, a
 	
 	call	get_freq
@@ -435,8 +435,8 @@ switch_shift_mode:
 ; and switch positive / negative
 ;----------------------------------------
 switch_shift_mode2:
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_chan
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_CHAN
 	movx	a, @dptr
 	mov	r0, a
 	
@@ -457,14 +457,14 @@ ssm2_shift_pos:
 ssm2_cont:
 	mov	chan_state, a
 	
-	mov	dph, #ram_area_state
+	mov	dph, #RAM_AREA_STATE
 	mov	dpl, r0
 	movx	@dptr, a
 	
 	; Calcul de la checksum
 	call	load_state_area_checksum
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_state_sum
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_STATE_SUM
 	movx	@dptr, a
 	
 	call	get_freq
@@ -481,12 +481,12 @@ switch_reverse:
 	call	wdt_reset
 	jnb	chan_state.0, sr_end
 	
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_chan
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_CHAN
 	movx	a, @dptr
 	mov	r1, a
 	
-	mov	dph, #ram_area_state
+	mov	dph, #RAM_AREA_STATE
 	mov	dpl, r1
 	cpl	chan_state.1
 	mov	a, chan_state
@@ -500,8 +500,8 @@ switch_reverse:
 
 	; Calcul de la checksum
 	call	load_state_area_checksum
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_state_sum
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_STATE_SUM
 	movx	@dptr, a
 sr_end:
 	ret
@@ -510,7 +510,7 @@ sr_end:
 ; Calcul de la checksum de la zone state
 ;----------------------------------------
 load_state_area_checksum:
-	mov	dph, #ram_area_state
+	mov	dph, #RAM_AREA_STATE
 	mov	dpl, #0
 	mov	r0, #0
 	mov	a, #0
@@ -528,7 +528,7 @@ lsac_loop:
 ; Calcul de la checksum de la zone freq
 ;----------------------------------------	
 load_freq_area_checksum:	
-	mov	dph, #ram_area_freq
+	mov	dph, #RAM_AREA_FREQ
 	mov	dpl, #0
 	mov	r0, #0
 	mov	a, #0
@@ -546,7 +546,7 @@ lfac_loop:
 ; Calcul de la checksum de la zone config
 ;----------------------------------------
 load_config_area_checksum:	
-	mov	dph, #ram_area_config
+	mov	dph, #RAM_AREA_CONFIG
 	mov	dpl, #10
 	mov	r0, #0
 	mov	a, #0
@@ -574,40 +574,40 @@ switch_mode:
 ;*** Incrementation de la fonction courante (Canal / Squelch)
 chan_inc:
 	jb	mode.0, sql_inc
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_chan
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_CHAN
 	movx	a, @dptr
 	inc	a
 	movx	@dptr, a
 	mov	b, a
 	
-	mov	dpl, #ram_max_chan
+	mov	dpl, #RAM_MAX_CHAN
 	movx	a, @dptr
 	inc	a
 	cjne	a, b, chan_update
 	mov	a, #0
-	mov	dpl, #ram_chan
+	mov	dpl, #RAM_CHAN
 	movx	@dptr, a
 	jmp	chan_update
 chan_dec:
 	jb	mode.0, sql_dec
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_chan
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_CHAN
 	movx	a, @dptr
 	dec	a
 	movx	@dptr, a 
 	
 	mov	b, #0ffh
 	cjne	a, b, chan_update
-	mov	dpl, #ram_max_chan
+	mov	dpl, #RAM_MAX_CHAN
 	movx	a, @dptr
-	mov	dpl, #ram_chan
+	mov	dpl, #RAM_CHAN
 	movx	@dptr, a
 chan_update:
 	; Calcul de la checksum
 	call	load_config_area_checksum
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_config_sum
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_CONFIG_SUM
 	movx	@dptr, a
 	
 	call	get_freq
@@ -621,8 +621,8 @@ chan_update:
 
 ;*** Incrementation squelch
 sql_inc:
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_squelch
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_SQUELCH
 	movx	a, @dptr
 	inc	a
 	anl	a, #0fh
@@ -631,8 +631,8 @@ sql_inc:
 
 ;*** Decrementation squelch
 sql_dec:
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_squelch
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_SQUELCH
 	movx	a, @dptr
 	dec	a
 	anl	a, #0fh
@@ -641,11 +641,11 @@ sql_dec:
 sql_update:
 	; Calcul de la checksum
 	call	load_config_area_checksum
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_config_sum
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_CONFIG_SUM
 	movx	@dptr, a
 
-	mov	dpl, #ram_squelch
+	mov	dpl, #RAM_SQUELCH
 	movx	a, @dptr
 	mov	r0, a
 	swap	a
@@ -713,14 +713,14 @@ fin_rd_all:      POP        DPL            ;
 update_lcd:
 		call	wdt_reset
 		jb	mode.0, ul_sql		; Si mode sql aller plus loin
-		mov	dph, #ram_area_config	; sinon charger canal
-		mov	dpl, #ram_chan
+		mov	dph, #RAM_AREA_CONFIG	; sinon charger canal
+		mov	dpl, #RAM_CHAN
 		movx	a, @dptr
 		mov	r0, a
 		jmp	ul_update
 ul_sql:
-		mov	dph, #ram_area_config
-		mov	dpl, #ram_squelch
+		mov	dph, #RAM_AREA_CONFIG
+		mov	dpl, #RAM_SQUELCH
 		movx	a, @dptr
 		mov	r0, a
 ul_update:
@@ -746,8 +746,8 @@ load_state:
 	call	load_power
 
 	; Initialisation du squelch
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_squelch
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_SQUELCH
 	movx	a, @dptr
 	swap	a
 	mov	pwm0, a
@@ -760,12 +760,12 @@ load_state:
 switch_lock_out:
 	call	wdt_reset
 	
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_chan
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_CHAN
 	movx	a, @dptr
 	mov	r1, a
 	
-	mov	dph, #ram_area_state
+	mov	dph, #RAM_AREA_STATE
 	mov	dpl, r1
 	cpl	chan_state.3
 	mov	a, chan_state
@@ -775,8 +775,8 @@ switch_lock_out:
 
 	; Calcul de la checksum
 	call	load_state_area_checksum
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_state_sum
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_STATE_SUM
 	movx	@dptr, a
 	ret
 

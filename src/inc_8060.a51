@@ -13,11 +13,11 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 ;----------------------------------------
 ; Constantes
 ;----------------------------------------
-but_repeat_mask		EQU	09h
+BUT_REPEAT_MASK		EQU	09h
+BUT_RESET		EQU	09h
 
 ;----------------------------------------
 ; Chargement du lcd

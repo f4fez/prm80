@@ -16,7 +16,8 @@
 ;----------------------------------------
 ; Constantes
 ;----------------------------------------
-but_repeat_mask		EQU	0ch
+BUT_REPEAT_MASK		EQU	0ch
+BUT_RESET		EQU	0ch
 
 ;----------------------------------------
 ; Chargement du lcd

@@ -77,10 +77,11 @@ lock		EQU	RAMbit+7	; Verroullage
 					; b4: 			b5: 
 					; b6: 			b7:
 
-disp_state	EQU	RAMbit+8	; Symbole à afficherpour prm8070
+disp_state	EQU	RAMbit+8	; Symbole a afficher pour prm8070
 					; b0: Squelch ouvert	b1: mode squelch
 					; b2: Puissance haute	b3: reverse
 					; b4: shift		b5: tx
+					; b6: Lock out		b7: shift +
 
 mode2		EQU	RAMbit+9	; Mode, 2eme octet
 					; b0: scan running	b1: scan increment chan
@@ -132,6 +133,7 @@ DataRS          EQU     RAM+31       	; - Donnee passee par le port serie.
 I2C_err         EQU     RAM+32       	; - Renvoi d'erreur acces bus I2C.
 
 shift_hi	EQU	RAM+33		; Shift code sur 16Bits, MSB
+
 ;----------------------------------------
 ; Constantes
 ;----------------------------------------
@@ -289,7 +291,7 @@ init:
 
 	; Verifier si un reset est demande
 	call	check_buttons			; Charger etat bouton
-	cjne	a, #09h, init_no_reset
+	cjne	a, #BUT_RESET, init_no_reset
 	call	bip
 	call	load_ram_default	 	; reset memory
 init_no_reset:

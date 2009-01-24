@@ -517,7 +517,7 @@ tch_I:           CJNE       A,#'I',tch_K       ; - Touche [I] ?
                  CJNE       A,#'Y',stop_init   ; 
                  call       load_ram_default   ; 
 		 call	    load_state
-		 call	    update_lcd
+		 jmp	    0			; And reset
                  JMP        tch_suiv
 stop_init:       MOV        DPTR,#Message28    ; 
 mess_init:       call       MESS_RS232         ; 

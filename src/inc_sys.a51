@@ -570,7 +570,7 @@ b_cont:
 	jnc	b_long				; si cpt > but_repeat : sauter
 	ret					; sinon fin	
 b_long:
-	mov	a, #but_repeat_mask		; Verifier si repetition autorise
+	mov	a, #BUT_REPEAT_MASK		; Verifier si repetition autorise
 	anl	a, r0
 	mov	b, r0
 	cjne	a, b, b_l_norepeat
