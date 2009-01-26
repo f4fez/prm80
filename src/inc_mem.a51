@@ -711,6 +711,7 @@ fin_rd_all:      POP        DPL            ;
 ; Mise a jour du lcd
 ;----------------------------------------
 update_lcd:
+		jb	mode2.2, ul_end
 		call	wdt_reset
 		jb	mode.0, ul_sql		; Si mode sql aller plus loin
 		mov	dph, #RAM_AREA_CONFIG	; sinon charger canal
@@ -727,6 +728,7 @@ ul_update:
 		call	lcd_clear_digits_r
 		call	lcd_print_dec
 		setb	mode.7
+ul_end:
 		ret		 
 
 ;----------------------------------------

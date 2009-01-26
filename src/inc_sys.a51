@@ -614,13 +614,64 @@ b_kr_long:
 	ret
 
 ;----------------------------------------
+; Read RSSI
+;----------------------------------------
+read_rssi:
+		mov	a, #00h			; Clear adc flags
+		mov	adcon, a
+		mov	a, #06			; Read port 6
+		mov	adcon, a
+		mov	a, #0eh			; Start capture
+		mov	adcon, a
+
+rr_adc_lp:
+		call	wdt_reset
+		mov	a, adcon	
+		jnb	acc.4, rr_adc_lp	; Wait for reading end
+		mov	r0, adch
+		ret
+
+;----------------------------------------
+; Switch RSSI displaing
+;----------------------------------------
+switch_rssi:
+		cpl	mode2.2
+		jb	mode2.2, srssi_end
+		call	update_lcd
+srssi_end:
+		ret
+
+;----------------------------------------
+; Display RSSI level
+;----------------------------------------
+rssi:
+		jnb	mode2.2, rssi_end
+		jnb	mode2.3, rssi_end
+		call	wdt_reset
+		
+		call	read_rssi
+		mov	a, r0
+		cjne	a, rssi_hold, rssi_update		
+		jmp	rssi_end
+rssi_update:
+		mov	rssi_hold, a
+		call	lcd_clear_digits_r
+		call	lcd_print_hex
+		setb	mode.7
+		clr	mode2.3
+rssi_end:
+		ret
+
+
+;----------------------------------------
 ; Gestion du scanner
 ;----------------------------------------
 scan:
 	jnb	mode2.0, scan_end		; skip if scanner disable
 	jb	mode.2, scan_end		; skip if squelch open
 	jnb	mode2.1, scan_end		; skip if increment flag not set
-	
+	call	wdt_reset
+
 	clr	mode2.1
 scan_loop:
 	mov	dph, #ram_area_config
@@ -675,7 +726,14 @@ int_Timer0:					; ATTENTION, le timer n'est
 	addc	a, TH0
 	mov	TH0, a
 	
+	; RSSI
+	jnb	mode2.2, it0_scan
+	djnz	rssi_counter, it0_scan
+	setb	mode2.3
+	mov	rssi_counter, #RSSI_COUNTER_INIT
+
 	; Scanner
+it0_scan:
 	jb	mode.2, it0_scan_reset_counter	; if squelch open, clear scan 
 	djnz	scan_counter, it0_scan_end
 	setb	mode2.1

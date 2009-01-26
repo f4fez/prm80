@@ -399,9 +399,14 @@ b_but7: ;
 
 	jmp	b_endbut
 b_but8: ; 
-	cjne	a, #128, b_endbut
+	cjne	a, #128, b_but16
 
 	jmp	b_endbut
+b_but16: ; 1 + 6
+	cjne	a, #33, b_endbut
+	call	switch_rssi			; RSSI displaying
+	jmp	b_endbut
+
 b_but1l:
 	cjne	a, #1, b_but2l
 

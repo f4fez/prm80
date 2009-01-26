@@ -85,7 +85,7 @@ disp_state	EQU	RAMbit+8	; Symbole a afficher pour prm8070
 
 mode2		EQU	RAMbit+9	; Mode, 2eme octet
 					; b0: scan running	b1: scan increment chan
-					; b2: 			b3:
+					; b2: RSSI print enable	b3: RSSI print flag
 					; b4: 			b5: 
 					; b6: 			b7:
 
@@ -133,6 +133,8 @@ DataRS          EQU     RAM+31       	; - Donnee passee par le port serie.
 I2C_err         EQU     RAM+32       	; - Renvoi d'erreur acces bus I2C.
 
 shift_hi	EQU	RAM+33		; Shift code sur 16Bits, MSB
+rssi_counter	EQU	RAM+34		; rssi counter for 50ms interuption
+rssi_hold	EQU	RAM+35		; rssi previous value
 
 ;----------------------------------------
 ; Constantes
@@ -156,6 +158,8 @@ fi_hi		EQU	006h
 
 but_long_duration	EQU	15
 but_repeat_duration	EQU	3
+
+RSSI_COUNTER_INIT	EQU	6
 
 pwm_freq	EQU	28
 
@@ -274,6 +278,7 @@ init:
 	mov	disp_hold, #0ffh
 	mov	but_hold_state, #0
 	mov	but_repeat, #but_long_duration
+	mov	rssi_counter, #RSSI_COUNTER_INIT
 	mov	mode2, #0			; Clear scanning
 	
 	; Initialisation du timer 0
@@ -363,6 +368,9 @@ m_notx:
 ;*** Reglage du volume
 	call	wdt_reset
 	call	set_volume	
+
+;*** RSSI
+	call	rssi
 
 ;*** Affichage sur le lcd
 	call	wdt_reset
