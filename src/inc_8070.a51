@@ -388,7 +388,7 @@ b_but4: ;
 	jmp	b_endbut
 b_but5: ; 
 	cjne	a, #16, b_but6
-	cpl	mode2.0				; Scan
+	call	switch_scan				; Scan
 	jmp	b_endbut
 b_but6: ; 
 	cjne	a, #32, b_but7

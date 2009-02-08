@@ -44,7 +44,7 @@ get_freq:
 	mov	dpl, #RAM_CHAN
 	movx	a, @dptr
 	mov	r1, a
-	
+get_freq_r1:	
 	; Recuperation du chan_state
 	mov	dph, #RAM_AREA_STATE
 	mov	dpl, r1
@@ -402,11 +402,15 @@ save_mode:
 ; Activation / desactivation du shift
 ;----------------------------------------
 switch_shift_mode:
+	jnb	mode2.0, switch_shift_load	; Test if scanning, channel is not saved in the same place
+	mov	r0, chan_scan
+	jmp	switch_shift_update
+switch_shift_load:
 	mov	dph, #RAM_AREA_CONFIG
 	mov	dpl, #RAM_CHAN
 	movx	a, @dptr
 	mov	r0, a
-	
+switch_shift_update:
 	clr	chan_state.1
 	
 	mov	a, chan_state
@@ -435,11 +439,15 @@ switch_shift_mode:
 ; and switch positive / negative
 ;----------------------------------------
 switch_shift_mode2:
+	jnb	mode2.0, switch_shift2_load	; Test if scanning, channel is not saved in the same place
+	mov	r0, chan_scan
+	jmp	switch_shift2_update
+switch_shift2_load:
 	mov	dph, #RAM_AREA_CONFIG
 	mov	dpl, #RAM_CHAN
 	movx	a, @dptr
 	mov	r0, a
-	
+switch_shift2_update:
 	clr	chan_state.1
 	
 	mov	a, chan_state
@@ -480,12 +488,16 @@ ssm2_cont:
 switch_reverse:
 	call	wdt_reset
 	jnb	chan_state.0, sr_end
-	
+
+	jnb	mode2.0, switch_reverse_load		; Test if scanning, channel is not saved in the same place
+	mov	r1, chan_scan
+	jmp	switch_reverse_update
+switch_reverse_load:
 	mov	dph, #RAM_AREA_CONFIG
 	mov	dpl, #RAM_CHAN
 	movx	a, @dptr
 	mov	r1, a
-	
+switch_reverse_update:
 	mov	dph, #RAM_AREA_STATE
 	mov	dpl, r1
 	cpl	chan_state.1
@@ -574,9 +586,14 @@ switch_mode:
 ;*** Incrementation de la fonction courante (Canal / Squelch)
 chan_inc:
 	jb	mode.0, sql_inc
+	jnb	mode2.0, chan_inc_load		; Test if scanning, channel is not saved in the same place
+	mov	a, chan_scan
+	jmp	chan_inc_inc
+chan_inc_load:
 	mov	dph, #RAM_AREA_CONFIG
 	mov	dpl, #RAM_CHAN
 	movx	a, @dptr
+chan_inc_inc:
 	inc	a
 	movx	@dptr, a
 	mov	b, a
@@ -590,10 +607,15 @@ chan_inc:
 	movx	@dptr, a
 	jmp	chan_update
 chan_dec:
+	jnb	mode2.0, chan_dec_load		; Test if scanning, channel is not saved in the same place
+	mov	a, chan_scan
+	jmp	chan_dec_dec
+chan_dec_load:
 	jb	mode.0, sql_dec
 	mov	dph, #RAM_AREA_CONFIG
 	mov	dpl, #RAM_CHAN
 	movx	a, @dptr
+chan_dec_dec:
 	dec	a
 	movx	@dptr, a 
 	
@@ -713,10 +735,15 @@ fin_rd_all:      POP        DPL            ;
 update_lcd:
 		jb	mode2.2, ul_end
 		call	wdt_reset
-		jb	mode.0, ul_sql		; Si mode sql aller plus loin
-		mov	dph, #RAM_AREA_CONFIG	; sinon charger canal
+		jb	mode.0, ul_sql			; Si mode sql aller plus loin
+		jnb	mode2.0, update_lcd_load	; Test if scanning, channel is not saved in the same place
+		mov	a, chan_scan
+		jmp	update_lcd_update
+update_lcd_load:
+		mov	dph, #RAM_AREA_CONFIG		; sinon charger canal
 		mov	dpl, #RAM_CHAN
 		movx	a, @dptr
+update_lcd_update:
 		mov	r0, a
 		jmp	ul_update
 ul_sql:
@@ -761,12 +788,15 @@ load_state:
 ;----------------------------------------
 switch_lock_out:
 	call	wdt_reset
-	
+	jnb	mode2.0, switch_lo_load	; Test if scanning, channel is not saved in the same place
+	mov	r1, chan_scan
+	jmp	switch_lo_update
+switch_lo_load:
 	mov	dph, #RAM_AREA_CONFIG
 	mov	dpl, #RAM_CHAN
 	movx	a, @dptr
 	mov	r1, a
-	
+switch_lo_update:
 	mov	dph, #RAM_AREA_STATE
 	mov	dpl, r1
 	cpl	chan_state.3

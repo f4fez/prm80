@@ -662,9 +662,34 @@ rssi_update:
 rssi_end:
 		ret
 
-
 ;----------------------------------------
-; Gestion du scanner
+; Switch scanning 
+;----------------------------------------
+switch_scan:
+	call	wdt_reset
+	jb	mode2.0, switch_scan_off
+	;Scanning turned on
+	mov	dph, #ram_area_config
+	mov	dpl, #ram_chan
+	movx	a, @dptr
+	mov	chan_scan, a
+	setb	mode2.0
+	jmp	switch_scan_end
+switch_scan_off:
+	clr	mode2.0
+	mov	dph, #ram_area_config
+	mov	dpl, #ram_chan
+	mov	a, chan_scan
+	movx	@dptr, a
+	; Calcul de la checksum
+	call	load_config_area_checksum
+	mov	dph, #ram_area_config
+	mov	dpl, #ram_config_sum
+	movx	@dptr, a
+switch_scan_end:
+	ret
+;----------------------------------------
+; Scanning
 ;----------------------------------------
 scan:
 	jnb	mode2.0, scan_end		; skip if scanner disable
@@ -674,28 +699,18 @@ scan:
 
 	clr	mode2.1
 scan_loop:
+	call	wdt_reset
+	inc	chan_scan
 	mov	dph, #ram_area_config
-	mov	dpl, #ram_chan
-	movx	a, @dptr
-	inc	a
-	movx	@dptr, a
-	mov	b, a
 	mov	dpl, #ram_max_chan
 	movx	a, @dptr
 	inc	a
-	cjne	a, b, scan_chan_update
-	mov	a, #0
-	mov	dpl, #ram_chan
-	movx	@dptr, a
+	cjne	a, chan_scan, scan_chan_update
+	mov	chan_scan, #0
 
 scan_chan_update:
-	; Calcul de la checksum
-	call	load_config_area_checksum
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_config_sum
-	movx	@dptr, a
-	
-	call	get_freq
+	mov	r1, chan_scan
+	call	get_freq_r1
 	jb	chan_state.3, scan_loop
 	
 	mov	r0, rx_freq_lo

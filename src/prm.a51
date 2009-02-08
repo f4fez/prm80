@@ -135,6 +135,7 @@ I2C_err         EQU     RAM+32       	; - Renvoi d'erreur acces bus I2C.
 shift_hi	EQU	RAM+33		; Shift code sur 16Bits, MSB
 rssi_counter	EQU	RAM+34		; rssi counter for 50ms interuption
 rssi_hold	EQU	RAM+35		; rssi previous value
+chan_scan	EQU	RAM+36		; Hold channel for scanning 
 
 ;----------------------------------------
 ; Constantes
