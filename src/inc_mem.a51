@@ -607,11 +607,11 @@ chan_inc_inc:
 	movx	@dptr, a
 	jmp	chan_update
 chan_dec:
+	jb	mode.0, sql_dec
 	jnb	mode2.0, chan_dec_load		; Test if scanning, channel is not saved in the same place
 	mov	a, chan_scan
 	jmp	chan_dec_dec
 chan_dec_load:
-	jb	mode.0, sql_dec
 	mov	dph, #RAM_AREA_CONFIG
 	mov	dpl, #RAM_CHAN
 	movx	a, @dptr

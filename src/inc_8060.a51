@@ -240,6 +240,10 @@ b_but2: ; Droit
 	jmp	b_endbut
 b_but3: ; Gauche milieu
 	cjne	a, #4, b_but4
+	jnb	mode2.0, b_but3_switch_mode	; If scanner enable :
+	call	switch_scan_off			;  Only disable it
+	jmp	b_endbut
+b_but3_switch_mode:
 	call	switch_mode
 	jmp	b_endbut
 b_but4: ; Gauche haut
