@@ -261,6 +261,13 @@ load_power:
 
 check1750:	
 	call	wdt_reset
+	jb       P4.0,fin1750     	; Si PTT relache (a "1"), ou
+	call	 check_button_1750	; Bouton 1750 micro relache (a "1")ou
+	mov	 A, P5			; Bouton 1750 facade relache, fin
+	anl	 c, acc.5
+	jb	 psw.7, fin1750		; de la routine ; sinon au lance la boucle
+
+	clr	EA			; Disable interupts
                          ; ### debut de la boucle ###
 test_ptt_ils:    
 	JB       P4.0,fin1750     	; Si PTT relache (a "1"), ou
@@ -277,7 +284,8 @@ tempo1750:
         JMP      test_ptt_ils    	; et enfin reboucler.
         		 ; ### fin de la boucle ###;
 fin1750:        
-	CLR        serial_latch_lo.2      	; Basculer la sortie alarme a 0.
+	CLR        serial_latch_lo.2    ; Basculer la sortie alarme a 0.
+	setb	EA			; Enable interupts
 	RET                         	; Fin de la routine...
 
 ;----------------------------------------
