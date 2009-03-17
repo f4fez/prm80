@@ -247,9 +247,14 @@ b_but3_switch_mode:
 	call	switch_mode
 	jmp	b_endbut
 b_but4: ; Gauche haut
-	cjne	a, #8, b_endbut
+	cjne	a, #8, b_but23
 	call	chan_inc
 	jmp	b_endbut
+b_but23: ; Gauche milieu + droit
+	cjne	a, #6, b_endbut
+	call	switch_rssi			; RSSI displaying
+	jmp	b_endbut
+
 b_but1l:
 	cjne	a, #1, b_but2l
 	call	chan_dec

@@ -1088,7 +1088,7 @@ ELSEIF FREQ EQ 430
 	      DB   " 430"
 ENDIF
 	      DB   " Firmware (c) F4FEZ / F8EGQ ",00Dh,00Ah
-              DB   "Version 4.0 DEV, XX/XX/2009.",00Dh,00Ah
+              DB   "Version 4.0, 17/03/2009.",00Dh,00Ah
 	      DB   ">",0
 Message03:    DB   "P1 = $",0 
 Message04:    DB   "P2 = $",0 
