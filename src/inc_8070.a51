@@ -146,6 +146,7 @@ ll_send:
 	
 ;----------------------------------------
 ; Affichage de chiffres sur le lcd
+; Display of numbers on the lcd
 ;----------------------------------------
 ; Afficher unites, valeur dans R0
 lcd_print_digit_d10:
@@ -237,6 +238,7 @@ lcd_clear_digits_r:
 
 ;----------------------------------------
 ; Mise a jour des symboles
+; Symbol update
 ;----------------------------------------
 display_update_symb:
 	mov	c, chan_state.2 	; Shift +
@@ -363,6 +365,7 @@ check_button_1750:
 
 ;----------------------------------------
 ; Decodage des touches appuyees
+; Decoding of pressed keys
 ;----------------------------------------
 b_decoding:
 	mov	a, but_hold_state
@@ -447,6 +450,7 @@ b_endbut:
 
 ;----------------------------------------
 ; Tables pour l'afficheur
+; Tables for the display
 ;----------------------------------------
 ld_r1_table:
 	db	0h	; 0

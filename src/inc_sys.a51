@@ -16,31 +16,35 @@
 ;----------------------------------------
 ; Chargement du verrou serie
 ; Avec un call : duree 196us
+;
+; Loading of the serial latch
+; With a call : duration 196us
 ;----------------------------------------
 load_serial_latch:
 	mov	a, serial_latch_hi 
 	call	lsc_send	; Transfert du premier octet
 	mov	a, serial_latch_lo
-	call	lsc_send	; Transfert du deuxieme octet
-	clr	ser_scl		; Horloge serie a l'etat bas
+	call	lsc_send	; Transfert du deuxieme octet / Transfer of the second byte
+	clr	ser_scl			; Horloge serie a l'etat bas
 	setb	latch_str	; Transfert donnee
-	clr	latch_oe	; activer sortie
-	clr	latch_str	; fin transfert
+	clr	latch_oe		; activer sortie / enable output
+	clr	latch_str		; fin transfert
 	ret
 
 ; Sous routine d'envoi de l'octet dans A pour le verrou
+; subroutine to send the byte in A to the latch
 lsc_send:
 	call	wdt_reset
-	mov	r2, #8		; 8 boucles dans le compteur
+	mov	r2, #8			; 8 boucles dans le compteur
 lsc_send_lp:
-	clr	ser_scl		; Horloge serie a l'etat bas
-	mov	c, acc.7	; Copie de l'octet a transferer dans C
-	mov	ser_sda, c	; puis recopie sur le port
+	clr	ser_scl			; Horloge serie a l'etat bas / Clock in low condition
+	mov	c, acc.7		; Copie de l'octet a transferer dans C 
+	mov	ser_sda, c		; puis recopie sur le port
 	nop
 	nop
-	setb	ser_scl		; Generer un front montant
-	rl	a		; Preparer bit suivant
-	djnz	r2,lsc_send_lp	; fin de la boucle
+	setb ser_scl		; Generer un front montant / Generate a rising edge
+	rl a				; Preparer bit suivant
+	djnz r2,lsc_send_lp	; fin de la boucle / end of the loop
 	ret
 
 ;----------------------------------------
@@ -110,6 +114,7 @@ sv_end:
 
 ;----------------------------------------
 ; Chargement dans le synthetiseur
+; Loading in the synthetizer
 ;----------------------------------------
 ; Division par N a charger dans r0 (lsb), r1 (msb)
 ; r0 contien 6bit pour A. Donc pour M, 8 bits dans r1 et 2 bits dans r0
@@ -168,21 +173,23 @@ ls_end:
 	setb	mode.4
 	ret
 
-; Enoie d'une serie de bit, r2 contien le nombre et a les données	
+; Enoie d'une serie de bit, r2 contien le nombre et a les données
+; send of a series of bits, r2 contains the number and has the data	
 ls_send:
 	call	wdt_reset
 	setb	ser_scl		; Horloge serie a l'etat haut
-	mov	c, acc.7	; Copie de l'octet a transferer dans C
-	mov	ser_sda, c	; puis recopie sur le port
+	mov	c, acc.7		; Copie de l'octet a transferer dans C
+	mov	ser_sda, c		; puis recopie sur le port
 	nop
 	nop
-	clr	ser_scl		; Generer un front descendant
-	rl	a		; Preparer bit suivant
+	clr	ser_scl			; Generer un front descendant
+	rl	a				; Preparer bit suivant
 	djnz	r2,ls_send	; fin de la boucle
 	ret
 
 ;----------------------------------------
 ; Passage en mode erreur de synthetiseur
+; Switch to Tuner Error Mode (EEh->Display)
 ;----------------------------------------
 synth_error:
 	clr	mode.4
@@ -195,7 +202,7 @@ synth_error:
 	ret
 
 ;----------------------------------------
-; Test si squelch ouvert
+; Test si squelch ouvert / Test if squelch is open
 ;----------------------------------------
 squelch:
 	mov	a, P5
@@ -220,7 +227,7 @@ sql_cont:
 	ret
 
 ;----------------------------------------
-; Commutation de la puissance
+; Commutation de la puissance / Power Switching
 ;----------------------------------------
 switch_power:
 	mov	a, #0feh
@@ -237,6 +244,8 @@ switch_power:
 ;----------------------------------------
 ; Chargement de la puissance depuis
 ; l'etat de "mode"
+;
+; Loading power from "mode" status
 ;----------------------------------------
 load_power:
 	mov	a, #0feh
@@ -258,17 +267,24 @@ load_power:
 ;                c'est a dire la complementer toutes les 286 us. 
 ;                P4.0 = entree PTT, active sur un "0". 
 ;                P5.5 = entree etat ILS du micro, active sur un "0".
+;
+; "Check1750":   as long as the BP "1750" is pressed (= ILS of the microphone)
+;                and the PTT are present simultaneously, generating the
+;                1750 Hz on the alarm output (bit B2 of the LATCH_LSB),
+;                that is to say to complete it every 286 us. 
+;                P4.0 = PTT input, active on a "0". 
+;                P5.5 = ILS (reed contact) input of the microphone, active on a "0"
 
 check1750:	
 	call	wdt_reset
-	jb       P4.0,fin1750     	; Si PTT relache (a "1"), ou
-	call	 check_button_1750	; Bouton 1750 micro relache (a "1")ou
-	mov	 A, P5			; Bouton 1750 facade relache, fin
+	jb       P4.0,fin1750     		; Si PTT relache (a "1"), ou
+	call	 check_button_1750		; Bouton 1750 micro relache (a "1")ou
+	mov	 A, P5						; Bouton 1750 facade relache, fin
 	anl	 c, acc.5
-	jb	 psw.7, fin1750		; de la routine ; sinon au lance la boucle
+	jb	 psw.7, fin1750				; de la routine ; sinon au lance la boucle
 
-	clr	EA			; Disable interupts
-                         ; ### debut de la boucle ###
+	clr	EA							; Disable interupts
+									; ### debut de la boucle / start of the loop ###
 test_ptt_ils:    
 	JB       P4.0,fin1750     	; Si PTT relache (a "1"), ou
 	call	 check_button_1750	; Bouton 1750 micro relache (a "1")ou

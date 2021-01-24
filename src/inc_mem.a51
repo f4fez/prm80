@@ -167,7 +167,7 @@ r_end:
 
 ;----------------------------------------
 ; Recuperation des parametres
-;  Verification des checksum de la RAM
+; Verification des checksum de la RAM
 ;----------------------------------------
 load_parameters:
 	call	test_checksums		;Test si la ram est valide

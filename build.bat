@@ -11,6 +11,12 @@ if exist 8060d430.bin del 8060d430.bin > nul
 if exist 8070_430.bin del 8070_430.bin > nul
 if exist 8070d430.bin del 8070d430.bin > nul
 
+REM Claus  jetzt vor übersetzten löschen, da unten nicht mehr gelöscht
+if exist 8070_430.lst del 8070_430.lst > nul
+if exist 8070_430.hex del 8070_430.hex > nul
+
+
+
 if not exist asem.exe   goto absent
 if not exist hexbin.exe goto absent
 if not exist 83c552.mcu goto absent
@@ -32,12 +38,12 @@ if exist 8070_430.hex hexbin.exe 8070_430.hex 8070_430.bin /LENGTH:20000 /FILL:F
 if exist 8060_144.hex del 8060_144.hex > nul
 if exist 8070_144.hex del 8070_144.hex > nul
 if exist 8060_430.hex del 8060_430.hex > nul
-if exist 8070_430.hex del 8070_430.hex > nul
+REM if exist 8070_430.hex del 8070_430.hex > nul
 
 if exist 8060_144.lst del 8060_144.lst > nul
 if exist 8070_144.lst del 8070_144.lst > nul
 if exist 8060_430.lst del 8060_430.lst > nul
-if exist 8070_430.lst del 8070_430.lst > nul
+REM if exist 8070_430.lst del 8070_430.lst > nul
 
 dir 80?0????.bin
 
@@ -63,4 +69,4 @@ echo - 83C552.MCU
 :fin
 echo.
 cd ..
-pause
+REM pause

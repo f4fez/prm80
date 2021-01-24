@@ -223,6 +223,12 @@ WaitRS232:       call       wdt_reset    ; Ré-initialiser le WatchDog.
 ;               l'accumulateur A, sinon A vaut -1. La routine renvoie
 ;               l'écho des touches sur le port si elles sont correctes.
 
+; "XXinRS232" : waits for the arrival of two hexadecimal digits on the
+;               serial port (as ASCII). Enable bit XXDD_OK if
+;               these arrived well, the result being put into 
+;               the accumulator A, otherwise A is -1. The routine returns
+;               the echo of the keys on the port if they are correct.
+
 XXinRS232:       PUSH       0                  ; Sauvegarder R0. 
                  call       WaitRS232          ; Attendre une touche.
                  call       AnalyseChar        ; Analyser sa valeur :
@@ -251,6 +257,12 @@ fin_XXin:        POP        0                  ; Récupérer R0.
 ;               ceux-ci sont bien arrivés, le résultat étant mis dans 
 ;               l'accumulateur A, sinon A vaut -1. La routine renvoie
 ;               l'écho des touches sur le port si elles sont correctes.
+
+; "DDinRS232":  awaits the arrival of two decimal digits on the port
+;               serial (in ASCII form). Enable bit XXDD_OK if
+;               these arrived well, the result being put into 
+;               the accumulator A, otherwise A is -1. The routine returns
+;               the echo of the keys on the port if they are correct.
 
 DDinRS232:       PUSH       B                  ; Sauvegarder B.
                  PUSH       0                  ; Sauvegarder R0. 
@@ -282,6 +294,10 @@ fin_DDin:        POP        0                  ; Récupérer R0.
 ;                l'adresse de début des données en RAM externe ;
 ;                à la fin, sa valeur a donc augmenté de 16.
 
+; "Page_RS232" : sends a 16 bytes page in hexa on the port
+;                serial, from external RAM; the DPTR contains 
+;                the start address of the data in external RAM ;
+;                at the end, its value is therefore augmentEde 16.  
 Page_RS232:      PUSH       ACC                ; 
                  PUSH       0                  ; 
                  MOV        R0,#16             ; 
@@ -353,6 +369,20 @@ fin_rx_tx:       POP        DPL            ;
 ; De plus, la routine place le caractère dans la variable "RS_ASCmaj" en
 ; le convertissant en majuscule (s'il est en minuscule).
 
+; "CharAnalysis": Analyzes the ASCII character contained in A : 
+; - if it is $0D (= ENTER), activate "CH_enter",
+; - if it is between 'a' and 'z' inclusive, activate "CH_min",
+; - if it is between 'A' and 'Z' inclusive, activate "CH_maj",
+; - if it is between '0' and '9' inclusive, activate "CH_dec" and place the 
+;   corresponding decimal value (from 0 to 9) in the variable "RS_HexDec".
+; - if it is between '0' and '9' inclusive, or between 'A' and 'F' inclusive,
+;   or between 'a' and 'f' included, activate "CH_hex" and set the value hexa
+;   corresponding (from 0 to 15) in the variable "RS_HexDec".
+; Moreover, the routine puts the character in the variable "RS_ASCmaj" in
+; converting it to uppercase (if it is lowercase).
+
+
+
 AnalyseChar:     PUSH       ACC             ; 
                  MOV        RS_ASCmaj,A     ; 
                  MOV        RS_HexDec,#-1   ; 
@@ -418,6 +448,12 @@ fin_ana:         POP        ACC             ;
 ; depuis la boucle du programme principal ; on en sort par un JMP qui 
 ; pointe vers la boucle principale "MainLoop" lorsque l'utilisateur 
 ; appui sur la touche [*] (= étoile) du clavier du terminal de control.
+
+; "TERMINAL": control via the serial link. This is not a subroutine, 
+; it is not accessed by a CALL, but by a JMP performed
+; from the loop of the main program; we exit through a JMP that 
+; points to the main loop "MainLoop" when the user 
+; Press the [*] (= star) key on the keyboard of the control terminal.
 
 TERMINAL:  
                  MOV        A,RXnbo          ; Pas de données dans le buffer ?
@@ -895,6 +931,7 @@ pc_cont:
 	
 	
 	; Ecriture de la nouvelle valeur pour la pll
+	; Write the new value for the pll 
 pc_write:
 	mov	a, r0
 	mov	dph, #ram_area_freq
@@ -1056,12 +1093,12 @@ set_frequencies:
 	mov		tx_freq_lo, r3
 
 	jb		mode.3, sf_tx 
-	; Si mode RX
+	; Si mode RX / if RX mode
 	mov	r0, rx_freq_lo
 	mov	r1, rx_freq_hi	    
 	call	load_synth
 	jmp		sf_end
-sf_tx:	; Si mode TX
+sf_tx:	; Si mode TX/ if TX mode
 	mov	r0, tx_freq_lo
 	mov	r1, tx_freq_hi	    
 	call	load_synth
@@ -1087,8 +1124,8 @@ IF FREQ EQ 144
 ELSEIF FREQ EQ 430
 	      DB   " 430"
 ENDIF
-	      DB   " Firmware (c) F4FEZ / F8EGQ ",00Dh,00Ah
-              DB   "Version 4.0, 17/03/2009.",00Dh,00Ah
+	      DB   " Firmware (c) F4FEZ / F8EGQ / DC0CM",00Dh,00Ah
+              DB   "Version 4.0x Beta, 18/01/2021.",00Dh,00Ah
 	      DB   ">",0
 Message03:    DB   "P1 = $",0 
 Message04:    DB   "P2 = $",0 
