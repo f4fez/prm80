@@ -1,48 +1,23 @@
 
-all: prm8060 prm8070
+CC=sdcc
 
-prm8060: prm8060_144 prm8060_430
-prm8060debug: prm8060_144debug prm8060_430debug
+CFLAGS=-mmcs51 --model-large -c
 
-prm8070: prm8070_144 prm8070_430
-prm8070debug: prm8070_144debug prm8070_430debug
+all: prm8060_430.ihx
 
-prm8060_144: prm.a51
-	asem -v --define=TARGET:8060 --define=FREQ:144 prm.a51 8060_144.hex
-	hexbin 8060_144.hex --fill=ff --length=20000 -v
+prm8060_430.ihx: main.rel sys.rel lcd8060.rel mem.rel
+    $(CC) main.rel sys.rel lcd8060.rel
 
-prm8060_144debug:
-	asem -v --define=TARGET:8060 --define=FREQ:144 prm.a51 8060_144.hex
-	hexbin 8060_144.hex -v
+main.rel: main.c
+    $(CC) $(CFLAGS) main.c
 
-prm8060_430: prm.a51
-	asem -v --define=TARGET:8060 --define=FREQ:430 prm.a51 8060_430.hex
-	hexbin 8060_430.hex --fill=ff --length=20000 -v
+sys.rel: sys.c
+    $(CC) $(CFLAGS) sys.c
 
-prm8060_430debug:
-	asem -v --define=TARGET:8060 --define=FREQ:430 prm.a51 8060_430.hex
-	hexbin 8060_430.hex -v
+lcd8060.rel: lcd8060.c
+    $(CC) $(CFLAGS) lcd8060.c
 
-prm8070_144: prm.a51
-	asem -v --define=TARGET:8070 --define=FREQ:144 prm.a51 8070_144.hex
-	hexbin 8070_144.hex --fill=ff --length=20000 -v
-	
-prm8070_144debug:
-	asem -v --define=TARGET:8070 --define=FREQ:144 prm.a51 8070_144.hex
-	hexbin 8070_144.hex -v
-
-prm8070_430: prm.a51
-	asem -v --define=TARGET:8070 --define=FREQ:430 prm.a51 8070_430.hex
-	hexbin 8070_430.hex --fill=ff --length=20000 -v
-
-prm8070_430debug:
-	asem -v --define=TARGET:8070 --define=FREQ:430 prm.a51 8070_430.hex
-	hexbin 8070_430.hex -v
-
-.PHONY: clean mrproper
-
+mem.rel: mem.c
+    $(CC) $(CFLAGS) mem.c
 clean:
-	rm -rf *.lst
-
-mrproper: clean
-	rm -rf *.bin *.hex *~
+    rm *.rel *.lst *.map *.mem *.rst *.sym *.hex *.ihx *.asm

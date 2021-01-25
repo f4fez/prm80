@@ -1,5 +1,5 @@
 SRC_DIR=src
-SRC-FILES=README COPYING Makefile build.bat src/Makefile src/*.a51
+SRC-FILES=README COPYING Makefile build.bat src/Makefile src/*.c src/*.h
 TAR-SRC=prm80-src.tar
 
 BIN-FILES=src/*.bin src/*.hex
