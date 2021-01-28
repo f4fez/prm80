@@ -202,7 +202,8 @@ synth_error:
 	ret
 
 ;----------------------------------------
-; Test si squelch ouvert / Test if squelch is open
+; Test si squelch ouvert
+; Test if squelch is open
 ;----------------------------------------
 squelch:
 	mov	a, P5
@@ -227,7 +228,8 @@ sql_cont:
 	ret
 
 ;----------------------------------------
-; Commutation de la puissance / Power Switching
+; Commutation de la puissance
+; Power Switching
 ;----------------------------------------
 switch_power:
 	mov	a, #0feh
@@ -468,6 +470,16 @@ I2C_RD_ACK:      CLR        SCL            ;
 ; a la fin de la routine, DPTR a ete augmente de 16.
 ; Code d'erreur renvoye dans "I2C_err" : 0 si tout est OK sinon 1, 2 ou 3.
 
+; "I2C_RD_Page": Transfers 16 bytes from the EEPROM to the external RAM.
+; Parameters to provide : "Page" and "DPTR".
+; The variable "Page" contains the number (from $00 to $7F) of the page of 16. 
+; bytes to be read from the EEPROM; the DPTR register points to the first 
+; address of the 16 byte zone in external RAM, where the data read will be 
+; places: this zone goes from the address [DPTR+0] to the address [DPTR+15];
+; at the end of the routine, DPTR has been increased by 16.
+; Error code returned in "I2C_err" : 0 if everything is OK otherwise 1, 2 or 3.
+
+
 I2C_RD_Page:     PUSH       ACC            ; 
                  PUSH       1              ; 
                  CALL      wdt_reset  ; 
@@ -518,6 +530,14 @@ finrdpage:       CALL       I2C_Stop       ;
 ; octets a programmer dans l'EEPROM ; le registre DPTR pointe sur la première
 ; adresse de la zone de 16 octets en RAM externe, ou les donnees a programmer
 ; dans l'EEPROM seront prelevees ; a la fin, DPTR a donc ete augmenté de 16.
+;
+; "I2C_WR_Page": 16 byte program from the external RAM in the EEPROM.
+; Parameters to be provided: "Page" and "DPTR".
+; The variable "Page" contains the number (from $00 to $7F) of the 16 page. 
+; bytes to be programmed in the EEPROM; the DPTR register points to the first byte in the EEPROM.
+; address of the 16 byte zone in external RAM, or the data to be programmed
+; In the EEPROM will be taken; at the end, DPTR was therefore increased by 16.
+
 
 I2C_WR_Page:     PUSH       ACC            ; 
                  PUSH       1              ; 
@@ -563,38 +583,39 @@ finwrpage:       CALL       I2C_Stop       ;
 
 ;----------------------------------------
 ; Gestion des fonctions des boutons
+; Management of button functions
 ;----------------------------------------
 buttons:
 	; Test verroullage touches
 	jnb	lock.0, b_no_lock
 	jmp	b_endbut
 b_no_lock:
-	inc	but_timer			; Incrementation des timers
+	inc	but_timer					; Incrementation des timers
 	mov	a, but_timer
 	jnz	b_ar
 	inc	but_timer2
 b_ar:
-	jnb	mode.6, b_ar_end		; Passer si antirebond inactif
+	jnb	mode.6, b_ar_end			; Passer si antirebond inactif
 	clr	c
 	mov	a, but_timer2
-	subb	a, #1				; trebond = 1
-	jnc	b_ar_end			; si cpt > trebond : sauter
-	ret					; sinon fin
+	subb	a, #1					; trebond = 1
+	jnc	b_ar_end					; si cpt > trebond : sauter
+	ret								; sinon fin
 b_ar_end:
 	call	check_buttons			; Charger etat bouton
 	mov	r0, a
-	cjne	a, but_hold_state, b_state_dif	; Si etat differant sauter
-	clr	mode.6				; Desactiver AR
+	cjne	a, but_hold_state, b_state_dif	; Si etat differant sauter / skip if different state
+	clr	mode.6						; Desactiver AR
 	jnz	b_cont
 	ret
 b_cont:
 	clr	c
 	mov	a, but_timer2
 	subb	a, but_repeat			; Soit tlong, soit trepeat
-	jnc	b_long				; si cpt > but_repeat : sauter
-	ret					; sinon fin	
+	jnc	b_long						; si cpt > but_repeat : sauter
+	ret								; sinon fin	
 b_long:
-	mov	a, #BUT_REPEAT_MASK		; Verifier si repetition autorise
+	mov	a, #BUT_REPEAT_MASK			; Verifier si repetition autorise
 	anl	a, r0
 	mov	b, r0
 	cjne	a, b, b_l_norepeat
@@ -603,7 +624,7 @@ b_long:
 b_l_norepeat:
 	jb	mode.5, b_long_end
 b_l_cont:
-	setb	mode.5				; Appui long
+	setb	mode.5					; Appui long
 	mov	r1, #01
 	mov	a, r0
 	mov	but_timer, #0
@@ -613,22 +634,22 @@ b_long_end:
 	ret
 	
 b_state_dif:
-	setb	mode.6				; Activer AR
+	setb	mode.6					; Activer AR
 	mov	but_timer, #0
 	mov	but_timer2, #0
 	clr	c
 	mov	a, but_hold_state
 	subb	a, r0
-	jnc	b_key_release			; Si Etat < Etat precedent : saute car touche relachÃe
-	mov	but_hold_state, r0		; sinon une touche vient d'etre appuye
+	jnc	b_key_release				; Si Etat < Etat precedent : saute car touche relachÃe
+	mov	but_hold_state, r0			; sinon une touche vient d'etre appuye / otherwise a key has just been pressed again
 	ret
 
 b_key_release:
-	jb	mode.5, b_kr_long		; Si appui long : sauter
-	mov	r1, #0				; Effacent flag appui long
+	jb	mode.5, b_kr_long			; Si appui long : sauter
+	mov	r1, #0						; Effacent flag appui long
 	mov	a, r0
 	jnz	b_key_release_end
-	jmp	b_decoding			; Si les touches sont relachÃ©es
+	jmp	b_decoding					; Si les touches sont relachÃ©es
 b_key_release_end:
 	ret
 b_kr_long:

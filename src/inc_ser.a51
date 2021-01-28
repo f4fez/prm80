@@ -469,10 +469,10 @@ terminal_cont:
 tch_diese:       CJNE       A,#'#',tch_0       ; - Touche [#] ?
                  MOV        A,#'!'             ;   Renvoyer un point 
                  call       Write_RS232        ;   d'exclamation "!".
-                 JMP        tch_suiv           ; 
+                 JMP        tch_suiv           ;   Return an exclamation mark "!"
 
 tch_0:           CJNE       A,#'0',tch_1       ; - Touche [0] ?
-                 jmp	    0		       ;   Reset
+                 jmp	    0		       	   ;   Reset
                                                ; 
 tch_1:           CJNE       A,#'1',tch_2       ; - Touche [1] ?
                  MOV        DPTR,#Message03    ;   afficher l'état du port P1.
@@ -510,32 +510,32 @@ tch_5:           CJNE       A,#'5',tch_C       ; - Touche [5] ?
                  JMP        tch_suiv           ; 
                                                ; 
 tch_C:           CJNE       A,#'C',tch_D       ; - Touche [C] ?
-		 CALL	    list_chan
+				 CALL	    list_chan
                  JMP        tch_suiv           ;
 tch_D:           CJNE       A,#'D',tch_E       ; - Touche [D] ?
                  MOV        DPTR,#Message39    ; 
                  call       MESS_RS232         ; 
                  call       XXinRS232          ; 
                  JNB        XXDD_OK, tch_d_end ; 
-		 mov	    mode, a
-		 call	    load_state
-		 call	    update_lcd		 
+				 mov	    mode, a
+				 call	    load_state
+				 call	    update_lcd		 
 tch_d_end:
-		 JMP        tch_suiv           ; 		 
+				 JMP        tch_suiv           ; 		 
 tch_E:           CJNE       A,#'E',tch_F       ; - Touche [E] ?
-		 CALL	    send_state	       ; Etat du systeme
-                 JMP        tch_suiv           ;
+				 CALL	    send_state	       ;    Etat du systeme
+                 JMP        tch_suiv           ;    System status
 		 
 tch_F:           CJNE       A,#'F',tch_H       ; - Touche [F] ?
-                 MOV        DPTR,#Message18    ; 
-                 call       MESS_RS232         ; 
-                 call       DDinRS232          ; 
-                 JNB        XXDD_OK, tch_f_end ; 
-		 anl	    a, #0fh
-		 mov	    dph, #ram_area_config
-    		 mov	    dpl, #ram_squelch
-		 movx	    @dptr, a
-		 call	    sql_update
+                 MOV        DPTR,#Message18    ;   set squelch
+                 call       MESS_RS232         ;   allowed values (numbers):
+                 call       DDinRS232          ;   00..09, 10..15
+                 JNB        XXDD_OK, tch_f_end ;   other dez values are accepted but
+				 anl	    a, #0fh			   ;   will lead to wrong results
+				 mov	    dph, #ram_area_config 
+				 mov	    dpl, #ram_squelch  ;   A...F are not allowed/accepted
+				 movx	    @dptr, a
+				 call	    sql_update
 tch_f_end:
                  JMP        tch_suiv           ;  
                                                ; 
@@ -552,8 +552,8 @@ tch_I:           CJNE       A,#'I',tch_K       ; - Touche [I] ?
                  MOV        A,RS_ASCmaj        ; 
                  CJNE       A,#'Y',stop_init   ; 
                  call       load_ram_default   ; 
-		 call	    load_state
-		 jmp	    0			; And reset
+				 call	    load_state
+				 jmp	    0			; And reset
                  JMP        tch_suiv
 stop_init:       MOV        DPTR,#Message28    ; 
 mess_init:       call       MESS_RS232         ; 
@@ -564,7 +564,7 @@ tch_K:           CJNE       A,#'K',tch_L       ; - Touche [K] ?
                  call       MESS_RS232         ; 
                  call       XXinRS232          ; 
                  JNB        XXDD_OK, tch_k_end ; 
-		 mov	    lock, a
+				 mov	    lock, a
 tch_k_end:
                  JMP        tch_suiv           ;  
 
@@ -578,39 +578,40 @@ tch_L:           CJNE       A,#'L',tch_M       ; - Touche [L] ?
                  JMP        tch_suiv           ; 
                                                ; 
 tch_M:           CJNE       A,#'M',tch_N       ; - Touche [M] ?
-                 call       Modif_RAM          ;   Lire et modifier les octets
-                 JMP        tch_suiv           ;   de la RAM externe à partir 
-                                               ;   d'une adresse au choix.
+                 call       Modif_RAM          ;   Lire et modifier les octets   Read and modify bytes
+                 JMP        tch_suiv           ;   de la RAM externe à partir    external RAM from
+                                               ;   d'une adresse au choix.       an address of your choice
+											   ;
 tch_N:           CJNE       A,#'N',tch_O       ; - Touche [N] ?
                  MOV        DPTR,#Message19    ; 
                  call       MESS_RS232         ; 
                  call       DDinRS232          ; 
                  JNB        XXDD_OK, tch_n_end ; 
-		 mov	    dph, #ram_area_config
-    		 mov	    dpl, #ram_chan
-		 movx	    @dptr, a
-		 call	    chan_update
+				 mov	    dph, #ram_area_config
+				 mov	    dpl, #ram_chan
+				 movx	    @dptr, a
+				 call	    chan_update
 tch_n_end:
                  JMP        tch_suiv           ;  
 tch_O:           CJNE       A,#'O',tch_P       ; - Touche [O] ?
-		 MOV        DPTR,#Message38    ;  Definir volume
+				 MOV        DPTR,#Message38    ;   Definir volume
                  call       MESS_RS232         ; 
                  call       DDinRS232          ; 
                  JNB        XXDD_OK, tch_o_end ; 
-		 cpl	    a
-		 swap	    a
-		 call	    load_volume
+				 cpl	    a
+				 swap	    a
+				 call	    load_volume
 tch_o_end:
-		 JMP        tch_suiv           ;  
+				 JMP        tch_suiv           ;  
 tch_P:           CJNE       A,#'P',tch_Q       ; - Touche [P] ?
-		 call	    prog_chan	       ; Programmation d'un canal
-		 JMP        tch_suiv           ;  
+				 call	    prog_chan	       ;   Programmation d'un canal
+				 JMP        tch_suiv           ;  
 tch_Q:           CJNE       A,#'Q',tch_R       ; - Touche [Q] ?
-		 call	    set_max_chan	       ; Definit le nombre de canaux
-		 JMP        tch_suiv           ;
+				 call	    set_max_chan	   ;   Definit le nombre de canaux
+				 JMP        tch_suiv           ;
 tch_R:           CJNE       A,#'R',tch_S       ; - Touche [R] ?
-		 call	    set_frequencies
-		 JMP        tch_suiv           ;  
+				 call	    set_frequencies	   ;   set frequencies
+				 JMP        tch_suiv           ;  
 tch_S:           CJNE       A,#'S',tch_T       ; - Touche [S] ?
                  call       READ_EEPROM        ;   Lire les 2048 octets 
                  MOV        A,I2C_err          ;   de l'EEPROM I2C et les 
@@ -623,8 +624,8 @@ tch_S:           CJNE       A,#'S',tch_T       ; - Touche [S] ?
 		 call	    update_lcd
                  JMP        tch_suiv           ; 
 tch_T:           CJNE       A,#'T',tch_U       ; - Touche [T] ?
-		 call	    set_chan_state     ;   Ecrire le chanstate
-		 jmp	    tch_suiv
+				 call	    set_chan_state     ;   Ecrire le chanstate
+				 jmp	    tch_suiv		   ;   Write the channel state
                                                ; 
 tch_U:           CJNE       A,#'U',tch_V       ; - Touche [U] ?
                  call       Show_RAM_int       ;   Afficher la RAM interne du
@@ -1003,6 +1004,7 @@ fin_set_max_chan:
         RET
 	
 ; Envoi l'etat du poste
+; Sending the current status
 ; Mode - Chan - chan_state - Squelch - Volume - Lock - Freq RX - Freq TX
 send_state:
 	push	ACC
@@ -1053,7 +1055,7 @@ set_chan_state:
 	    mov		a, chan_state
 	    movx	@dptr, a
 
-	    setb	mode.7
+	    setb	mode.7					; Force LCD refresh
 	    call	get_freq
 	    mov		r0, rx_freq_lo
 	    mov		r1, rx_freq_hi
@@ -1104,8 +1106,8 @@ sf_tx:	; Si mode TX/ if TX mode
 	call	load_synth
 sf_end:
 	call	lcd_clear_digits_r
-	clr	mode.0
-	mov	chan_state, #0
+	clr		mode.0
+	mov		chan_state, #0
 	call	display_update_symb
 	setb	mode.7	
 	ret
@@ -1120,13 +1122,13 @@ ELSEIF TARGET EQ 8070
 ENDIF
 
 IF FREQ EQ 144
-	      DB   " 144"
+			  DB   " 144"
 ELSEIF FREQ EQ 430
-	      DB   " 430"
+			  DB   " 430"
 ENDIF
-	      DB   " Firmware (c) F4FEZ / F8EGQ / DC0CM",00Dh,00Ah
+			  DB   " Firmware (c) F4FEZ / F8EGQ / DC0CM",00Dh,00Ah
               DB   "Version 4.0x Beta, 18/01/2021.",00Dh,00Ah
-	      DB   ">",0
+			  DB   ">",0
 Message03:    DB   "P1 = $",0 
 Message04:    DB   "P2 = $",0 
 Message05:    DB   "P3 = $",0 
@@ -1191,9 +1193,9 @@ MessageAide:  DB   "H",0Dh,0Ah
               DB   " [M] = Edit external RAM manualy.",0Dh,0Ah
               DB   " [N] = Set current channel.",0Dh,0Ah
               DB   " [O] = Set volume.",0Dh,0Ah
-	      DB   " [P] = Edit/Add channel.",0Dh,0Ah
-	      DB   " [Q] = Set channels number.",0Dh,0Ah
-	      DB   " [R] = Set synthetiser frequencies.",0Dh,0Ah
+			  DB   " [P] = Edit/Add channel.",0Dh,0Ah
+			  DB   " [Q] = Set channels number.",0Dh,0Ah
+			  DB   " [R] = Set synthetiser frequencies.",0Dh,0Ah
               DB   " [U] = Print 80c552 internal RAM.",0Dh,0Ah
               DB   " [S] = Copy EEPROM to external RAM.",0Dh,0Ah
               DB   " [T] = Set current channel state.",0Dh,0Ah
