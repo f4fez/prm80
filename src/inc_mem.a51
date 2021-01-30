@@ -17,13 +17,13 @@ RAM_AREA_CONFIG		EQU	000h
 RAM_AREA_FREQ		EQU	001h
 RAM_AREA_STATE		EQU	002h
 
-RAM_ID_CODE		EQU	000h
+RAM_ID_CODE			EQU	000h
 RAM_CONFIG_SUM		EQU	001h
 RAM_FREQ_SUM		EQU	002h
 RAM_STATE_SUM		EQU	003h
-RAM_CHAN		EQU	010h
-RAM_MODE		EQU	011h
-RAM_SQUELCH		EQU	012h
+RAM_CHAN			EQU	010h
+RAM_MODE			EQU	011h
+RAM_SQUELCH			EQU	012h
 RAM_MAX_CHAN		EQU	013h
 RAM_SHIFT_HI		EQU	014h
 RAM_SHIFT_LO		EQU	015h
@@ -85,6 +85,7 @@ ELSEIF FREQ EQ 430
 	mov	rx_freq_hi, a
 ENDIF
 	; Activation du shift au besoin
+	; Shift activation as needed
 	jnb	chan_state.0, gfn_end
 	jnb	chan_state.2, gnf_shift_n	; Test si shift - ou +
 gnf_shift_p:		; Shift positif
@@ -167,7 +168,7 @@ r_end:
 
 ;----------------------------------------
 ; Recuperation des parametres
-;  Verification des checksum de la RAM
+; Verification des checksum de la RAM
 ;----------------------------------------
 load_parameters:
 	call	test_checksums		;Test si la ram est valide

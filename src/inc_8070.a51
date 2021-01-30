@@ -78,7 +78,8 @@ load_lcd:
 	nop
 	nop
 	
-; Envoi BP1
+; Envoi BP1  
+; Sending BP1
 	call	wdt_reset
 	clr	ser_scl		; Hologe a l'etat bas
 	clr	ser_sda		; Donnees a l'ete bas
@@ -146,8 +147,10 @@ ll_send:
 	
 ;----------------------------------------
 ; Affichage de chiffres sur le lcd
+; Display of numbers on the lcd
 ;----------------------------------------
 ; Afficher unites, valeur dans R0
+; Display units, value in R0
 lcd_print_digit_d10:
         mov	dptr, #ld_r10_table
 	sjmp	lcd_print_digit
@@ -156,11 +159,11 @@ lcd_print_digit_d1:
 lcd_print_digit:
 	call	wdt_reset
 	mov 	a, r0
-	rl	a
+	rl	a						; calculate position within _table (1..F)
 	rl	a
 	rl	a
 	mov	r0, a
-	movc	a, @a+dptr
+	movc	a, @a+dptr			; fetch all 8 values
 	orl	lcd_dataB0,a
 	inc	r0
 	mov 	a, r0
@@ -194,6 +197,7 @@ lcd_print_digit:
 
 ;----------------------------------------
 ; Affichage d'une valeur en decimal
+; Displaying a value in decimal
 ;----------------------------------------
 ; Valeur dans R0
 lcd_print_dec:
@@ -226,6 +230,7 @@ lcd_print_hex:
 
 ;----------------------------------------
 ; Effacement des chiffres
+; Clearing the numbers 
 ;----------------------------------------
 lcd_clear_digits_r:
 	call	wdt_reset
@@ -237,6 +242,7 @@ lcd_clear_digits_r:
 
 ;----------------------------------------
 ; Mise a jour des symboles
+; Symbol update
 ;----------------------------------------
 display_update_symb:
 	mov	c, chan_state.2 	; Shift +
@@ -363,28 +369,29 @@ check_button_1750:
 
 ;----------------------------------------
 ; Decodage des touches appuyees
+; Decoding of pressed keys
 ;----------------------------------------
 b_decoding:
 	mov	a, but_hold_state
 	mov	but_hold_state, r0
 
-	mov	b, r1				; Test appui long
-	jb	b.0, b_but1l			; si vrai sauter
+	mov	b, r1						; Test appui long / Test long "preasure"
+	jb	b.0, b_but1l				; si vrai sauter / so true jump
 b_but1:	; 
 	cjne	a, #1, b_but2
-	call	switch_power
+	call	switch_power			; TX power
 	jmp	b_endbut
 b_but2: ; 
 	cjne	a, #2, b_but3
-	call	switch_reverse
+	call	switch_reverse			; Claus: does that switch work as expected?? seems to behave curios
 	jmp	b_endbut
 b_but3: ; 
 	cjne	a, #4, b_but4
-	call	chan_inc
+	call	chan_inc				; channel/squelch inc.
 	jmp	b_endbut
 b_but4: ; 
 	cjne	a, #8, b_but5
-	call	chan_dec
+	call	chan_dec				; channel/squelch dec.
 	jmp	b_endbut
 b_but5: ; 
 	cjne	a, #16, b_but6
@@ -392,7 +399,7 @@ b_but5: ;
 	jmp	b_endbut
 b_but6: ; 
 	cjne	a, #32, b_but7
-	call	switch_mode
+	call	switch_mode				; Switch Mode (Channel <-> Squelch)
 	jmp	b_endbut
 b_but7: ; 
 	cjne	a, #64, b_but8
@@ -404,7 +411,7 @@ b_but8: ;
 	jmp	b_endbut
 b_but16: ; 1 + 6
 	cjne	a, #33, b_endbut
-	call	switch_rssi			; RSSI displaying
+	call	switch_rssi				; RSSI displaying
 	jmp	b_endbut
 
 b_but1l:
@@ -447,6 +454,7 @@ b_endbut:
 
 ;----------------------------------------
 ; Tables pour l'afficheur
+; Tables for the display B0..B3, A0..A3
 ;----------------------------------------
 ld_r1_table:
 	db	0h	; 0

@@ -16,31 +16,35 @@
 ;----------------------------------------
 ; Chargement du verrou serie
 ; Avec un call : duree 196us
+;
+; Loading of the serial latch
+; With a call : duration 196us
 ;----------------------------------------
 load_serial_latch:
 	mov	a, serial_latch_hi 
 	call	lsc_send	; Transfert du premier octet
 	mov	a, serial_latch_lo
-	call	lsc_send	; Transfert du deuxieme octet
-	clr	ser_scl		; Horloge serie a l'etat bas
+	call	lsc_send	; Transfert du deuxieme octet / Transfer of the second byte
+	clr	ser_scl			; Horloge serie a l'etat bas
 	setb	latch_str	; Transfert donnee
-	clr	latch_oe	; activer sortie
-	clr	latch_str	; fin transfert
+	clr	latch_oe		; activer sortie / enable output
+	clr	latch_str		; fin transfert
 	ret
 
 ; Sous routine d'envoi de l'octet dans A pour le verrou
+; subroutine to send the byte in A to the latch
 lsc_send:
 	call	wdt_reset
-	mov	r2, #8		; 8 boucles dans le compteur
+	mov	r2, #8			; 8 boucles dans le compteur
 lsc_send_lp:
-	clr	ser_scl		; Horloge serie a l'etat bas
-	mov	c, acc.7	; Copie de l'octet a transferer dans C
-	mov	ser_sda, c	; puis recopie sur le port
+	clr	ser_scl			; Horloge serie a l'etat bas / Clock in low condition
+	mov	c, acc.7		; Copie de l'octet a transferer dans C 
+	mov	ser_sda, c		; puis recopie sur le port
 	nop
 	nop
-	setb	ser_scl		; Generer un front montant
-	rl	a		; Preparer bit suivant
-	djnz	r2,lsc_send_lp	; fin de la boucle
+	setb ser_scl		; Generer un front montant / Generate a rising edge
+	rl a				; Preparer bit suivant
+	djnz r2,lsc_send_lp	; fin de la boucle / end of the loop
 	ret
 
 ;----------------------------------------
@@ -110,6 +114,7 @@ sv_end:
 
 ;----------------------------------------
 ; Chargement dans le synthetiseur
+; Loading in the synthetizer
 ;----------------------------------------
 ; Division par N a charger dans r0 (lsb), r1 (msb)
 ; r0 contien 6bit pour A. Donc pour M, 8 bits dans r1 et 2 bits dans r0
@@ -168,21 +173,23 @@ ls_end:
 	setb	mode.4
 	ret
 
-; Enoie d'une serie de bit, r2 contien le nombre et a les données	
+; Enoie d'une serie de bit, r2 contien le nombre et a les données
+; send of a series of bits, r2 contains the number and has the data	
 ls_send:
 	call	wdt_reset
 	setb	ser_scl		; Horloge serie a l'etat haut
-	mov	c, acc.7	; Copie de l'octet a transferer dans C
-	mov	ser_sda, c	; puis recopie sur le port
+	mov	c, acc.7		; Copie de l'octet a transferer dans C
+	mov	ser_sda, c		; puis recopie sur le port
 	nop
 	nop
-	clr	ser_scl		; Generer un front descendant
-	rl	a		; Preparer bit suivant
+	clr	ser_scl			; Generer un front descendant
+	rl	a				; Preparer bit suivant
 	djnz	r2,ls_send	; fin de la boucle
 	ret
 
 ;----------------------------------------
 ; Passage en mode erreur de synthetiseur
+; Switch to Tuner Error Mode (EEh->Display)
 ;----------------------------------------
 synth_error:
 	clr	mode.4
@@ -196,6 +203,7 @@ synth_error:
 
 ;----------------------------------------
 ; Test si squelch ouvert
+; Test if squelch is open
 ;----------------------------------------
 squelch:
 	mov	a, P5
@@ -221,6 +229,7 @@ sql_cont:
 
 ;----------------------------------------
 ; Commutation de la puissance
+; Power Switching
 ;----------------------------------------
 switch_power:
 	mov	a, #0feh
@@ -237,6 +246,8 @@ switch_power:
 ;----------------------------------------
 ; Chargement de la puissance depuis
 ; l'etat de "mode"
+;
+; Loading power from "mode" status
 ;----------------------------------------
 load_power:
 	mov	a, #0feh
@@ -258,17 +269,24 @@ load_power:
 ;                c'est a dire la complementer toutes les 286 us. 
 ;                P4.0 = entree PTT, active sur un "0". 
 ;                P5.5 = entree etat ILS du micro, active sur un "0".
+;
+; "Check1750":   as long as the BP "1750" is pressed (= ILS of the microphone)
+;                and the PTT are present simultaneously, generating the
+;                1750 Hz on the alarm output (bit B2 of the LATCH_LSB),
+;                that is to say to complete it every 286 us. 
+;                P4.0 = PTT input, active on a "0". 
+;                P5.5 = ILS (reed contact) input of the microphone, active on a "0"
 
 check1750:	
 	call	wdt_reset
-	jb       P4.0,fin1750     	; Si PTT relache (a "1"), ou
-	call	 check_button_1750	; Bouton 1750 micro relache (a "1")ou
-	mov	 A, P5			; Bouton 1750 facade relache, fin
+	jb       P4.0,fin1750     		; Si PTT relache (a "1"), ou
+	call	 check_button_1750		; Bouton 1750 micro relache (a "1")ou
+	mov	 A, P5						; Bouton 1750 facade relache, fin
 	anl	 c, acc.5
-	jb	 psw.7, fin1750		; de la routine ; sinon au lance la boucle
+	jb	 psw.7, fin1750				; de la routine ; sinon au lance la boucle
 
-	clr	EA			; Disable interupts
-                         ; ### debut de la boucle ###
+	clr	EA							; Disable interupts
+									; ### debut de la boucle / start of the loop ###
 test_ptt_ils:    
 	JB       P4.0,fin1750     	; Si PTT relache (a "1"), ou
 	call	 check_button_1750	; Bouton 1750 micro relache (a "1")ou
@@ -452,6 +470,16 @@ I2C_RD_ACK:      CLR        SCL            ;
 ; a la fin de la routine, DPTR a ete augmente de 16.
 ; Code d'erreur renvoye dans "I2C_err" : 0 si tout est OK sinon 1, 2 ou 3.
 
+; "I2C_RD_Page": Transfers 16 bytes from the EEPROM to the external RAM.
+; Parameters to provide : "Page" and "DPTR".
+; The variable "Page" contains the number (from $00 to $7F) of the page of 16. 
+; bytes to be read from the EEPROM; the DPTR register points to the first 
+; address of the 16 byte zone in external RAM, where the data read will be 
+; places: this zone goes from the address [DPTR+0] to the address [DPTR+15];
+; at the end of the routine, DPTR has been increased by 16.
+; Error code returned in "I2C_err" : 0 if everything is OK otherwise 1, 2 or 3.
+
+
 I2C_RD_Page:     PUSH       ACC            ; 
                  PUSH       1              ; 
                  CALL      wdt_reset  ; 
@@ -502,6 +530,14 @@ finrdpage:       CALL       I2C_Stop       ;
 ; octets a programmer dans l'EEPROM ; le registre DPTR pointe sur la première
 ; adresse de la zone de 16 octets en RAM externe, ou les donnees a programmer
 ; dans l'EEPROM seront prelevees ; a la fin, DPTR a donc ete augmenté de 16.
+;
+; "I2C_WR_Page": 16 byte program from the external RAM in the EEPROM.
+; Parameters to be provided: "Page" and "DPTR".
+; The variable "Page" contains the number (from $00 to $7F) of the 16 page. 
+; bytes to be programmed in the EEPROM; the DPTR register points to the first byte in the EEPROM.
+; address of the 16 byte zone in external RAM, or the data to be programmed
+; In the EEPROM will be taken; at the end, DPTR was therefore increased by 16.
+
 
 I2C_WR_Page:     PUSH       ACC            ; 
                  PUSH       1              ; 
@@ -547,38 +583,39 @@ finwrpage:       CALL       I2C_Stop       ;
 
 ;----------------------------------------
 ; Gestion des fonctions des boutons
+; Management of button functions
 ;----------------------------------------
 buttons:
 	; Test verroullage touches
 	jnb	lock.0, b_no_lock
 	jmp	b_endbut
 b_no_lock:
-	inc	but_timer			; Incrementation des timers
+	inc	but_timer					; Incrementation des timers
 	mov	a, but_timer
 	jnz	b_ar
 	inc	but_timer2
 b_ar:
-	jnb	mode.6, b_ar_end		; Passer si antirebond inactif
+	jnb	mode.6, b_ar_end			; Passer si antirebond inactif
 	clr	c
 	mov	a, but_timer2
-	subb	a, #1				; trebond = 1
-	jnc	b_ar_end			; si cpt > trebond : sauter
-	ret					; sinon fin
+	subb	a, #1					; trebond = 1
+	jnc	b_ar_end					; si cpt > trebond : sauter
+	ret								; sinon fin
 b_ar_end:
 	call	check_buttons			; Charger etat bouton
 	mov	r0, a
-	cjne	a, but_hold_state, b_state_dif	; Si etat differant sauter
-	clr	mode.6				; Desactiver AR
+	cjne	a, but_hold_state, b_state_dif	; Si etat differant sauter / skip if different state
+	clr	mode.6						; Desactiver AR
 	jnz	b_cont
 	ret
 b_cont:
 	clr	c
 	mov	a, but_timer2
 	subb	a, but_repeat			; Soit tlong, soit trepeat
-	jnc	b_long				; si cpt > but_repeat : sauter
-	ret					; sinon fin	
+	jnc	b_long						; si cpt > but_repeat : sauter
+	ret								; sinon fin	
 b_long:
-	mov	a, #BUT_REPEAT_MASK		; Verifier si repetition autorise
+	mov	a, #BUT_REPEAT_MASK			; Verifier si repetition autorise
 	anl	a, r0
 	mov	b, r0
 	cjne	a, b, b_l_norepeat
@@ -587,7 +624,7 @@ b_long:
 b_l_norepeat:
 	jb	mode.5, b_long_end
 b_l_cont:
-	setb	mode.5				; Appui long
+	setb	mode.5					; Appui long
 	mov	r1, #01
 	mov	a, r0
 	mov	but_timer, #0
@@ -597,22 +634,22 @@ b_long_end:
 	ret
 	
 b_state_dif:
-	setb	mode.6				; Activer AR
+	setb	mode.6					; Activer AR
 	mov	but_timer, #0
 	mov	but_timer2, #0
 	clr	c
 	mov	a, but_hold_state
 	subb	a, r0
-	jnc	b_key_release			; Si Etat < Etat precedent : saute car touche relachÃe
-	mov	but_hold_state, r0		; sinon une touche vient d'etre appuye
+	jnc	b_key_release				; Si Etat < Etat precedent : saute car touche relachÃe
+	mov	but_hold_state, r0			; sinon une touche vient d'etre appuye / otherwise a key has just been pressed again
 	ret
 
 b_key_release:
-	jb	mode.5, b_kr_long		; Si appui long : sauter
-	mov	r1, #0				; Effacent flag appui long
+	jb	mode.5, b_kr_long			; Si appui long : sauter
+	mov	r1, #0						; Effacent flag appui long
 	mov	a, r0
 	jnz	b_key_release_end
-	jmp	b_decoding			; Si les touches sont relachÃ©es
+	jmp	b_decoding					; Si les touches sont relachÃ©es
 b_key_release_end:
 	ret
 b_kr_long:

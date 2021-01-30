@@ -90,11 +90,12 @@ mode2		EQU	RAMbit+9	; Mode, 2eme octet
 					; b6: 			b7:
 
 disp_hold	EQU	RAM+0		; Sauvegarde de de l'affichage des symboles
+							; Saving the symbol display
 
 
 lcd_dataA0	EQU	RAM+1		; Premier octet pour le lcd
 lcd_dataA1	EQU	RAM+2		; Deuxieme octet pour le lcd
-lcd_dataA2	EQU	RAM+3		; Troisieme octet pour le lcd (4 bits seulement)
+lcd_dataA2	EQU	RAM+3		; Troisieme octet pour le lcd (4 bits seulement/only)
 lcd_dataA3	EQU	RAM+4		; Quatrieme octet pour le lcd (4 bits seulement)
 lcd_dataB0	EQU	RAM+5		; Premier octet pour le lcd
 lcd_dataB1	EQU	RAM+6		; Deuxieme octet pour le lcd
@@ -239,6 +240,7 @@ ENDIF
 
 ;----------------------------------------
 ; Initialisation de bas niveau
+; Low level initialization
 ;----------------------------------------
 init:
 	; Initialisation des ports 
@@ -252,6 +254,7 @@ init:
 	mov	P4,r0
 
 	; Initialisation de la pile
+	; Stack initialization
 	mov	r0, #sp_default
 	mov	SP, r0
 
@@ -274,7 +277,7 @@ init:
 
 	mov	lock, #00
 	mov	vol_hold, #01h 			; Pour etre a peut pres sur de charger le volume au premier lancement
-	mov	but_timer, #00
+	mov	but_timer, #00			; To be close to loading the volume on the first launch
 	mov	but_timer2, #0fbh
 	mov	disp_hold, #0ffh
 	mov	but_hold_state, #0
@@ -287,6 +290,7 @@ init:
 	setb	ET0				; Interuption active
 ;----------------------------------------
 ; Initialisation de haut niveau
+; High level initialization
 ;----------------------------------------
 	call	load_lcd
 
@@ -317,6 +321,7 @@ init_no_reset:
 	call	wdt_reset
 	
 	; Affichage du canal
+	; Channel display
 	mov	lcd_dataA0, #0h
 	mov	lcd_dataA1, #0h
 	mov	lcd_dataA2, #0h
@@ -335,6 +340,7 @@ init_no_reset:
 
 ;----------------------------------------
 ; Boucle RX
+; RX loop
 ;----------------------------------------
 m_loop:	
 
@@ -350,6 +356,7 @@ m_loop:
 	call	buttons
 
 ;*** Test si Mode erreur synthe (PLL non verouillee)
+;*** Test if Error mode synthetics (PLL unlocked)
 	jnb	mode.4, m_loop		; Si erreur : boucler
 
 ;*** Test TX
@@ -384,6 +391,7 @@ m_end:
 
 ;----------------------------------------
 ; Boucle TX
+; TX loop
 ;----------------------------------------
 tx:
 	clr	mode2.0			; stop scanning
