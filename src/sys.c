@@ -24,7 +24,7 @@
  *  b4: Out 2				b5: Mike mute
  *  b6: Clock shift			b7: synthesizer validation
  */
-__data serial_latch_lo = 0x81;	
+__data unsigned int serial_latch_lo = 0x81;	
 /**
  * Second latch buffer.
  *  b0: 	Vol 3 (MSB)			b1: Vol 2
@@ -32,7 +32,7 @@ __data serial_latch_lo = 0x81;
  *  b4: 	RX mute				b5: 9v8
  *  b6: 	TX/RX				b7: PA on
  */
-__data serial_latch_hi = 0x31;	
+__data unsigned int serial_latch_hi = 0x31;	
 
 inline void wdt_reset() {
 	__asm
@@ -102,10 +102,9 @@ void sys_enable_latch_output() {
 }
 
 unsigned char sys_read_buttons() {
-	wdt_reset();
 	#if DEVICE == TYPE_PRM8060
 	__asm
-		clr		b
+		mov		b, #0
 		mov		dptr, #0x0d000
 		movx	a, @dptr
 		mov		r0, a
@@ -129,7 +128,7 @@ unsigned char sys_read_buttons() {
 	
 	#if DEVICE == TYPE_PRM8070
 	__asm
-		clr		b
+		mov		b, #0
 		mov		dptr, #0x0d000
 		movx	a, @dptr
 		mov		r0, a
