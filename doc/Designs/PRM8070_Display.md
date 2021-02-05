@@ -7,4 +7,4 @@ The assingment of Bits to the related display segments is shown in picture "Disp
 
 <img src="DisplaySegments.jpg" width="800" >
 
-The Firmware of the transeiver contains 5 tables, one table for each number digit.
+The Firmware of the transeiver contains 5 look up tables, one table for each number digit.
