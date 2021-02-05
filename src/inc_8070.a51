@@ -454,7 +454,8 @@ b_endbut:
 
 ;----------------------------------------
 ; Tables pour l'afficheur
-; Tables for the display B0..B3, A0..A3
+; Tables for the display 
+; Byte-Register order: B0..B3, A0..A3
 ;----------------------------------------
 ld_r1_table:
 	db	0h	; 0
@@ -716,3 +717,396 @@ ld_r10_table:
 	db	0h
 	db	00Ch
 	
+;----------------------------------------
+; Tables for the additional 8070 digits 
+; Byte-Register order: B0..B3, A0..A3
+;----------------------------------------
+ld_l1_table:
+	db	0h	; 0
+	db	0h
+	db	0Eh
+	db	0h
+	db	08h
+	db	0h
+	db	0Ah
+	db	0h
+	db	0h	; 1
+	db	0h
+	db	08h
+	db	0h
+	db	0h
+	db	0h
+	db	08h
+	db	0h
+	db	0h	; 2
+	db	0h
+	db	06h
+	db	0h
+	db	08h
+	db	0h
+	db	0Ch
+	db	0h
+	db	0h	; 3
+	db	0h
+	db	06h
+	db	0h
+	db	08h
+	db	0h
+	db	06h
+	db	0h
+	db	0h	; 4
+	db	0h
+	db	08h
+	db	0h
+	db	0h
+	db	0h
+	db	0Eh
+	db	0h
+	db	0h	; 5
+	db	0h
+	db	0Ch
+	db	0h
+	db	08h
+	db	0h
+	db	06h
+	db	0h
+	db	0h	; 6
+	db	0h
+	db	0Eh
+	db	0h
+	db	08h
+	db	0h
+	db	06h
+	db	0h
+	db	0h	; 7
+	db	0h
+	db	08h
+	db	0h
+	db	08h
+	db	0h
+	db	08h
+	db	0h
+	db	0h	; 8
+	db	0h
+	db	0Eh
+	db	0h
+	db	08h
+	db	0h
+	db	0Eh
+	db	0h
+	db	0h	; 9
+	db	0h
+	db	0Ch
+	db	0h
+	db	08h
+	db	0h
+	db	0Eh
+	db	0h
+	db	0h	; A
+	db	0h
+	db	0Ah
+	db	0h
+	db	08h
+	db	0h
+	db	0Eh
+	db	0h
+	db	0h	; B
+	db	0h
+	db	08h
+	db	0h
+	db	00h
+	db	0h
+	db	0Eh
+	db	0h
+	db	0h	; C
+	db	0h
+	db	06h
+	db	0h
+	db	08h
+	db	0h
+	db	02h
+	db	0h
+	db	0h	; D
+	db	0h
+	db	0Eh
+	db	0h
+	db	0h
+	db	0h
+	db	0Ch
+	db	0h
+	db	0h	; E
+	db	0h
+	db	06h
+	db	0h
+	db	08h
+	db	0h
+	db	06h
+	db	0h
+	db	0h	; F
+	db	0h
+	db	02h
+	db	0h
+	db	08h
+	db	0h
+	db	06h
+	db	0h
+
+ld_l10_table:
+	db	070h	; 0
+	db	0h
+	db	0h
+	db	0h
+	db	0D0h
+	db	0h
+	db	0h
+	db	0h
+	db	010h	; 1
+	db	0h
+	db	0h
+	db	0h
+	db	010h
+	db	0h
+	db	0h
+	db	0h
+	db	060h	; 2
+	db	0h
+	db	0h
+	db	0h
+	db	0B0h
+	db	0h
+	db	0h
+	db	0h
+	db	030h	; 3
+	db	0h
+	db	0h
+	db	0h
+	db	0Bh
+	db	0h
+	db	0h
+	db	0h
+	db	010h	; 4
+	db	0h
+	db	0h
+	db	0h
+	db	070h
+	db	0h
+	db	0h
+	db	0h
+	db	030h	; 5
+	db	0h
+	db	0h
+	db	0h
+	db	0E0h
+	db	0h
+	db	0h
+	db	0h
+	db	070h	; 6
+	db	0h
+	db	0h
+	db	0h
+	db	0E0h
+	db	0h
+	db	0h
+	db	0h
+	db	010h	; 7
+	db	0h
+	db	0h
+	db	0h
+	db	090h
+	db	0h
+	db	0h
+	db	0h
+	db	070h	; 8
+	db	0h
+	db	0h
+	db	0h
+	db	0F0h
+	db	0h
+	db	0h
+	db	0h
+	db	030h	; 9
+	db	0h
+	db	0h
+	db	0h
+	db	0F0h
+	db	0h
+	db	0h
+	db	0h
+	db	050h	; A
+	db	0h
+	db	0h
+	db	0h
+	db	0F0h
+	db	0h
+	db	0h
+	db	0h
+	db	070h	; B
+	db	0h
+	db	0h
+	db	0h
+	db	060h
+	db	0h
+	db	0h
+	db	0h
+	db	060h	; C
+	db	0h
+	db	0h
+	db	0h
+	db	0C0h
+	db	0h
+	db	0h
+	db	0h
+	db	070h	; D
+	db	0h
+	db	0h
+	db	0h
+	db	030h
+	db	0h
+	db	0h
+	db	0h
+	db	060h	; E
+	db	0h
+	db	0h
+	db	0h
+	db	0E0h
+	db	0h
+	db	0h
+	db	0h
+	db	040h	; F
+	db	0h
+	db	0h
+	db	0E0h
+	db	0h
+	db	0h
+	db	0h
+	db	0h
+	
+ld_l100_table:
+	db	0h	; 0
+	db	084h
+	db	01h
+	db	0h
+	db	0h
+	db	086h
+	db	0h
+	db	0h
+	db	0h	; 1
+	db	04h
+	db	0h
+	db	0h
+	db	0h
+	db	04h
+	db	0h
+	db	0h
+	db	0h	; 2
+	db	080h
+	db	01h
+	db	0h
+	db	0h
+	db	06h
+	db	01h
+	db	0h
+	db	0h	; 3
+	db	04h
+	db	01h
+	db	0h
+	db	0h
+	db	06h
+	db	01h
+	db	0h
+	db	0h	; 4
+	db	04h
+	db	0h
+	db	0h
+	db	0h
+	db	084h
+	db	01h
+	db	0h
+	db	0h	; 5
+	db	04h
+	db	01h
+	db	0h
+	db	0h
+	db	084h
+	db	01h
+	db	0h
+	db	0h	; 6
+	db	084h
+	db	01h
+	db	0h
+	db	0h
+	db	084h
+	db	01h
+	db	0h
+	db	0h	; 7
+	db	04h
+	db	0h
+	db	0h
+	db	0h
+	db	06h
+	db	0h
+	db	0h
+	db	0h	; 8
+	db	084h
+	db	01h
+	db	0h
+	db	0h
+	db	086h
+	db	01h
+	db	0h
+	db	0h	; 9
+	db	004h
+	db	01h
+	db	0h
+	db	0h
+	db	086h
+	db	01h
+	db	0h
+	db	0h	; A
+	db	084h
+	db	0h
+	db	0h
+	db	00h
+	db	086h
+	db	01h
+	db	0h
+	db	0h	; B
+	db	084h
+	db	01h
+	db	0h
+	db	0h
+	db	080h
+	db	01h
+	db	0h
+	db	0h	; C
+	db	080h
+	db	01h
+	db	0h
+	db	0h
+	db	082h
+	db	0h
+	db	0h
+	db	0h	; D
+	db	084h
+	db	01h
+	db	0h
+	db	0h
+	db	04h
+	db	01h
+	db	0h
+	db	0h	; E
+	db	080h
+	db	01h
+	db	0h
+	db	0h
+	db	082h
+	db	01h
+	db	0h
+	db	0h	; F
+	db	080h
+	db	0h
+	db	0h
+	db	0h
+	db	082h
+	db	01h
+	db	0h
