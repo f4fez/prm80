@@ -17,5 +17,6 @@
 #define PRM_SERIAL_H
 
 void serial_init();
+void serial_isr_code();
 
 #endif

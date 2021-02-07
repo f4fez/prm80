@@ -23,6 +23,8 @@
 #define EEPROM_SIZE			2048
 
 #define RAM_AREA_CONFIG		0
+#define RAM_AREA_SERIAL_RX	0x08
+#define RAM_AREA_SERIAL_TX	0x09
 
 /**
  * Update memory model to last version.

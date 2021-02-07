@@ -13,6 +13,7 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <stdio.h>
 #include "80c552.h"
 #include "main.h"
 #include "sys.h"
@@ -37,7 +38,6 @@ __bit chan_state;				// Option du canal
 										// b4: 						b5: 
 										// b6: 						b7:
 
-__bit  RS232status;				// Registre d'etat du port serie.
 __bit  charType;				// Contien le resultat de l'analyse d'n caractere
 __bit  lock = 0x00;				// Verroullage
 										// b0: Touches				b1: TX
@@ -67,14 +67,8 @@ unsigned char disp_hold = 0xff;	// Sauvegarde de de l'affichage des symboles
 //unsigned int tx_freq;
 
 //unsigned int shift;			// Shift code sur 16Bits
-/*
-PtrRXin             	//   .Pointeur d'entree buffer RX
-PtrRXout                //   .Pointeur de sortie buffer RX
-RXnbo                  	//   .Nombre d'octets dans buffer RX
-PtrTXin                	//   .Pointeur d'entree buffer TX
-PtrTXout               	//   .Pointeur d'entree buffer TX
-TXnbo                  	//   .Nombre d'octets dans buffer TX.
-Page                   	// - Numero de la page de octets.
+
+/*Page                   	// - Numero de la page de octets.
 RS_ASCmaj              	// - Octet RS232 conv. en majuscule.
 RS_HexDec              	// - Octet RS232 converti en hexa.
 AdrH                   	// - Adresse passee par RS232 (MSB).
@@ -83,9 +77,12 @@ DataRS                 	// - Donnee passee par le port serie.
 I2C_err                	// - Renvoi d'erreur acces bus I2C.*/
 
 /** rssi counter for 50ms interuption */
-unsigned char rssi_counter = RSSI_COUNTER_INIT;
-unsigned char rssi_hold;		// rssi previous value
-unsigned char chan_scan;		// Hold channel for scanning 
+__data unsigned char rssi_counter = RSSI_COUNTER_INIT;
+__data unsigned char rssi_hold;		// rssi previous value
+__data unsigned char chan_scan;		// Hold channel for scanning 
+
+// Serial interupt handler
+void serial_isr (void) __interrupt (4) { serial_isr_code(); }
 
 /**
  * Initialize the system.
@@ -127,17 +124,14 @@ void init() {
 	lcd_init_buf(0);
 
 	wdt_reset();
-	
-	// Activation des interruption
-	//setb	EA*/
 }
+
 
 void main() {
 	unsigned char but;
 	wdt_reset();
 	init();
 	lcd_clear_digits();
-	//lcd_print_hex(33);
 	lcd_refresh();
 	for(;;) {
 		wdt_reset();
@@ -145,5 +139,7 @@ void main() {
 		but = sys_read_buttons();
 		lcd_print_hex(but);
 		lcd_refresh();
+		if (but != 0)
+			printf("Hello world %x\r\n", but);
 	}
 }

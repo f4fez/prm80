@@ -42,8 +42,6 @@
 // Roles des bits du registre d'etat du port serie "RS232status" :
 // Erreur lecture dans buffer RX.
 #define RD_err			RS232status.0
-// Emission de donnees en cours
-#define TFR_run			RS232status.1
 
 // Bits analyse du type de caractere
 // Bit "Acknowledge" lu sur l'I2C.

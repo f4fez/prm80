@@ -24,7 +24,7 @@
  *  b4: Out 2				b5: Mike mute
  *  b6: Clock shift			b7: synthesizer validation
  */
-__data unsigned int serial_latch_lo = 0x81;	
+__data unsigned char serial_latch_lo = 0x81;	
 /**
  * Second latch buffer.
  *  b0: 	Vol 3 (MSB)			b1: Vol 2
@@ -32,7 +32,7 @@ __data unsigned int serial_latch_lo = 0x81;
  *  b4: 	RX mute				b5: 9v8
  *  b6: 	TX/RX				b7: PA on
  */
-__data unsigned int serial_latch_hi = 0x31;	
+__data unsigned char serial_latch_hi = 0x31;	
 
 inline void wdt_reset() {
 	__asm
@@ -88,13 +88,18 @@ void sys_init() {
 	PWMP = PWM_FREQ;
 	
 	// Timer initialisation
-	TMOD = 0x21; //0010 0001
-	TR0 = 1; // Enable timer 0
-	ET0 = 1; // Enable timer interrupt
+	TMOD = 0b00100001;
+	
+	//TR0 = 1; // Enable timer 0
+	//ET0 = 1; // Enable timer interrupt
 
 	// Initialize latch
 	sys_load_serial_latch();
 	sys_enable_latch_output();
+
+	serial_init();
+
+	EA = 1;
 }
 
 void sys_enable_latch_output() {
