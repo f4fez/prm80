@@ -14,22 +14,26 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 CONFIG_CHAN_COUNT       EQU    031h
-CONFIG_SHIFT_LO         EQU    080h
+
+;CONFIG_SHIFT_LO         EQU    060h			; Shift = 7.6Mhz (Germany)
+;CONFIG_SHIFT_HI         EQU    002h
+CONFIG_SHIFT_LO         EQU    080h				; Shift = 1.6Mhz (France)
 CONFIG_SHIFT_HI         EQU    000h
+
 CONFIG_PLL_DIV_LO       EQU    090h
 CONFIG_PLL_DIV_HI       EQU    020h
 CONFIG_SCAN_DURATION	EQU    008h
 
 freq_list:
-        ; Channel : 0 Frequency : 430.025000
-        DB      086h
-        DB      062h
-        ; Channel : 1 Frequency : 430.050000
-        DB      086h
-        DB      064h
-        ; Channel : 2 Frequency : 430.075000
-        DB      086h
-        DB      066h
+        ; Channel : 0 Frequency : 439.375000 (DB0HM)
+        DB      089h
+        DB      04Eh
+        ; Channel : 1 Frequency : 439.425000 (DB0GK)
+        DB      089h
+        DB      052h
+        ; Channel : 2 Frequency : 439.837500 (DO0DAP, needs Subtone :-( ) 
+        DB      089h
+        DB      073h
         ; Channel : 3 Frequency : 430.100000
         DB      086h
         DB      068h
@@ -117,11 +121,79 @@ freq_list:
         ; Channel : 31 Frequency : 433.500000
         DB      087h
         DB      078h
+		
+		
+shift_list:
+        ; Channel : 0 Shift : 7.6 Mhz
+        DW      0260h 		
+        ; Channel : 1 Shift : 7.6 Mhz
+        DW      0260h
+        ; Channel : 2 Shift : 9.4 Mhz
+        DW      02F0h
+        ; Channel : 3 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 4 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 5 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 6 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 7 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 8 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 9 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 10 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 11 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 12 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 13 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 14 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 15 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 16 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 17 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 18 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 19 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 20 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 21 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 22 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 23 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 24 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 25 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 26 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 27 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 28 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 29 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 30 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 31 Shift : 0.0 Mhz
+        DW      0h
+
 
 chan_state_table:
-        DB      05h    ; Channel : 0
-        DB      05h    ; Channel : 1
-        DB      05h    ; Channel : 2
+        DB      01h    ; Channel : 0	00000001b = Negative Shift
+        DB      01h    ; Channel : 1	00000101b = Positive Shift
+        DB      01h    ; Channel : 2	
         DB      05h    ; Channel : 3
         DB      05h    ; Channel : 4
         DB      05h    ; Channel : 5
