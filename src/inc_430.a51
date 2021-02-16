@@ -121,6 +121,60 @@ freq_list:
         ; Channel : 31 Frequency : 433.500000
         DB      087h
         DB      078h
+        ; Channel : 32 Frequency : 433.500000
+        DB      087h
+        DB      078h
+        ; Channel : 33 Frequency : 433.500000
+        DB      087h
+        DB      078h
+        ; Channel : 34 Frequency : 433.500000
+        DB      087h
+        DB      078h
+        ; Channel : 35 Frequency : 433.500000
+        DB      087h
+        DB      078h
+        ; Channel : 36 Frequency : 433.500000
+        DB      087h
+        DB      078h
+        ; Channel : 37 Frequency : 433.500000
+        DB      087h
+        DB      078h
+        ; Channel : 38 Frequency : 433.500000
+        DB      087h
+        DB      078h
+        ; Channel : 39 Frequency : 433.500000
+        DB      087h
+        DB      078h
+        ; Channel : 40 Frequency : 433.500000
+        DB      087h
+        DB      078h
+        ; Channel : 41 Frequency : 433.500000
+        DB      087h
+        DB      078h
+        ; Channel : 42 Frequency : 433.500000
+        DB      087h
+        DB      078h
+        ; Channel : 43 Frequency : 433.500000
+        DB      087h
+        DB      078h
+        ; Channel : 44 Frequency : 433.500000
+        DB      087h
+        DB      078h
+        ; Channel : 45 Frequency : 433.500000
+        DB      087h
+        DB      078h
+        ; Channel : 46 Frequency : 433.500000
+        DB      087h
+        DB      078h
+        ; Channel : 47 Frequency : 433.500000
+        DB      087h
+        DB      078h
+        ; Channel : 48 Frequency : 433.500000
+        DB      087h
+        DB      078h
+        ; Channel : 49 Frequency : 433.500000
+        DB      087h
+        DB      078h
 		
 		
 shift_list:
@@ -188,7 +242,42 @@ shift_list:
         DW      0h
         ; Channel : 31 Shift : 0.0 Mhz
         DW      0h
-
+        ; Channel : 32 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 33 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 34 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 35 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 36 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 37 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 38 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 39 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 40 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 41 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 42 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 43 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 44 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 45 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 46 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 47 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 48 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 49 Shift : 0.0 Mhz
+        DW      0h
 
 chan_state_table:
         DB      01h    ; Channel : 0	00000001b = Negative Shift
@@ -223,4 +312,21 @@ chan_state_table:
         DB      01h    ; Channel : 29
         DB      01h    ; Channel : 30
         DB      00h    ; Channel : 31
-
+        DB      00h    ; Channel : 32
+        DB      00h    ; Channel : 33
+        DB      00h    ; Channel : 34
+        DB      00h    ; Channel : 35
+        DB      00h    ; Channel : 36
+        DB      00h    ; Channel : 37
+        DB      00h    ; Channel : 38
+        DB      00h    ; Channel : 39
+        DB      00h    ; Channel : 40
+        DB      00h    ; Channel : 41
+        DB      00h    ; Channel : 42
+        DB      00h    ; Channel : 43
+        DB      00h    ; Channel : 44
+        DB      00h    ; Channel : 45
+        DB      00h    ; Channel : 46
+        DB      00h    ; Channel : 47
+        DB      00h    ; Channel : 48
+        DB      00h    ; Channel : 49

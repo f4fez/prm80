@@ -1,4 +1,8 @@
-This is the description of the computer commands for the [version 4](https://github.com/f4fez/prm80/blob/doc/Release%20note.md) firmware. See also the [computer interface](Computer control.md) for hardware and communication parameters.
+This is the description of the computer commands for the version 5 beta firmware. 
+If you plan to play arround with this version contact the author of this page.
+
+See also the [computer interface](Computer_control.md) for hardware and communication parameters.
+
 
 Memory description
 ==================
@@ -25,7 +29,7 @@ Mode byte
 This general variable hold the state of system basic features.
 
 * b0: Squelch mode is displayed on LCD if true. Channel mode if false.
-* b1: Power level (High or Low mode)
+* b1: Power level (High or Low mode, low Power Mode if true)
 * b2: Squelch open (Read only)
 * b3: TX mode (Read only)
 * b4: PLL locked (Read only)
@@ -87,7 +91,9 @@ Display the value on the internal CPU port P5. Used for debuging.
 
 C: Print channels list
 ----------------------
-List all saved channel. Print channel number, frequency and channel statebyte.
+List all saved channel. Print channel number, Rx frequency (PLL value, not considering 21.4 Mhz IF),
+Split frequency (PLL value) and channel statebyte.
+* RX frequency [Hz] = PLL value * 12500
 
 D: Set "Mode" byte
 ------------------
@@ -145,7 +151,7 @@ The lock bit b2: "Volume button disabled" has to be set else this command will w
 
 P: Edit/Add channel
 -------------------
-This is the main function for editing a channel. Set the RX frequency as PLL word and the channel status byte. 
+This is the main function for editing a channel. Set the RX frequency as PLL word, the channel specific shift and the channel status byte. 
 
 To add a new channel, choose a not existing channel (i.e. 99). The next available number will be used.
 
@@ -155,7 +161,9 @@ This command set the total number of channel. Since there is no channel delete f
 
 R: Set synthetiser frequencies
 ------------------------------
-This command set the PLL words for RX and TX frequency. This function do not modify channels parameters. This is usefull for hardware check.
+This command set the PLL words for RX and TX frequency. This function do not modify channels parameters. This is usefull for hardware check. Please consider the 21.4 Mhz IF while calculating the RX PLL value.
+* RX PLL = (frequency [Hz] - 21400000Hz) / 12500
+* TX PLL =  frequency [Hz] / 12500
 
 U: Print 80c552 internal RAM
 ----------------------------

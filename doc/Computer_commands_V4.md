@@ -1,4 +1,4 @@
-This is the description of the computer commands for the [version 4](https://github.com/f4fez/prm80/blob/doc/Release%20note.md) firmware. See also the [computer interface](Computer control.md) for hardware and communication parameters.
+This is the description of the computer commands for the [version 4](https://github.com/f4fez/prm80/blob/doc/Release%20note.md) firmware. See also the [computer interface](Computer_control.md) for hardware and communication parameters.
 
 Memory description
 ==================
@@ -25,7 +25,7 @@ Mode byte
 This general variable hold the state of system basic features.
 
 * b0: Squelch mode is displayed on LCD if true. Channel mode if false.
-* b1: Power level (High or Low mode)
+* b1: Power level (High or Low mode, low Power Mode if true)
 * b2: Squelch open (Read only)
 * b3: TX mode (Read only)
 * b4: PLL locked (Read only)

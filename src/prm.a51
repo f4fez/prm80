@@ -392,7 +392,7 @@ m_notx:
 ;*** RSSI
 	call	rssi
 
-;*** Affichage sur le lcd
+;*** Affichage sur le lcd / Display on the lcd
 	call	wdt_reset
 	jnb	mode.7, m_end
 	call	load_lcd
