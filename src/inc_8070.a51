@@ -144,6 +144,23 @@ ll_send:
 	nop
 	djnz	r0, ll_send	; fin de la boucle
 	ret
+
+;-------------------------------------------
+; Display of numbers on the left 3 lcd digits
+;-------------------------------------------
+; Afficher unites, valeur dans R0
+; Display units, value in R0
+
+lcd_print_digit_d100_l:
+    mov		dptr, #ld_l100_table
+	sjmp	lcd_print_digit
+lcd_print_digit_d10_l:
+    mov		dptr, #ld_l10_table
+	sjmp	lcd_print_digit
+lcd_print_digit_d1_l:
+	mov	dptr, #ld_l1_table
+	sjmp	lcd_print_digit
+
 	
 ;----------------------------------------
 ; Affichage de chiffres sur le lcd
@@ -152,47 +169,48 @@ ll_send:
 ; Afficher unites, valeur dans R0
 ; Display units, value in R0
 lcd_print_digit_d10:
-        mov	dptr, #ld_r10_table
+    mov		dptr, #ld_r10_table
 	sjmp	lcd_print_digit
 lcd_print_digit_d1:
-        mov	dptr, #ld_r1_table
+    mov		dptr, #ld_r1_table
+
 lcd_print_digit:
 	call	wdt_reset
 	mov 	a, r0
-	rl	a						; calculate position within _table (1..F)
-	rl	a
-	rl	a
-	mov	r0, a
+	rl		a						; calculate position within _table (1..F)
+	rl		a
+	rl		a
+	mov		r0, a
 	movc	a, @a+dptr			; fetch all 8 values
-	orl	lcd_dataB0,a
-	inc	r0
+	orl		lcd_dataB0,a
+	inc		r0
 	mov 	a, r0
 	movc	a, @a+dptr
-	orl	lcd_dataB1,a
-	inc	r0
+	orl		lcd_dataB1,a
+	inc		r0
 	mov 	a, r0
 	movc	a, @a+dptr
-	orl	lcd_dataB2,a
-	inc	r0
+	orl		lcd_dataB2,a
+	inc		r0
 	mov 	a, r0
 	movc	a, @a+dptr
-	orl	lcd_dataB3,a
-	inc	r0
+	orl		lcd_dataB3,a
+	inc		r0
 	mov 	a, r0
 	movc	a, @a+dptr
-	orl	lcd_dataA0,a
-	inc	r0
+	orl		lcd_dataA0,a
+	inc		r0
 	mov 	a, r0
 	movc	a, @a+dptr
-	orl	lcd_dataA1,a
-	inc	r0
+	orl		lcd_dataA1,a
+	inc		r0
 	mov 	a, r0
 	movc	a, @a+dptr
-	orl	lcd_dataA2,a
-	inc	r0
+	orl		lcd_dataA2,a
+	inc		r0
 	mov 	a, r0
 	movc	a, @a+dptr
-	orl	lcd_dataA3,a
+	orl		lcd_dataA3,a
 	ret
 
 ;----------------------------------------
@@ -210,8 +228,30 @@ lcd_print_dec:
 	mov	r0, b
 	call	lcd_print_digit_d1
 	ret
+
+;----------------------------------------
+; Display a value in hexadecimal at left 3 digits
+;----------------------------------------
+; Valeur dans R0
+lcd_print_hex_l:
+	call	wdt_reset
+	mov	a, r0
+	mov	r2, a
+	anl	a, #0fh
+	mov	r0, a
+	call	lcd_print_digit_d1_l
+	mov	a, r2
+	call	lcd_print_digit_d100_l		;for testing both digits will show the same value
+	mov	a, r2
+	swap	a
+	anl	a, #0fh
+	mov	r0, a
+	call	lcd_print_digit_d10_l
+	ret
+
 ;----------------------------------------
 ; Affichage d'une valeur en hexadecimal
+; Display a value in hexadecimal
 ;----------------------------------------
 ; Valeur dans R0
 lcd_print_hex:
@@ -238,6 +278,20 @@ lcd_clear_digits_r:
 	anl	lcd_dataA0, #0fch
 	anl	lcd_dataA3, #003h
 
+	ret
+	
+;------------------------------------------
+; Effacement des chiffres
+; Clearing the numbers of the left 3 digits
+;------------------------------------------
+lcd_clear_digits_l:
+	call	wdt_reset
+	anl	lcd_dataB0, #00001111b
+	anl	lcd_dataB1, #01111011b
+	anl	lcd_dataB2, #11110000b
+	anl	lcd_dataA0, #00000111b
+	anl	lcd_dataA1, #01111001b
+	anl	lcd_dataA2, #11110000b
 	ret
 
 ;----------------------------------------
@@ -403,11 +457,11 @@ b_but6: ;
 	jmp	b_endbut
 b_but7: ; 
 	cjne	a, #64, b_but8
-
+	call	L_Disp_inc				; Test: Increment Left 3 display digits
 	jmp	b_endbut
 b_but8: ; 
 	cjne	a, #128, b_but16
-
+	call	L_Disp_dec				; Test: Decrement Left 3 display digits
 	jmp	b_endbut
 b_but16: ; 1 + 6
 	cjne	a, #33, b_endbut

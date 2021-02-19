@@ -676,6 +676,38 @@ switch_mode:
 	call	update_lcd
 	ret
 
+IF TARGET EQ 8070
+;------------------------------------------
+; Inc / Dec Left 3 Segments (for Test only)
+;------------------------------------------
+L_Disp_inc:
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_L_Disp
+	movx	a, @dptr
+	inc	a
+	movx	@dptr, a
+	mov	b, a
+	jmp	L_Disp_update
+
+L_Disp_dec:
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_L_Disp
+	movx	a, @dptr
+	dec	a
+	movx	@dptr, a 
+
+L_Disp_update:
+	; Calcul de la checksum
+	call	load_config_area_checksum
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_CONFIG_SUM
+	movx	@dptr, a
+	
+	call	update_L_lcd
+
+	ret
+ENDIF
+
 ;----------------------------------------
 ; Inc / Dec canal ou squelch
 ;----------------------------------------
@@ -824,6 +856,24 @@ fin_rd_all:      POP        DPL            ;
                  POP        DPH            ; 
                  POP        ACC            ; 
                  RET
+
+IF TARGET EQ 8070
+;----------------------------------------
+; Update left 3 digits of LCD
+;----------------------------------------
+update_L_lcd:
+		call	wdt_reset
+		mov	dph, #RAM_AREA_CONFIG		; Test Value currently only
+		mov	dpl, #RAM_L_Disp
+		movx	a, @dptr
+		mov	r0, a
+
+		call	lcd_clear_digits_l
+		call	lcd_print_hex_l
+		setb	mode.7
+
+		ret		 
+ENDIF
 
 ;----------------------------------------
 ; Mise a jour du lcd
