@@ -1,4 +1,4 @@
-This is the description of the computer commands for the [version 3](https://github.com/f4fez/prm80/blob/doc/Release%20note.md) firmware. See also the [computer interface](Computer control.md) for hardware and communication parameters.
+This is the description of the computer commands for the [version 3](https://github.com/f4fez/prm80/blob/doc/Release%20note.md) firmware. See also the [computer interface](Computer_control.md) for hardware and communication parameters.
 
 Memory description
 ==================
@@ -16,7 +16,7 @@ During the boot, the RAM memory is checked. If the content is invalid (First sta
 During service, only the RAM data is modified for storing the current channel, squelch value, reverse mode... This is usefull to restore the last channel when turning on the radio.
 When altering the RAM, the checksum is automaticaly computed for common functions (Except for direct RAM write "M"). 
 
-When programming channels from the computer interface, only the RAM is modified. So you can rollback your modification ("S" command) for copying the EEPROM to the RAM. Or you can save it from the RAM to the EEPROM ("X" command) to be sure that your parameters will bes restored if the RAM is altered (Long power cut)
+When programming channels from the computer interface, only the RAM is modified. So you can rollback your modification ("S" command) for copying the EEPROM to the RAM. Or you can save it from the RAM to the EEPROM ("X" command) to be sure that your parameters will be restored if the RAM is altered (Long power cut)
 
 System variable bits
 ====================
