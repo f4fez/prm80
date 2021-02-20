@@ -1,7 +1,7 @@
 Interface
 =========
 Details of the modification to add the 1750 Hz tone for repeater command come from the serail interface diagrams (Do not take care about the RS232 stuff)
-[](Db15_interface.png)
+![DB-15 interface](Db15_interface.png)
 This requiere few components and can take place is the plug enclosure.
 
 Use
