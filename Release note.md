@@ -4,7 +4,7 @@ Version 4.0
 * Channels scanning added. Lock out available on [PRM8070](PRM8070.md) or via [PC programming](Computer_commands_V4.md).
 * RSSI indicator.
 * [PRM8070](PRM8070.md) support.
-* [UHF](prm80x0 430.bin.md) version for 70cm operations
+* [UHF](prm80x0_430.bin.md) version for 70cm operations
 
 Version 3.0
 ===========
