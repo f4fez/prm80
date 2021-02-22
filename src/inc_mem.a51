@@ -68,18 +68,24 @@ ELSEIF FREQ EQ 430
 	mov	rx_freq_hi, a
 ENDIF
 
+
 	; Activation du shift au besoin
-	; Shift activation as needed
+	; Shift activation as needed (add shift to Tx freq.)
 	;
 	; 2021-02: New feature channel specific shift by DC0CM
 	; If channel specific shift is available (!= 0) 
 	; use channel specific shift instead of global shift
+	
 
 
 
-	jnb	chan_state.0, gfn_end		
-
-
+	jb	chan_state.0, get_ch_shift			
+IF TARGET EQ 8070
+	mov		a,#0
+	mov		R0,#0
+ENDIF
+	sjmp gfn_end1
+	
 get_ch_shift:
 	; Is there a channel specific shift stored?
 	clr 	helpbit0
@@ -110,12 +116,9 @@ ch_shift_nz:								; ->  channel specific shift !
 	mov		shift_lo, a
 ch_shift_end:
 
-IF TARGET EQ 8070
-	call 	shift_dsp						; write shift value to display (PRM8070 only)
-ENDIF
 
 	jnb	chan_state.2, gnf_shift_n			; Test si shift - ou +
-gnf_shift_p:		; Shift positif
+gnf_shift_p:								; Shift positif
 	mov	r0, shift_lo
 	mov	a, tx_freq_lo
 	add	a, r0
@@ -123,8 +126,8 @@ gnf_shift_p:		; Shift positif
 	mov	a, shift_hi
 	addc	a, tx_freq_hi
 	mov	tx_freq_hi, a
-	jmp	gfn_end
-gnf_shift_n:		; Shift negatif
+	jmp	gfn_end0
+gnf_shift_n:								; Shift negatif
 	clr	c
 	mov	r0, shift_lo
 	mov	a, tx_freq_lo
@@ -133,7 +136,18 @@ gnf_shift_n:		; Shift negatif
 	mov	a, tx_freq_hi 
 	subb	a, shift_hi
 	mov	tx_freq_hi, a
-	
+gfn_end0:
+IF TARGET EQ 8070
+	mov		a, shift_lo
+	mov		R0, shift_hi
+ENDIF
+
+gfn_end1:
+IF TARGET EQ 8070
+	call 	shift_dsp						; write shift value to dez. storage and display (PRM8070 only)
+ENDIF
+
+
 gfn_end:
 	ret
 
@@ -883,14 +897,18 @@ ENDIF
 ; Mise a jour du lcd
 ;----------------------------------------
 update_lcd:
+
+IF TARGET EQ 8070
+		call	lcd_print_dez_l				; put the dez shift values to left display buffer if PRM8070
+ENDIF
 		jb	mode2.2, ul_end
 		call	wdt_reset
-		jb	mode.0, ul_sql			; Si mode sql aller plus loin
-		jnb	mode2.0, update_lcd_load	; Test if scanning, channel is not saved in the same place
+		jb	mode.0, ul_sql					; Si mode sql aller plus loin
+		jnb	mode2.0, update_lcd_load		; Test if scanning, channel is not saved in the same place
 		mov	a, chan_scan
 		jmp	update_lcd_update
 update_lcd_load:
-		mov	dph, #RAM_AREA_CONFIG		; sinon charger canal
+		mov	dph, #RAM_AREA_CONFIG			; sinon charger canal
 		mov	dpl, #RAM_CHAN
 		movx	a, @dptr
 update_lcd_update:

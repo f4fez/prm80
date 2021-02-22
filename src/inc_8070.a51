@@ -602,8 +602,6 @@ check100done:
 	anl		a,#0Fh	
 	mov		shift_dHi,a					;	
 	
-	call	lcd_print_dez_l				; put the values to display buffer
-	
 	pop		acc
 	XCH		a, R0						; restore R0
 	pop 	acc

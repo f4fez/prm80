@@ -229,15 +229,15 @@ CH_enter        EQU     charType.6    ; - Caractere recu = ENTER.
 ; Secteur de boot
 ;----------------------------------------
 	ORG		RESET			; Vecteur d'interruption du RESET
-	LJMP	init			;Contourner la zone des vecteurs
+	LJMP	init			; Contourner la zone des vecteurs
 							; d'interruption...
 
 	ORG        EXTI0        ; Tant que les interruptions ne
 	RETI                   	; sont pas utilisees, le code de
-	      			; fin d'interruption (RETI) ne sert 	
-	                   	; a rien ; il est la uniquement à
-				; titre de precaution...
-	ORG        TIMER0	; Interuption du Timer0
+							; fin d'interruption (RETI) ne sert 	
+							; a rien ; il est la uniquement à
+							; titre de precaution...
+	ORG        TIMER0		; Interuption du Timer0
 	LJMP	   Int_Timer0
 	
 	ORG        EXTI1       	
@@ -352,7 +352,7 @@ init_no_reset:
 	; Chargement parametre
 	call	load_parameters
 
-	; Chargement de l'etat du poste
+	; Chargement de l'etat du poste / Loading of the job status
 	call	load_state
 
 	; Chargement du volume
