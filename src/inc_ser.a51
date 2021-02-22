@@ -936,7 +936,8 @@ fin_progchan1:						;(distance for JB/JNB too far)
 shift_progchan:
 	MOV     r6,A					; SHIFT MSB dans R6
 	CALL    XXinRS232
-	JNB     XXDD_OK,fin_progchan
+	JNB     XXDD_OK,fin_progchan1
+	
 	MOV     r7,A					; SHIFT LSB dans R7
 	call	CRLF_RS232
 
@@ -1005,6 +1006,10 @@ pc_write:
 	call	load_freq_area_checksum
 	mov		dph, #ram_area_config
 	mov		dpl, #ram_freq_sum
+	movx	@dptr, a
+	call	load_shift_area_checksum
+	mov		dph, #RAM_AREA_CONFIG
+	mov		dpl, #RAM_SHIFT_SUM
 	movx	@dptr, a
 	call	load_state_area_checksum
 	mov		dph, #ram_area_config
