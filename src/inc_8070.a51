@@ -488,12 +488,10 @@ b_but6: ;
 	call	switch_mode				; Switch Mode (Channel <-> Squelch)
 	jmp	b_endbut
 b_but7: ; 
-	cjne	a, #64, b_but8
-	call	L_Disp_dec				; Test: Decrement Left 3 display digits
+	cjne	a, #64, b_but8			; left Down button
 	jmp	b_endbut
 b_but8: ; 
-	cjne	a, #128, b_but16
-	call	L_Disp_inc				; Test: Increment Left 3 display digits
+	cjne	a, #128, b_but16		; left Up button
 	jmp	b_endbut
 b_but16: ; 1 + 6
 	cjne	a, #33, b_endbut
@@ -551,6 +549,16 @@ shift_dsp:
 	push	acc
 	XCH		a,R0
 
+	jb		shift_active, shiftNzero	; shift active if 1
+	mov		a,#0
+	mov 	R0,#0
+	sjmp	shift_go
+
+shiftNzero:
+	mov		a, shift_lo
+	mov		R0, shift_hi
+
+shift_go:
 	mov		R3,a						; Low Shift
 
 										; shift frequency *12,5 (khz)
@@ -602,9 +610,12 @@ check100done:
 	anl		a,#0Fh	
 	mov		shift_dHi,a					;	
 	
+	call	lcd_print_dez_l				; values to Disp Buffer
+
 	pop		acc
 	XCH		a, R0						; restore R0
 	pop 	acc
+
 	ret
 
 ;----------------------------------------

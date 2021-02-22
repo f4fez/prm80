@@ -79,12 +79,7 @@ ENDIF
 
 
 
-	jb	chan_state.0, get_ch_shift			
-IF TARGET EQ 8070
-	mov		a,#0
-	mov		R0,#0
-ENDIF
-	sjmp gfn_end1
+	jnb	chan_state.0, gfn_end0			
 	
 get_ch_shift:
 	; Is there a channel specific shift stored?
@@ -136,17 +131,12 @@ gnf_shift_n:								; Shift negatif
 	mov	a, tx_freq_hi 
 	subb	a, shift_hi
 	mov	tx_freq_hi, a
+
 gfn_end0:
 IF TARGET EQ 8070
-	mov		a, shift_lo
-	mov		R0, shift_hi
-ENDIF
-
-gfn_end1:
-IF TARGET EQ 8070
 	call 	shift_dsp						; write shift value to dez. storage and display (PRM8070 only)
+	setb	ForceLCDrefresh					;
 ENDIF
-
 
 gfn_end:
 	ret
@@ -527,7 +517,12 @@ switch_shift_update:
 	mov	r0, rx_freq_lo
 	mov	r1, rx_freq_hi
 	call	load_synth
-	
+
+IF TARGET EQ 8070
+	call 	shift_dsp						; write shift value to dez. storage and display (PRM8070 only)
+	setb	ForceLCDrefresh
+ENDIF
+
 	ret
 
 ;----------------------------------------
@@ -535,7 +530,7 @@ switch_shift_update:
 ; and switch positive / negative
 ;----------------------------------------
 switch_shift_mode2:
-	jnb	mode2.0, switch_shift2_load	; Test if scanning, channel is not saved in the same place
+	jnb	mode2.0, switch_shift2_load			; Test if scanning, channel is not saved in the same place
 	mov	r0, chan_scan
 	jmp	switch_shift2_update
 switch_shift2_load:
@@ -575,6 +570,11 @@ ssm2_cont:
 	mov	r0, rx_freq_lo
 	mov	r1, rx_freq_hi
 	call	load_synth
+	
+IF TARGET EQ 8070
+	call 	shift_dsp						; write shift value to dez. storage and display (PRM8070 only)
+	setb	ForceLCDrefresh
+ENDIF
 	
 	ret
 
@@ -893,17 +893,15 @@ update_L_lcd:
 		ret		 
 ENDIF
 
-;----------------------------------------
-; Mise a jour du lcd
-;----------------------------------------
+;---------------------------------------------
+; Mise a jour du lcd /  Update of the lcd
+; Update Channel/Squelch if no RSSI to display
+;----------------------------------------------
 update_lcd:
 
-IF TARGET EQ 8070
-		call	lcd_print_dez_l				; put the dez shift values to left display buffer if PRM8070
-ENDIF
-		jb	mode2.2, ul_end
+		jb	mode2.2, ul_end					; RSSI to display? -> done
 		call	wdt_reset
-		jb	mode.0, ul_sql					; Si mode sql aller plus loin
+		jb	mode.0, ul_sql					; Si mode sql aller plus loin  / If sql mode go further
 		jnb	mode2.0, update_lcd_load		; Test if scanning, channel is not saved in the same place
 		mov	a, chan_scan
 		jmp	update_lcd_update

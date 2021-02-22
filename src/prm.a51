@@ -83,7 +83,8 @@ chan_state	EQU	RAMbit+4	; Option du canal
 					; b2: shift +		b3: lock out
 					; b4: 			b5: 
 					; b6: 			b7:
-chan_s:				DBIT 8			; reserved for chan_state.0...7
+shift_active:		DBIT 1			; b0: shift actif
+chan_s:				DBIT 7			; reserved for chan_state.1...7
 
 RS232status	EQU	RAMbit+5	; Registre d'etat du port serie.
 RS232s:				DBIT 8
@@ -374,9 +375,12 @@ init_no_reset:
 	mov	lcd_dataB2, #0h
 	mov	lcd_dataB3, #0h	
 
-	call	update_lcd
+	call	update_lcd						; channel/sqeulch values to display buffer
+IF TARGET EQ 8070							; put the dez shift values to left display buffer if PRM8070 
+	call	lcd_print_dez_l					; 
+ENDIF
 	
-	mov	r7, #0fh
+	mov	r7, #0fh							; ?
 
 	; Activation des interruption
 	setb	EA
@@ -490,8 +494,9 @@ ELSEIF FREQ EQ 430
 $include (inc_430.a51) 			; Chargement de la configuration version 430MHz
 ENDIF
 
+IF DEBUG EQ 1
 $include (inc_data.a51) 	; 
-
+ENDIF
 	end
 
 ENDIF ; IFNDEF TARGET
