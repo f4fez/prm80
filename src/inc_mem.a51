@@ -91,26 +91,30 @@ get_ch_shift:
 	movx	a, @dptr
 	mov		r0,a
 	jnz 	ch_shift_hi_nz
-	setb 	helpbit0				; chx_shift high = 0!
+	setb 	helpbit0						; chx_shift high = 0!
 ch_shift_hi_nz:	
 	inc		dptr
 	movx	a, @dptr
-	jnz		ch_shift_nz				; if channel specific shift (lo and hi) are zero 
+	jnz		ch_shift_nz						; if channel specific shift (lo and hi) are zero 
 	jnb		helpbit0, ch_shift_nz 	
 
-	mov		dph, #RAM_AREA_CONFIG	; ->  no channel specific shift !
-	mov		dpl, #RAM_SHIFT_HI		;
+	mov		dph, #RAM_AREA_CONFIG			; ->  no channel specific shift !
+	mov		dpl, #RAM_SHIFT_HI				;
 	movx	a, @dptr					
 	mov		r0, a
 	inc		dptr
 	movx	a, @dptr
 
-ch_shift_nz:						; ->  channel specific shift !
+ch_shift_nz:								; ->  channel specific shift !
 	mov		shift_hi, r0
 	mov		shift_lo, a
 ch_shift_end:
 
-	jnb	chan_state.2, gnf_shift_n	; Test si shift - ou +
+IF TARGET EQ 8070
+	call 	shift_dsp						; write shift value to display (PRM8070 only)
+ENDIF
+
+	jnb	chan_state.2, gnf_shift_n			; Test si shift - ou +
 gnf_shift_p:		; Shift positif
 	mov	r0, shift_lo
 	mov	a, tx_freq_lo
@@ -868,8 +872,8 @@ update_L_lcd:
 		movx	a, @dptr
 		mov	r0, a
 
-		call	lcd_clear_digits_l
-		call	lcd_print_hex_l
+;		call	lcd_clear_digits_l
+;		call	lcd_print_hex_l
 		setb	mode.7
 
 		ret		 

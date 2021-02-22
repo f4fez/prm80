@@ -78,9 +78,9 @@ sv_adc_lp:
 
 	; Modification du volume
 	mov	a, adch
-	cpl	a
-	cjne	a, vol_hold, sv_cont1	; Test la valeur memorise et la valeur courante
-	ret				; fin si egaux
+	cpl	a									; Tests the stored value and the current value
+	cjne	a, vol_hold, sv_cont1			; Test la valeur memorise et la valeur courante
+	ret										;fin si egaux / end if equal			
 
 load_volume:
 sv_cont1:

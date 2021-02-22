@@ -502,16 +502,21 @@ tch_4:           CJNE       A,#'4',tch_5       ; - Touche [4] ?
                  call       HEX_RS232          ; 
                  JMP        tch_suiv           ; 
                                                ; 
-tch_5:           CJNE       A,#'5',tch_C       ; - Touche [5] ?
+tch_5:           CJNE       A,#'5',tch_A       ; - Touche [5] ?
                  MOV        DPTR,#Message07    ;   afficher l'état du port P5.
                  call       MESS_RS232         ; 
                  MOV        A,P5               ; 
                  call       HEX_RS232          ; 
                  JMP        tch_suiv           ; 
                                                ; 
+tch_A:           CJNE       A,#'A',tch_C       ; - Touche [A] ?
+				 CALL	    send_rssi
+                 JMP        tch_suiv           ;
+
 tch_C:           CJNE       A,#'C',tch_D       ; - Touche [C] ?
 				 CALL	    list_chan
                  JMP        tch_suiv           ;
+
 tch_D:           CJNE       A,#'D',tch_E       ; - Touche [D] ?
                  MOV        DPTR,#Message39    ; 
                  call       MESS_RS232         ; 
@@ -598,6 +603,7 @@ tch_O:           CJNE       A,#'O',tch_P       ; - Touche [O] ?
                  call       MESS_RS232         ; 
                  call       DDinRS232          ; 
                  JNB        XXDD_OK, tch_o_end ; 
+				 setb		VolDisabled		   ;   Disable Volume via Poti
 				 cpl	    a
 				 swap	    a
 				 call	    load_volume
@@ -1048,6 +1054,31 @@ fin_set_max_chan:
     POP     DPH
     POP     ACC
     RET
+
+; Sending the current rssi value and status bits
+; rssi - status (status.b0=1: squelch is open, .b1=1 transmitt active)
+send_rssi:
+	push	ACC
+	push	DPH
+	push	DPL
+	call 	read_rssi
+	mov 	a,R0
+	call	HEX_RS232
+	clr		a
+
+	jnb		mode.2,chk_sql_rdy			
+	setb	Acc.0				; Squelch is open
+chk_sql_rdy:
+
+	jnb		mode.3,chk_tx_rdy			
+	setb	Acc.1				; Transmitt on
+chk_tx_rdy:
+	call	HEX_RS232
+	pop	DPL
+	pop	DPH
+	pop	ACC
+	RET
+
 	
 ; Envoi l'etat du poste
 ; Sending the current status
@@ -1173,7 +1204,7 @@ ELSEIF FREQ EQ 430
 			  DB   " 430"
 ENDIF
 			  DB   " Firmware (c) F4FEZ / F8EGQ / DC0CM",00Dh,00Ah
-              DB   "Version 5 Beta, 18/01/2021.",00Dh,00Ah
+              DB   "Version 5 Beta, 20/02/2021.",00Dh,00Ah
 			  DB   ">",0
 Message03:    DB   "P1 = $",0 
 Message04:    DB   "P2 = $",0 

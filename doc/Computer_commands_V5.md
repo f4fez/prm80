@@ -89,6 +89,13 @@ Display the value on the internal CPU port P4. Used for debuging.
 ----------------------------
 Display the value on the internal CPU port P5. Used for debuging.
 
+A: Print value of RSSI, squelch and transmit status
+---------------------------------------------------
+* Byte0:    RSS1
+* Byte1.b0: squelch is open when true
+* Byte1.b1: transmitt active when true
+This command was optimized for machine use / performance. Therefore no headlines are sent
+
 C: Print channels list
 ----------------------
 List all saved channel. Print channel number, Rx frequency (PLL value, not considering 21.4 Mhz IF),
@@ -145,7 +152,8 @@ Switch the radio to the given channel.
 O: Set volume
 -------------
 Set the volume. The value use hexadecimal values between 00 and 0F.
-Allowed vaulues: "00" .. "09"; "10".. "15". Everything beside dez values will be rejected, other (higher) dez. values will lead to wrong settings 
+Allowed vaulues: "00" .. "09"; "10".. "15". Everything beside dez values will be rejected, other (higher) dez. values will lead to wrong settings
+New since V5: this command will also disable volume control via panel (poti)  
 
 The lock bit b2: "Volume button disabled" has to be set else this command will will not be persuit (See "K" command).
 

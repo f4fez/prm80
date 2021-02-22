@@ -44,38 +44,65 @@ $INCLUDE (83c552.mcu)
 ;----------------------------------------
 ; SFRs
 ;----------------------------------------
-AUXR1		EQU	0a2h
+AUXR1				EQU	0a2h
 
-RAM		EQU	030h
-RAMbit		EQU	020h
+RAM					EQU	030h
+
+RAMbit				EQU	020h
+					BSEG AT 0h
 ;----------------------------------------
 ; Variables
 ;----------------------------------------
-serial_latch_lo	EQU	RAMbit+0	; Valeur du premier verrou
-serial_latch_hi	EQU	RAMbit+1	; Valeur du deuxieme verrou
+slatch_lo:			DBIT 8			; Valeur du premier verrou
+slatch_hi:			DBIT 8			; Valeur du deuxieme verrou
+serial_latch_lo		EQU	RAMbit+0	; Valeur du premier verrou
+serial_latch_hi		EQU	RAMbit+1	; Valeur du deuxieme verrou
 
-vol_hold	EQU	RAMbit+2	; Sauvegarde le volume
+v_hold:				DBIT 8			; Sauvegarde le volume
+vol_hold			EQU	RAMbit+2	; Sauvegarde le volume
 
 
-mode		EQU	RAMbit+3    	; Mode courant
-			    		; b0: Squelch		b1: puissance
-					; b2: Squelch ouvert	b3: TX
-					; b4: PLL verouille	b5: Appui long memorise
-					; b6: Anti-rebond actif	b7: Rafraichier lcd
+mode				EQU	RAMbit+3   	; Mode courant
+									; b0: Squelch		b1: puissance
+									; b2: Squelch ouvert	b3: TX
+									; b4: PLL verouille	b5: Appui long memorise
+									; b6: Anti-rebond actif	b7: Rafraichier lcd
+
+SquelchMode:		DBIT 1			; mode.b0: Squelch
+HighPower:			DBIT 1			; mode.b1: puissance
+SquelchOpen:		DBIT 1			; mode.b2: Squelch ouvert
+TxMode:				DBIT 1			; mode.b3: TX
+PllLocked:			DBIT 1			; mode.b4: PLL verouille 
+LongKpush:			DBIT 1			; mode.b5: Appui long memorise
+KeyBounce:			DBIT 1			; mode.b6: Anti-rebond actif
+ForceLCDrefresh:	DBIT 1			; mode.b7: Rafraichier lcd 
+
 
 chan_state	EQU	RAMbit+4	; Option du canal
 					; b0: shift actif	b1: reverse
 					; b2: shift +		b3: lock out
 					; b4: 			b5: 
 					; b6: 			b7:
+chan_s:				DBIT 8			; reserved for chan_state.0...7
 
 RS232status	EQU	RAMbit+5	; Registre d'etat du port serie.
+RS232s:				DBIT 8
+
+
 charType	EQU	RAMbit+6	; Contien le resultat de l'analyse d'n caractere
+charT:				DBIT 8
+
 lock		EQU	RAMbit+7	; Verroullage
 					; b0: Touches		b1: TX
 					; b2: Volume          	b3: RX
 					; b4: 			b5: 
 					; b6: 			b7:
+KeysDisabled:		DBIT 1			; b0: Touches
+TxDisabled:			DBIT 1			; b1: TX
+VolDisabled:		DBIT 1			; b2: Volume
+RxDisabled:			DBIT 1			; b3: RX
+lock_rest:			DBIT 4
+
 
 disp_state	EQU	RAMbit+8	; Symbole a afficher pour prm8070
 					; b0: Squelch ouvert	b1: mode squelch
@@ -130,7 +157,7 @@ tx_freq_lo	EQU	RAM+18
 
 shift_lo	EQU	RAM+19		; Shift code sur 16Bits, LSB
 
-PtrRXin         EQU     RAM+20    	;   .Pointeur d'entree buffer RX
+PtrRXin         EQU     RAM+20    		;   .Pointeur d'entree buffer RX
 PtrRXout        EQU     RAM+21        	;   .Pointeur de sortie buffer RX
 RXnbo           EQU     RAM+22       	;   .Nombre d'octets dans buffer RX
 PtrTXin         EQU     RAM+23       	;   .Pointeur d'entree buffer TX
@@ -144,10 +171,14 @@ AdrL            EQU     RAM+30       	; - Adresse passee par RS232 (LSB).
 DataRS          EQU     RAM+31       	; - Donnee passee par le port serie.
 I2C_err         EQU     RAM+32       	; - Renvoi d'erreur acces bus I2C.
 
-shift_hi	EQU	RAM+33		; Shift code sur 16Bits, MSB
-rssi_counter	EQU	RAM+34		; rssi counter for 50ms interuption
-rssi_hold	EQU	RAM+35		; rssi previous value
-chan_scan	EQU	RAM+36		; Hold channel for scanning 
+shift_hi		EQU		RAM+33			; Shift code sur 16Bits, MSB
+rssi_counter	EQU		RAM+34			; rssi counter for 50ms interuption
+rssi_hold		EQU		RAM+35			; rssi previous value
+chan_scan		EQU		RAM+36			; Hold channel for scanning 
+shift_dHi		EQU 	RAM+37			; shift frequency decimal low nibble: *100
+shift_dLo		EQU 	RAM+38			; shift frequency decimal high nibble: *10, low nibble: *1
+
+
 
 ;----------------------------------------
 ; Constantes
@@ -193,7 +224,7 @@ CH_enter        EQU     charType.6    ; - Caractere recu = ENTER.
 ;******************************************************************************
 ;******************************************************************************
 ;******************************************************************************
-
+	CSEG
 ;----------------------------------------
 ; Secteur de boot
 ;----------------------------------------
@@ -454,10 +485,13 @@ tx_lp:
 	ret
 
 IF FREQ EQ 144
-$include (inc_144.a51) ; Chargement de la configuration version 144MHz
+$include (inc_144.a51) 			; Chargement de la configuration version 144MHz
 ELSEIF FREQ EQ 430
-$include (inc_430.a51) ; Chargement de la configuration version 430MHz
+$include (inc_430.a51) 			; Chargement de la configuration version 430MHz
 ENDIF
+
+$include (inc_data.a51) 	; 
+
 	end
 
 ENDIF ; IFNDEF TARGET
