@@ -850,9 +850,7 @@ lc_loop:
 	; Send channel number
 	mov		a, r0
 	call	DEC_RS232
-    mov		a,#';'
-    call	Write_RS232
-;	call	SPACE_RS232
+	call	SPACE_RS232
 		
 	; Envoi de la valeur de la pll
 	; Send pll value (nominal frequency)
@@ -865,9 +863,7 @@ lc_loop:
 	inc	dpl
 	movx	a, @dptr
 	call	HEX_RS232
-    mov		a,#';'
-    call	Write_RS232
-;	call	SPACE_RS232	
+	call	SPACE_RS232	
 	
 	; Envoi de la valeur de la shift
 	; Send shift value
@@ -880,9 +876,7 @@ lc_loop:
 	inc	dpl
 	movx	a, @dptr
 	call	HEX_RS232
-    mov		a,#';'
-    call	Write_RS232
-;	call	SPACE_RS232	
+	call	SPACE_RS232	
 
 	; Envoi du chan state
 	; Send channel State
@@ -1237,7 +1231,7 @@ Message26:    DB   "Erase RAM and channels (Y/N) ? ",0
 Message28:    DB   "N",00Dh,00Ah,"command canceled...",00Dh,00Ah,0
 Message29:    DB   "Display the 256 bytes from internal RAM : ",0
 Message30:    DB   "error I2C number ",0
-Message31:    DB   "Channel;Frequency;Shift;State",0Dh,0Ah,0
+Message31:    DB   "Channel Frequency Shift State",0Dh,0Ah,0
 Message32:    DB   "Channel to set : ",0
 Message33:    DB   "PLL value to load : $",0
 Message34:	  DB   "Shift value : $",0
