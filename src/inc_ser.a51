@@ -1243,9 +1243,9 @@ Message39:    DB   "Mode : ",0
 
 MessageVersion: 
 IF TARGET EQ 8060
-              DB   "PRM8060 V4.0"
+              DB   "PRM8060 V5.0"
 ELSEIF TARGET EQ 8070
-              DB   "PRM8070 V5 Beta 0"
+              DB   "PRM8070 V5.0"
 ENDIF
 
 IF FREQ EQ 144
