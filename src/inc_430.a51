@@ -15,9 +15,9 @@
 
 CONFIG_CHAN_COUNT       EQU    031h
 
-;CONFIG_SHIFT_LO         EQU    060h			; Shift = 7.6Mhz (Germany)
-;CONFIG_SHIFT_HI         EQU    002h
-CONFIG_SHIFT_LO         EQU    080h				; Shift = 1.6Mhz (France)
+;CONFIG_SHIFT_LO        EQU    060h		            ; Shift = 7.6Mhz (Germany)
+;CONFIG_SHIFT_HI        EQU    002h
+CONFIG_SHIFT_LO         EQU    080h		            ; Shift = 1.6Mhz (France)
 CONFIG_SHIFT_HI         EQU    000h
 
 CONFIG_PLL_DIV_LO       EQU    090h
@@ -25,15 +25,15 @@ CONFIG_PLL_DIV_HI       EQU    020h
 CONFIG_SCAN_DURATION	EQU    008h
 
 freq_list:
-        ; Channel : 0 Frequency : 439.375000 (DB0HM)
-        DB      089h
-        DB      04Eh
-        ; Channel : 1 Frequency : 439.425000 (DB0GK)
-        DB      089h
-        DB      052h
-        ; Channel : 2 Frequency : 439.837500 (DO0DAP, needs Subtone :-( ) 
-        DB      089h
-        DB      073h
+        ; Channel : 0 Frequency : 430.025000
+        DB      086h
+        DB      062h
+        ; Channel : 1 Frequency : 430.050000
+        DB      086h
+        DB      064h
+        ; Channel : 2 Frequency : 430.075000
+        DB      086h
+        DB      066h
         ; Channel : 3 Frequency : 430.100000
         DB      086h
         DB      068h
@@ -166,24 +166,24 @@ freq_list:
         ; Channel : 46 Frequency : 433.500000
         DB      087h
         DB      078h
-        ; Channel : 47 Frequency : 433.500000
-        DB      087h
-        DB      078h
-        ; Channel : 48 Frequency : 433.500000
-        DB      087h
-        DB      078h
-        ; Channel : 49 Frequency : 433.500000
-        DB      087h
-        DB      078h
+        ; Channel : 47 Frequency : 439.375000 (DB0HM)
+        DB      089h
+        DB      04Eh
+        ; Channel : 48 Frequency : 439.425000 (DB0GK)
+        DB      089h
+        DB      052h
+        ; Channel : 49 Frequency : 439.837500 (DO0DAP, needs Subtone :-( ) 
+        DB      089h
+        DB      073h
 		
 		
 shift_list:
-        ; Channel : 0 Shift : 7.6 Mhz
-        DW      0260h 		
-        ; Channel : 1 Shift : 7.6 Mhz
-        DW      0260h
-        ; Channel : 2 Shift : 9.4 Mhz
-        DW      02F0h
+        ; Channel : 0 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 1 Shift : 0.0 Mhz
+        DW      0h
+        ; Channel : 2 Shift : 0.0 Mhz
+        DW      0h
         ; Channel : 3 Shift : 0.0 Mhz
         DW      0h
         ; Channel : 4 Shift : 0.0 Mhz
@@ -278,11 +278,17 @@ shift_list:
         DW      0h
         ; Channel : 49 Shift : 0.0 Mhz
         DW      0h
+        ; Channel : 47 Shift : 7.6 Mhz
+        DW      0260h 		
+        ; Channel : 48 Shift : 7.6 Mhz
+        DW      0260h
+        ; Channel : 49 Shift : 9.4 Mhz
+        DW      02F0h
 
 chan_state_table:
-        DB      01h    ; Channel : 0	00000001b = Negative Shift
-        DB      01h    ; Channel : 1	00000101b = Positive Shift
-        DB      01h    ; Channel : 2	
+        DB      05h    ; Channel : 0    00000001b = Negative Shift
+        DB      05h    ; Channel : 1    00000101b = Positive Shift
+        DB      05h    ; Channel : 2	
         DB      05h    ; Channel : 3
         DB      05h    ; Channel : 4
         DB      05h    ; Channel : 5
@@ -327,6 +333,6 @@ chan_state_table:
         DB      00h    ; Channel : 44
         DB      00h    ; Channel : 45
         DB      00h    ; Channel : 46
-        DB      00h    ; Channel : 47
-        DB      00h    ; Channel : 48
-        DB      00h    ; Channel : 49
+        DB      01h    ; Channel : 47
+        DB      01h    ; Channel : 48
+        DB      01h    ; Channel : 49	

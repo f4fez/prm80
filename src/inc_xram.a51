@@ -51,22 +51,16 @@ RAM_L_Disp:			DS	1
 ;RAM_PLL_DIV_LO		EQU	017h
 ;RAM_SCAN_DURATION	EQU	018h
 
-ID_CODE			EQU	040h
+ID_CODE				EQU	040h
 
 XSEG	AT 0100H						; RAM_AREA_FREQ				
-Ch0_RX_freq:		DS 2				; 2 Bytes per Channel
-Ch1_RX_freq:		DS 2				; reserved for 128 channels max
-Chx_RX_freq: 		DS 252				
+Ch0_RX_freq:		DS 256				; 2 Bytes per Channel, reserved for 128 channels max
 
 XSEG	AT 0200H						; RAM_AREA_Shift				
-Ch0_Shift_freq:		DS 2				; 2 Bytes per Channel
-Ch1_Shift_freq:		DS 2				; reserved for 128 channels max
-Chx_Shift_freq:		DS 252				
+Ch0_Shift_freq:		DS 256				; 2 Bytes per Channel, reserved for 128 channels max
 
 XSEG	AT 0300H						; RAM_AREA_State				
-Ch0_State_freq:		DS 1				; 1 Bytes per Channel
-Ch1_State_freq:		DS 1				; reserved for 128 channels max
-Chx_State_freq:		DS 126				
+Ch0_State_freq:		DS 128				; 1 Bytes per Channel, reserved for 128 channels max
 
 
 RAM_AREA_CONFIG		EQU	High RAM_ID_CODE 	;Constants needed for compatibility topics

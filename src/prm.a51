@@ -117,16 +117,6 @@ mode2		EQU	RAMbit+9	; Mode, 2eme octet
 					; b4: 			b5: 
 					; b6: 			b7:
 
-Helpbits	EQU RAMbit+10	; If Bits are needed for Calculations
-Helpbit0	EQU (Helpbits-RAMbit)*8
-Helpbit1	EQU ((Helpbits-RAMbit)*8)+1
-Helpbit2	EQU ((Helpbits-RAMbit)*8)+2
-Helpbit3	EQU ((Helpbits-RAMbit)*8)+3
-Helpbit4	EQU ((Helpbits-RAMbit)*8)+4
-Helpbit5	EQU ((Helpbits-RAMbit)*8)+5
-Helpbit6	EQU ((Helpbits-RAMbit)*8)+6
-Helpbit7	EQU ((Helpbits-RAMbit)*8)+7
-
 
 disp_hold	EQU	RAM+0		; Sauvegarde de de l'affichage des symboles
 							; Saving the symbol display

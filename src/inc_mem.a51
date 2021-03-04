@@ -26,7 +26,7 @@ get_freq:
 	mov	dph, #RAM_AREA_CONFIG
 	mov	dpl, #RAM_CHAN
 	movx	a, @dptr
-	mov	r1, a						; r1 memorizes channel number
+	mov	r1, a                                   ; r1 memorizes channel number
 get_freq_r1:	
 	; Recuperation du chan_state
 	mov	dph, #RAM_AREA_STATE
@@ -83,7 +83,7 @@ ENDIF
 	
 get_ch_shift:
 	; Is there a channel specific shift stored?
-	clr 	helpbit0
+	clr 	b.0	                            ; will remember if ch_shift high byte != 0 
 
 	mov 	dph, # High Ch0_Shift_freq
 	mov		a, r1
@@ -92,28 +92,28 @@ get_ch_shift:
 	movx	a, @dptr
 	mov		r0,a
 	jnz 	ch_shift_hi_nz
-	setb 	helpbit0						; chx_shift high = 0!
+	setb 	b.0	                            ; chx_shift high = 0!
 ch_shift_hi_nz:	
 	inc		dptr
 	movx	a, @dptr
-	jnz		ch_shift_nz						; if channel specific shift (lo and hi) are zero 
-	jnb		helpbit0, ch_shift_nz 	
+	jnz		ch_shift_nz					    ; if channel specific shift (lo and hi) are zero 
+	jnb		b.0, ch_shift_nz 	
 
-	mov		dph, #RAM_AREA_CONFIG			; ->  no channel specific shift !
-	mov		dpl, #RAM_SHIFT_HI				;
+	mov		dph, #RAM_AREA_CONFIG		    ; ->  no channel specific shift !
+	mov		dpl, #RAM_SHIFT_HI			    ;
 	movx	a, @dptr					
 	mov		r0, a
 	inc		dptr
 	movx	a, @dptr
 
-ch_shift_nz:								; ->  channel specific shift !
+ch_shift_nz:                                ; ->  channel specific shift !
 	mov		shift_hi, r0
 	mov		shift_lo, a
 ch_shift_end:
 
 
-	jnb	chan_state.2, gnf_shift_n			; Test si shift - ou +
-gnf_shift_p:								; Shift positif
+	jnb	chan_state.2, gnf_shift_n           ; Test si shift - ou +
+gnf_shift_p:                                ; Shift positif
 	mov	r0, shift_lo
 	mov	a, tx_freq_lo
 	add	a, r0
@@ -122,7 +122,7 @@ gnf_shift_p:								; Shift positif
 	addc	a, tx_freq_hi
 	mov	tx_freq_hi, a
 	jmp	gfn_end0
-gnf_shift_n:								; Shift negatif
+gnf_shift_n:                                ; Shift negatif
 	clr	c
 	mov	r0, shift_lo
 	mov	a, tx_freq_lo
@@ -134,8 +134,8 @@ gnf_shift_n:								; Shift negatif
 
 gfn_end0:
 IF TARGET EQ 8070
-	call 	shift_dsp						; write shift value to dez. storage and display (PRM8070 only)
-	setb	ForceLCDrefresh					;
+	call 	shift_dsp                       ; write shift value to dez. storage and display (PRM8070 only)
+	setb	ForceLCDrefresh	                ;
 ENDIF
 
 gfn_end:
