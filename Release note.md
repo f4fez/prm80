@@ -1,3 +1,11 @@
+Version 5.0
+===========
+* Channel specific shift added
+* 'A' command added
+* Modifified 'C' command to print also shift/split
+* Modifified 'P' command to enter also shift/split
+* usage of 3 additional display digits to display split frequency (PRM8070 only)
+
 Version 4.0
 ===========
 * Shift commutation feature disabled on [PRM8060](PRM8060.md).

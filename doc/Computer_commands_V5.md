@@ -1,4 +1,4 @@
-This is the description of the computer commands for the version 5 beta firmware. 
+This is the description of the computer commands for the version 5 firmware. 
 If you plan to play arround with this version contact the author of this page.
 
 See also the [computer interface](Computer_control.md) for hardware and communication parameters.
