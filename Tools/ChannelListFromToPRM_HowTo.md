@@ -21,7 +21,7 @@ Tera Term Terminal Configuration:
 ---------------------------------
 ![](Pictures/TeraTerm_TerminallConfig.jpg)
 
-Ensure that 'new line' is configured to 'Carriage ReturÅh (CR)'.
+Ensure that 'new line' is configured to 'Carriage Return (CR)'.
 Disable Local Echo. To start the communication to the PRM80xx it may be necessary to Reset the Terminal (Control Menu -> Reset Terminal)
 
 If you can see following screen after entering a 'H', the communication from PC to PRM80xx is running well:
@@ -29,17 +29,10 @@ If you can see following screen after entering a 'H', the communication from PC 
 
 Read the channel list from PRM80xx:
 ------------------------------------
-Press 'C'
-Copy the received data to a text file, e.g. input.txt:
-Channel Frequency Shift State
-00 894E 0260 01
-01 8952 0260 01
-02 8973 02F0 01
-03 8946 0260 01
-04 8952 0260 01
-05 866C 0000 00
-06 866E 0000 01
-....
+Press 'C', mark and copy (right click) the received data to a text file, e.g. input.txt:
+
+![](Pictures/TeraTerm_CopyReceivedChannelList.jpg)
+
 Now start Excel and:
 File -> open -> search -> Text Files (*.prn;*.txt;*.csv) -> input.txt
 ![](Pictures/FileOpen.jpg)
@@ -95,9 +88,9 @@ Again: mark all values and copy:
 
 ->  goto Sheet Freq(Edit) -> Mark field A1 -> and again paste contents (values only)
 
-Now you can modify frequencies, State bitsÅc as needed.
+Now you can modify frequencies, State bits etc. as needed.
 
-If you are finished, goto TAB ÅgOutputÅh and save this sheet (only) as text document:
+If you are finished, goto TAB 'Output' and save this sheet (only) as text document:
 
 File -> Save as ->  select folder -> formatted text (blank separated) ->  Output.txt
 
@@ -110,6 +103,8 @@ If not, you can not send the data to the PRM80xx, instead you have to look what 
 
 If the result was fine you can send the new config Data to the PRM80xx via Tera Term (or similar software).
 
+Write the channel list from PRM80xx:
+-----------------------------------
 TeraTerm: File -> Send data -> Output.txt -> open
 
 ![](Pictures/TeraTerm_FileSendDialog.jpg)
@@ -118,7 +113,7 @@ Now you should see that all channel are send to the PRM. Double check that no da
 
 ![](Pictures/TeraTerm_SendChannels.jpg)
 
-If you want have the data stored to the EEPROM, Press the ÅgXÅh button after all data have been sent.
+If you want have the channel data stored into the EEPROM, press the 'X' button after all data have been sent.
 Now you are done with
 * Download channel list from PRM80xx
 * Modify channel list
