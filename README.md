@@ -57,7 +57,7 @@ The firmware is released for 2 ham band depending of the original PRM80 band:
 
 Release
 -------
-See [Release note](Release note)
+See [Release note](Release%20note.md)
 
 [Building it from source](doc/build.md)
 
