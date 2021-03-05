@@ -1,7 +1,7 @@
 Hardware interface
 ==================
 The link with a computer can be done in two different places. First by the microphone plug on the front end of the transciever (see schematics of the cabling of the microphone above).Then by the DB15 plug at the back of the apparatus. In both cases it is the level of a TTL (0,5V). This one has to be necessarily adapted to the level RS232 of the PC(-12V, +12V) at the risc to destroy the radio, for that one has to use the mouting based upon the classic MAX232. Bellow is an example of the schematics of the cabling of a MAX232, for the interfacing with a PC through the DB15 plug.
-[](Db15_interface.png)
+![DB-15 interface](Db15_interface.png)
 
 Requiered PC software
 =====================
