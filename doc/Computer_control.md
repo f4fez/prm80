@@ -22,7 +22,7 @@ When the communication is successfully established, command can be send to the d
 - [Computer commands V4](Computer_commands_V4.md)
 - [Computer commands V5](Computer_commands_V5.md)
 
-Mosts commands parameters wait for a precise number of digits or characters. As example : the channel number take 2 digits, always type "04" for channel 4. A PLL word is 4 digits long...
+Most command parameters wait for a precise number of digits or characters. As example : the channel number take 2 digits, always type "04" for channel 4. A PLL word is 4 digits long...
 
 Adding a new channel
 --------------------
