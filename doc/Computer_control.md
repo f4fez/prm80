@@ -33,4 +33,5 @@ Adding a new channel
 3. From the terminal, type "P"
 4. Set the channel to modify or "99" to add a new one
 5. Input the computed PLL word at step 2
-6. Enter channel state value for options [See command "P"](Computer_commands_V4.md). 
+6. Input the shift 
+7. Enter channel state value for options [See command "P"](Computer_commands_V5.md). 
