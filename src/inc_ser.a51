@@ -502,17 +502,13 @@ tch_4:           CJNE       A,#'4',tch_5       ; - Touche [4] ?
                  call       HEX_RS232          ; 
                  JMP        tch_suiv           ; 
                                                ; 
-tch_5:           CJNE       A,#'5',tch_A       ; - Touche [5] ?
+tch_5:           CJNE       A,#'5',tch_C       ; - Touche [5] ?
                  MOV        DPTR,#Message07    ;   afficher l'état du port P5.
                  call       MESS_RS232         ; 
                  MOV        A,P5               ; 
                  call       HEX_RS232          ; 
                  JMP        tch_suiv           ; 
                                                ; 
-tch_A:           CJNE       A,#'A',tch_C       ; - Touche [A] ?
-				 CALL	    send_rssi
-                 JMP        tch_suiv           ;
-
 tch_C:           CJNE       A,#'C',tch_D       ; - Touche [C] ?
 				 CALL	    list_chan
                  JMP        tch_suiv           ;
@@ -1054,30 +1050,6 @@ fin_set_max_chan:
     POP     ACC
     RET
 
-; Sending the current rssi value and status bits
-; rssi - status (status.b0=1: squelch is open, .b1=1 transmitt active)
-send_rssi:
-	push	ACC
-	push	DPH
-	push	DPL
-	call 	read_rssi
-	mov 	a,R0
-	call	HEX_RS232
-	clr		a
-
-	jnb		mode.2,chk_sql_rdy			
-	setb	Acc.0				; Squelch is open
-chk_sql_rdy:
-
-	jnb		mode.3,chk_tx_rdy			
-	setb	Acc.1				; Transmitt on
-chk_tx_rdy:
-	call	HEX_RS232
-	pop	DPL
-	pop	DPH
-	pop	ACC
-	RET
-
 	
 ; Envoi l'etat du poste
 ; Sending the current status
@@ -1086,39 +1058,44 @@ send_state:
 	push	ACC
 	push	DPH
 	push	DPL
-	mov	a, mode
+	mov	    a, mode
 	call	HEX_RS232
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_chan
+	mov	    dph, #ram_area_config
+	mov	    dpl, #ram_chan
 	movx	a, @dptr
 	call	HEX_RS232
-	mov	a, chan_state
+	mov	    a, chan_state
 	call	HEX_RS232
-	mov	dpl, #ram_squelch
+	mov	    dpl, #ram_squelch
 	movx	a, @dptr
 	call	HEX_RS232
-	mov	a, vol_hold
+	mov	    a, vol_hold
+    cpl     a                               ; volume (00 -> min, FF -> max)
 	call	HEX_RS232
-	mov	a, lock
+	mov	    a, lock                         ; Lock byte
 	call	HEX_RS232
-	mov	a, rx_freq_hi
+	mov	    a, rx_freq_hi                   ; Rx freq
 	call	HEX_RS232
-	mov	a, rx_freq_lo
+	mov	    a, rx_freq_lo
 	call	HEX_RS232
-	mov	a, tx_freq_hi
+	mov	    a, tx_freq_hi                   ; Tx freq
 	call	HEX_RS232
-	mov	a, tx_freq_lo
+	mov	    a, tx_freq_lo
 	call	HEX_RS232
+	call 	read_rssi                       ; RSSI
+	mov 	a,R0
+	call	HEX_RS232
+
 	pop	DPL
 	pop	DPH
 	pop	ACC
 	RET
 
 set_chan_state:	
-            MOV         DPTR,#Message20 
-            call        MESS_RS232
-            call        DDinRS232
-            JNB         XXDD_OK, scs_end
+        MOV     DPTR,#Message20 
+        call    MESS_RS232
+        call    DDinRS232
+        JNB     XXDD_OK, scs_end
 	    mov		chan_state, a
 		 
 	    mov		dph, #ram_area_config

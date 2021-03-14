@@ -89,13 +89,6 @@ Display the value on the internal CPU port P4. Used for debuging.
 ----------------------------
 Display the value on the internal CPU port P5. Used for debuging.
 
-A: Print value of RSSI, squelch and transmit status
----------------------------------------------------
-* Byte0:    RSS1
-* Byte1.b0: squelch is open when true
-* Byte1.b1: transmitt active when true
-This command was optimized for machine use / performance. Therefore no headlines are sent
-
 C: Print channels list
 ----------------------
 List all saved channel. Print channel number, Rx frequency (PLL value, not considering 21.4 Mhz IF),
@@ -110,15 +103,19 @@ E: Show system state
 --------------------
 This command display the following internal variables :
 
-* Mode byte
-* Channel number
-* Channel state
-* Squelch level
-* Volume level
-* Lock byte
-* Current RX PLL word (2 bytes)
-* Current TX PLL word (2 bytes
-This is intended to be used by a non human device.
+| Index | Byte | Description  |
+|-|-|-|
+| 0 | Mode byte | see above |
+| 1 | Channel number | decimal values |
+| 2 | Channel state | see above |
+| 3 | Squelch level | hex values, 00..0F |
+| 4 | Volume level | hex value, high nibble only, <br /> 0x: min volume, Fx: max volume |
+| 5 | Lock byte | see above |
+| 6+7 | Current RX PLL word | 2 byte hex value, see "R" command |
+| 8+9 | Current TX PLL word | 2 byte hex value, see "R" command |
+| 10 | RSSI | hex value |
+
+This command is intended to be used by a non human device.
 
 F: Set squelch
 --------------
