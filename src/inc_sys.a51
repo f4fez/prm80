@@ -80,17 +80,29 @@ sv_adc_lp:
 	mov	a, adch
 	cpl	a									; Tests the stored value and the current value
 	cjne	a, vol_hold, sv_cont1			; Test la valeur memorise et la valeur courante
-	ret										;fin si egaux / end if equal			
+	ret										; fin si egaux / end if equal			
 
-load_volume:
-sv_cont1:
+load_volume:                                ; remote volume control 
+    cjne    a,#0, no_rem_mute               ; 00 -> mute, 01 -> load latch with min volume (F hex)
+    cpl     a                               ; while muting load min volume (max. volume + mute does not mute 100%)
+ 	setb	P4.1			                ; mute                                           ;
+    sjmp    sv_load_l                       ; and load latch
+no_rem_mute:
+    dec     a                               ; result: 0...0F
+	cpl	    a
+	swap	a
+    sjmp    sv_unmute
+    
+sv_cont1:                                   
 	cjne	a, #0ffh, sv_unmute
 	mov	vol_hold, a
-	setb	P4.1			; mute
+	setb	P4.1			                ; mute
 	jmp	sv_end
+
 sv_unmute:
 	clr	P4.1
-	anl	serial_latch_hi, #0f0h
+sv_load_l:
+ 	anl	serial_latch_hi, #0f0h
 	mov	vol_hold, a
 	mov	a, #0
 	mov	c, vol_hold.7

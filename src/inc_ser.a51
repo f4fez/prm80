@@ -599,9 +599,7 @@ tch_O:           CJNE       A,#'O',tch_P       ; - Touche [O] ?
                  call       MESS_RS232         ; 
                  call       DDinRS232          ; 
                  JNB        XXDD_OK, tch_o_end ; 
-				 setb		VolDisabled		   ;   Disable Volume via Poti
-				 cpl	    a
-				 swap	    a
+				 setb		VolDisabled		   ;   Disable Volume control via Poti
 				 call	    load_volume
 tch_o_end:
 				 JMP        tch_suiv           ;  
@@ -1180,7 +1178,7 @@ ELSEIF FREQ EQ 430
 			  DB   " 430"
 ENDIF
 			  DB   " Firmware (c) F4FEZ / F8EGQ / DC0CM",00Dh,00Ah
-              DB   "Version 5 Beta, 20/02/2021.",00Dh,00Ah
+              DB   "Version 5.0, 15/03/2021.",00Dh,00Ah
 			  DB   ">",0
 Message03:    DB   "P1 = $",0 
 Message04:    DB   "P2 = $",0 

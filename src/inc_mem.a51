@@ -886,8 +886,6 @@ update_L_lcd:
 		movx	a, @dptr
 		mov	r0, a
 
-;		call	lcd_clear_digits_l
-;		call	lcd_print_hex_l
 		setb	mode.7
 
 		ret		 
