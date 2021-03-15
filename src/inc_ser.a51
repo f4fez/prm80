@@ -1067,8 +1067,17 @@ send_state:
 	mov	    dpl, #ram_squelch
 	movx	a, @dptr
 	call	HEX_RS232
-	mov	    a, vol_hold
-    cpl     a                               ; volume (00 -> min, FF -> max)
+    jnb     P4.1, rd_vol			        ; Volume (0x -> mute 1x -> min, Fx -> max)
+    clr     a                               ; if mute, return value = 0
+    sjmp    vol_out
+rd_vol:
+	mov	    a, vol_hold                 
+    cpl     a                               
+    swap    a
+    anl     a,#0FH                          ; max. 10H !
+    inc     a
+
+vol_out:
 	call	HEX_RS232
 	mov	    a, lock                         ; Lock byte
 	call	HEX_RS232
