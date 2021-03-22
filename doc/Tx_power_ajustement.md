@@ -9,4 +9,4 @@ In high power, the  PRM can deliver up to 30W. Yet it is safer not to exceed the
 * R578 : Low power
 * R581 : High power
 
-[](A9_power_tunning.jpg)
+![A9 power tuning](A9_power_tunning.jpg)

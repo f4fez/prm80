@@ -16,7 +16,7 @@ The connection is done with parameters :
 
 Quick start
 ===========
-When the communication is successfully established, command can be send to the device. Each commmand is a single character. The first important command to know is "H" to display the list of available command with a little help message. For other commands check the available list:
+When the communication is successfully established, command can be sent to the device. Each commmand is a single character. The first important command to know is "H" to display the list of available command with a little help message. For other commands check the available list:
 
 - [Computer commands V3](Computer_commands_V3.md)
 - [Computer commands V4](Computer_commands_V4.md)
@@ -27,7 +27,7 @@ Adding a new channel
 --------------------
 1. First compute the PLL word without the IF : (Final RX frequency in KHz / 12.5)
    i.e : 145000/12.5 = 11600
-2. Next convert this value in hexadecimal (You can use the windows calculator in scientific mode)
+2. Next convert this value in hexadecimal (You can use the Windows calculator in scientific mode)
     i.e : 11600 => 2D50 hexadecimal
 3. From the terminal, type "P"
 4. Set the channel to modify or "99" to add a new one

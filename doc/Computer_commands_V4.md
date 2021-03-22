@@ -16,7 +16,7 @@ During the boot, the RAM memory is checked. If the content is invalid (First sta
 During service, only the RAM data is modified for storing the current channel, squelch value, reverse mode... This is usefull to restore the last channel when turning on the radio.
 When altering the RAM, the checksum is automaticaly computed for common functions (Except for direct RAM write "M"). 
 
-When programming channels from the computer interface, only the RAM is modified. So you can rollback your modification ("S" command) for copying the EEPROM to the RAM. Or you can save it from the RAM to the EEPROM ("X" command) to be sure that your parameters will bes restored if the RAM is altered (Long power cut)
+When programming channels from the computer interface, only the RAM is modified. So you can rollback your modification ("S" command) for copying the EEPROM to the RAM. Or you can save it from the RAM to the EEPROM ("X" command) to be sure that your parameters will be restored if the RAM is altered (Long power cut)
 
 System variable bits
 ====================
@@ -109,11 +109,11 @@ This is intended to be used by a non human device.
 
 F: Set squelch
 --------------
-Set the squelch level
+Set the squelch level. The value uses decimal encoding between 00 and 15.
 
 H: Print help page
 ------------------
-Display the list of available command
+Display the list of available command.
 
 I: System initialisation
 ------------------------
@@ -121,7 +121,7 @@ Force memory initialisation. Restore RAM and EEPROM from data in program memory.
 
 K: Set lock byte
 ----------------
-Set the lock bits. The lock bits disable some functionalities. Usefull to disable front command when the radio is controled from the computer.
+Set the lock bits. The value uses hexadecimal encoding. The lock bits disable some functionalities. Usefull to disable front command when the radio is controled from the computer.
 
 L: Print latch state
 --------------------
@@ -133,13 +133,13 @@ Edit the external RAM. Use for debug only.
 
 N: Set current channel
 ----------------------
-Switch the radio to the given channel.
+Switch the radio to the given channel. The channel number uses a decimal encoding between 00 and 99.
 
 O: Set volume
 -------------
-Set the volume. The value use hexadecimal values between 00 and 0F.
+Set the volume. The value uses decimal encoding between 00 and 15.
 
-To avoid hazardous effects. The command should be locked (See "K" command).
+Before volume setting can be done remotely, the command has to be locked (See "K" command).
 
 P: Edit/Add channel
 -------------------
