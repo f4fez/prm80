@@ -1,9 +1,9 @@
 Version 5.0
 ===========
 * Channel specific shift added
-* 'A' command added
 * Modifified 'C' command to print also shift/split
 * Modifified 'P' command to enter also shift/split
+* Added RSSI to "E" command
 * usage of 3 additional display digits to display split frequency (PRM8070 only)
 
 Version 4.0
