@@ -44,172 +44,154 @@ $INCLUDE (83c552.mcu)
 ;----------------------------------------
 ; SFRs
 ;----------------------------------------
-AUXR1				EQU	0a2h
+AUXR1               EQU 0a2h
 
-RAM					EQU	030h
+RAM                 EQU 030h
+RAMbit              EQU 020h
 
-RAMbit				EQU	020h
-					BSEG AT 0h
+
 ;----------------------------------------
 ; Variables
 ;----------------------------------------
-slatch_lo:			DBIT 8			; Valeur du premier verrou
-slatch_hi:			DBIT 8			; Valeur du deuxieme verrou
-serial_latch_lo		EQU	RAMbit+0	; Valeur du premier verrou
-serial_latch_hi		EQU	RAMbit+1	; Valeur du deuxieme verrou
+serial_latch_lo     EQU RAMbit+0        ; Valeur du premier verrou
+serial_latch_hi     EQU RAMbit+1        ; Valeur du deuxieme verrou
 
-v_hold:				DBIT 8			; Sauvegarde le volume
-vol_hold			EQU	RAMbit+2	; Sauvegarde le volume
+vol_hold            EQU RAMbit+2        ; Sauvegarde le volume
 
-
-mode				EQU	RAMbit+3   	; Mode courant
-									; b0: Squelch		b1: puissance
-									; b2: Squelch ouvert	b3: TX
-									; b4: PLL verouille	b5: Appui long memorise
-									; b6: Anti-rebond actif	b7: Rafraichier lcd
-
-SquelchMode:		DBIT 1			; mode.b0: Squelch
-HighPower:			DBIT 1			; mode.b1: puissance
-SquelchOpen:		DBIT 1			; mode.b2: Squelch ouvert
-TxMode:				DBIT 1			; mode.b3: TX
-PllLocked:			DBIT 1			; mode.b4: PLL verouille 
-LongKpush:			DBIT 1			; mode.b5: Appui long memorise
-KeyBounce:			DBIT 1			; mode.b6: Anti-rebond actif
-ForceLCDrefresh:	DBIT 1			; mode.b7: Rafraichier lcd 
+mode                EQU RAMbit+3        ; Mode courant / current mode
+SquelchMode         EQU mode.0          ; b0: quelch
+HighPower           EQU mode.1          ; b1: puissance
+SquelchOpen         EQU mode.2          ; b2: Squelch ouvert
+TxMode              EQU mode.3          ; b3: TX
+PllLocked           EQU mode.4          ; b4: PLL verouille 
+LongKpush           EQU mode.5          ; b5: Appui long memorise
+KeyBounce           EQU mode.6          ; b6: Anti-rebond actif
+ForceLCDrefresh     EQU mode.7          ; b7: Rafraichier lcd 
 
 
-chan_state	EQU	RAMbit+4	; Option du canal
-					; b0: shift actif	b1: reverse
-					; b2: shift +		b3: lock out
-					; b4: 			b5: 
-					; b6: 			b7:
-shift_active:		DBIT 1			; b0: shift actif
-chan_s:				DBIT 7			; reserved for chan_state.1...7
+chan_state          EQU RAMbit+4        ; Option du canal
+shift_active        EQU chan_state.0    ; b0: shift actif   b1: reverse
+                                        ; b2: shift +       b3: lock out
+                                        ; b4:               b5: 
+                                        ; b6:               b7:
 
-RS232status	EQU	RAMbit+5	; Registre d'etat du port serie.
-RS232s:				DBIT 8
+RS232status         EQU RAMbit+5        ; Registre d'etat du port serie.
 
+charType            EQU RAMbit+6        ; Contien le resultat de l'analyse d'n caractere
 
-charType	EQU	RAMbit+6	; Contien le resultat de l'analyse d'n caractere
-charT:				DBIT 8
+lock                EQU RAMbit+7        ; Verroullage
+KeysDisabled        EQU lock.0          ; b0: Touches
+TxDisabled          EQU lock.1			; b1: TX
+VolDisabled         EQU lock.2			; b2: Volume
+RxDisabled          EQU lock.3			; b3: RX
+                                        ; b4:               b5: 
+                                        ; b6:               b7:
 
-lock		EQU	RAMbit+7	; Verroullage
-					; b0: Touches		b1: TX
-					; b2: Volume          	b3: RX
-					; b4: 			b5: 
-					; b6: 			b7:
-KeysDisabled:		DBIT 1			; b0: Touches
-TxDisabled:			DBIT 1			; b1: TX
-VolDisabled:		DBIT 1			; b2: Volume
-RxDisabled:			DBIT 1			; b3: RX
-lock_rest:			DBIT 4
+disp_state          EQU RAMbit+8        ; Symbole a afficher pour prm8070
+                                        ; b0: Squelch ouvert	b1: mode squelch
+                                        ; b2: Puissance haute	b3: reverse
+                                        ; b4: shift             b5: tx
+                                        ; b6: Lock out          b7: shift +
 
-
-disp_state	EQU	RAMbit+8	; Symbole a afficher pour prm8070
-					; b0: Squelch ouvert	b1: mode squelch
-					; b2: Puissance haute	b3: reverse
-					; b4: shift		b5: tx
-					; b6: Lock out		b7: shift +
-
-mode2		EQU	RAMbit+9	; Mode, 2eme octet
-					; b0: scan running	b1: scan increment chan
-					; b2: RSSI print enable	b3: RSSI print flag
-					; b4: 			b5: 
-					; b6: 			b7:
+mode2               EQU RAMbit+9        ; Mode, 2eme octet / 2nd mode byte
+                                        ; b0: scan running      b1: scan increment chan
+                                        ; b2: RSSI print enable b3: RSSI print flag
+                                        ; b4:                   b5: 
+                                        ; b6:                   b7:
 
 
-disp_hold	EQU	RAM+0		; Sauvegarde de de l'affichage des symboles
-							; Saving the symbol display
+disp_hold           EQU RAM+0           ; Sauvegarde de de l'affichage des symboles
+                                        ; Saving the symbol display
 
 
-lcd_dataA0	EQU	RAM+1		; Premier octet pour le lcd
-lcd_dataA1	EQU	RAM+2		; Deuxieme octet pour le lcd
-lcd_dataA2	EQU	RAM+3		; Troisieme octet pour le lcd (4 bits seulement/only)
-lcd_dataA3	EQU	RAM+4		; Quatrieme octet pour le lcd (4 bits seulement)
-lcd_dataB0	EQU	RAM+5		; Premier octet pour le lcd
-lcd_dataB1	EQU	RAM+6		; Deuxieme octet pour le lcd
-lcd_dataB2	EQU	RAM+7		; Troisieme octet pour le lcd (4 bits seulement)
-lcd_dataB3	EQU	RAM+8		; Quatrieme octet pour le lcd (4 bits seulement)
+lcd_dataA0          EQU RAM+1           ; Premier octet pour le lcd
+lcd_dataA1          EQU RAM+2           ; Deuxieme octet pour le lcd
+lcd_dataA2          EQU RAM+3           ; Troisieme octet pour le lcd (4 bits seulement/only)
+lcd_dataA3          EQU RAM+4           ; Quatrieme octet pour le lcd (4 bits seulement)
+lcd_dataB0          EQU RAM+5           ; Premier octet pour le lcd
+lcd_dataB1          EQU RAM+6           ; Deuxieme octet pour le lcd
+lcd_dataB2          EQU RAM+7           ; Troisieme octet pour le lcd (4 bits seulement)
+lcd_dataB3          EQU RAM+8           ; Quatrieme octet pour le lcd (4 bits seulement)
 
-but_timer	EQU	RAM+9		; compteur pour l'anti rebond
-but_timer2	EQU	RAM+10
-but_hold_state	EQU	RAM+11
-but_repeat	EQU	RAM+12		; Tempo pour la repetion et l'appui long
+but_timer           EQU RAM+9           ; compteur pour l'anti rebond
+but_timer2          EQU RAM+10
+but_hold_state      EQU RAM+11
+but_repeat          EQU RAM+12          ; Tempo pour la repetion et l'appui long
 
-scan_counter	EQU	RAM+13		; Use to compue scanner timming
-scan_duration	EQU	RAM+14		; Time to wait between channel : value * 50ms
+scan_counter        EQU	RAM+13          ; Use to compue scanner timming
+scan_duration       EQU	RAM+14          ; Time to wait between channel : value * 50ms
 
-rx_freq_hi	EQU	RAM+15
-rx_freq_lo	EQU	RAM+16
-tx_freq_hi	EQU	RAM+17
-tx_freq_lo	EQU	RAM+18
+rx_freq_hi          EQU RAM+15
+rx_freq_lo          EQU RAM+16
+tx_freq_hi          EQU RAM+17
+tx_freq_lo          EQU RAM+18
 
 
 
-shift_lo	EQU	RAM+19		; Shift code sur 16Bits, LSB
+shift_lo            EQU RAM+19          ; Shift code sur 16Bits, LSB
 
-PtrRXin         EQU     RAM+20    		;   .Pointeur d'entree buffer RX
-PtrRXout        EQU     RAM+21        	;   .Pointeur de sortie buffer RX
-RXnbo           EQU     RAM+22       	;   .Nombre d'octets dans buffer RX
-PtrTXin         EQU     RAM+23       	;   .Pointeur d'entree buffer TX
-PtrTXout        EQU     RAM+24       	;   .Pointeur d'entree buffer TX
-TXnbo           EQU     RAM+25       	;   .Nombre d'octets dans buffer TX.
-Page            EQU     RAM+26       	; - Numero de la page de octets.
-RS_ASCmaj       EQU     RAM+27       	; - Octet RS232 conv. en majuscule.
-RS_HexDec       EQU     RAM+28       	; - Octet RS232 converti en hexa.
-AdrH            EQU     RAM+29       	; - Adresse passee par RS232 (MSB).
-AdrL            EQU     RAM+30       	; - Adresse passee par RS232 (LSB).
-DataRS          EQU     RAM+31       	; - Donnee passee par le port serie.
-I2C_err         EQU     RAM+32       	; - Renvoi d'erreur acces bus I2C.
+PtrRXin             EQU RAM+20          ;   .Pointeur d'entree buffer RX
+PtrRXout            EQU RAM+21          ;   .Pointeur de sortie buffer RX
+RXnbo               EQU RAM+22          ;   .Nombre d'octets dans buffer RX
+PtrTXin             EQU RAM+23          ;   .Pointeur d'entree buffer TX
+PtrTXout            EQU RAM+24          ;   .Pointeur d'entree buffer TX
+TXnbo               EQU RAM+25          ;   .Nombre d'octets dans buffer TX.
+Page                EQU RAM+26          ; - Numero de la page de octets.
+RS_ASCmaj           EQU RAM+27          ; - Octet RS232 conv. en majuscule.
+RS_HexDec           EQU RAM+28          ; - Octet RS232 converti en hexa.
+AdrH                EQU RAM+29          ; - Adresse passee par RS232 (MSB).
+AdrL                EQU RAM+30          ; - Adresse passee par RS232 (LSB).
+DataRS              EQU RAM+31          ; - Donnee passee par le port serie.
+I2C_err             EQU RAM+32          ; - Renvoi d'erreur acces bus I2C.
 
-shift_hi		EQU		RAM+33			; Shift code sur 16Bits, MSB
-rssi_counter	EQU		RAM+34			; rssi counter for 50ms interuption
-rssi_hold		EQU		RAM+35			; rssi previous value
-chan_scan		EQU		RAM+36			; Hold channel for scanning 
-shift_dHi		EQU 	RAM+37			; shift frequency decimal low nibble: *100
-shift_dLo		EQU 	RAM+38			; shift frequency decimal high nibble: *10, low nibble: *1
+shift_hi            EQU RAM+33          ; Shift code sur 16Bits, MSB
+rssi_counter        EQU RAM+34          ; rssi counter for 50ms interuption
+rssi_hold           EQU RAM+35          ; rssi previous value
+chan_scan           EQU RAM+36          ; Hold channel for scanning 
+shift_dHi           EQU RAM+37          ; shift frequency decimal low nibble: *100
+shift_dLo           EQU RAM+38          ; shift frequency decimal high nibble: *10, low nibble: *1
 
 
 
 ;----------------------------------------
 ; Constantes
 ;----------------------------------------
-sp_default	EQU	9fh	; Adresse du pointeur de pile pile a l'initialisation
-wdt_int		EQU	0	; Interval du watchdog
+sp_default          EQU 9fh             ; Adresse du pointeur de pile pile a l'initialisation
+wdt_int             EQU 0               ; Interval du watchdog
 
 ; Port constants
-ser_sda		EQU	P1.1	; Donnee du bus serie
-ser_scl		EQU	P1.0	; Horloge du bus serie
+ser_sda             EQU P1.1            ; Donnee du bus serie
+ser_scl             EQU P1.0            ; Horloge du bus serie
 
-latch_oe	EQU	P3.4
-latch_str	EQU	P3.5
+latch_oe            EQU P3.4
+latch_str           EQU P3.5
 
-lcd_dlen	EQU	P4.2
+lcd_dlen            EQU P4.2
 
-synth_ce	EQU	P1.5
+synth_ce            EQU P1.5
 
-fi_lo		EQU	0b0h	; Intermediate Frequency = 21,4 Mhz
-fi_hi		EQU	006h
+fi_lo               EQU 0b0h            ; Intermediate Frequency = 21,4 Mhz
+fi_hi               EQU 006h
 
-but_long_duration	EQU	15
-but_repeat_duration	EQU	3
+but_long_duration   EQU 15
+but_repeat_duration EQU 3
 
-RSSI_COUNTER_INIT	EQU	6
+RSSI_COUNTER_INIT   EQU 6
 
-pwm_freq	EQU	28
+pwm_freq            EQU 28
 
 ; Roles des bits du registre d'etat du port serie "RS232status" :
-RD_err		EQU	RS232status.0 ; - Erreur lecture dans buffer RX.
-TFR_run		EQU	RS232status.1 ; - Emission de donnees en cours
+RD_err              EQU RS232status.0   ; - Erreur lecture dans buffer RX.
+TFR_run             EQU	RS232status.1   ; - Emission de donnees en cours 
 
 ; Bits analyse du type de caractere
-I2C_ACK         EQU     charType.0    ; - Bit "Acknowledge" lu sur l'I2C.
-CH_maj          EQU     charType.1    ; - Caractere appartient [A..Z] ?
-CH_min          EQU     charType.2    ; - Caractere appartient [a..z] ?
-CH_hex          EQU     charType.3    ; - Caractere appartient [0..f/F] ?
-CH_dec          EQU     charType.4    ; - Caractere appartient [0..9] ?
-XXDD_OK         EQU     charType.5    ; - 2 chiffres hexa recus via RS232.
-CH_enter        EQU     charType.6    ; - Caractere recu = ENTER.
+I2C_ACK             EQU     charType.0  ; - Bit "Acknowledge" lu sur l'I2C.
+CH_maj              EQU     charType.1  ; - Caractere appartient [A..Z] ?
+CH_min              EQU     charType.2  ; - Caractere appartient [a..z] ?
+CH_hex              EQU     charType.3  ; - Caractere appartient [0..f/F] ?
+CH_dec              EQU     charType.4  ; - Caractere appartient [0..9] ?
+XXDD_OK             EQU     charType.5  ; - 2 chiffres hexa recus via RS232.
+CH_enter            EQU     charType.6  ; - Caractere recu = ENTER.
 
 
 ;******************************************************************************
@@ -219,44 +201,55 @@ CH_enter        EQU     charType.6    ; - Caractere recu = ENTER.
 ;----------------------------------------
 ; Secteur de boot
 ;----------------------------------------
-	ORG		RESET			; Vecteur d'interruption du RESET
-	LJMP	init			; Contourner la zone des vecteurs
-							; d'interruption...
+    ORG		    RESET       ; Vecteur d'interruption du RESET
+    LJMP        init        ; Contourner la zone des vecteurs
+                            ; d'interruption...
 
-	ORG        EXTI0        ; Tant que les interruptions ne
-	RETI                   	; sont pas utilisees, le code de
-							; fin d'interruption (RETI) ne sert 	
-							; a rien ; il est la uniquement à
-							; titre de precaution...
-	ORG        TIMER0		; Interuption du Timer0
-	LJMP	   Int_Timer0
-	
-	ORG        EXTI1       	
-	RETI                   	; 
-	ORG        TIMER1      	; 
-	RETI                   	; 
-	
-	ORG        SINT        	; Routine d'interrution du port  
-	LJMP       Int_RX_TX   	; serie 
-	ORG        I2CBUS      	; 
-	RETI                   	; 
-	ORG        T2CAP0      	; 
-	RETI                   	; 
-	ORG        T2CAP1      	; 
-	RETI                   	; 
-	ORG        T2CAP2      	; 
-	RETI                   	; 
-	ORG        T2CAP3      	; 
-	RETI                   	; 
-	ORG        ADCONV      	; 
-	RETI                   	; 
-	ORG        T2CMP0      	; 
-	RETI                   	; 
-	ORG        T2CMP1      	; 
-	RETI                   	; 
-	ORG        T2CMP2      	; 
-	RETI                   	; 
-	ORG        T2OVER      	; 
+    ORG         EXTI0       ; Tant que les interruptions ne
+    RETI                    ; sont pas utilisees, le code de
+                            ; fin d'interruption (RETI) ne sert 	
+                            ; a rien ; il est la uniquement à
+                            ; titre de precaution...
+	ORG         TIMER0      ; Interuption du Timer0
+    LJMP        Int_Timer0
+
+	ORG         EXTI1       	
+    RETI                    ; 
+ 
+    ORG         TIMER1      ; 
+    RETI                    ; 
+
+    ORG         SINT        ; Routine d'interrution du port  
+    LJMP        Int_RX_TX   ; serie 
+
+    ORG         I2CBUS      ; 
+    RETI                    ; 
+
+    ORG         T2CAP0      ; 
+    RETI                    ; 
+
+    ORG         T2CAP1      ; 
+    RETI                    ; 
+
+    ORG         T2CAP2      ; 
+    RETI                    ; 
+
+    ORG         T2CAP3      ; 
+    RETI                    ; 
+
+    ORG         ADCONV      ; 
+    RETI                    ; 
+
+    ORG         T2CMP0      ; 
+    RETI                    ; 
+
+    ORG         T2CMP1      ; 
+    RETI                    ; 
+
+    ORG         T2CMP2      ; 
+    RETI                   	; 
+
+    ORG         T2OVER      ; 
 
 ;----------------------------------------
 ; Chargement des fonctions annexe
