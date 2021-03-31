@@ -279,6 +279,7 @@ b_endbut:
 
 ;----------------------------------------
 ; Tables pour l'afficheur
+; Tables for the display
 ;----------------------------------------
 lpg1_table:
 	db	0h	; 0

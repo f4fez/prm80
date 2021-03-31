@@ -13,37 +13,20 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-RAM_AREA_CONFIG		EQU	000h
-RAM_AREA_FREQ		EQU	001h
-RAM_AREA_STATE		EQU	002h
+; Memory Handling, initialization...
 
-RAM_ID_CODE			EQU	000h
-RAM_CONFIG_SUM		EQU	001h
-RAM_FREQ_SUM		EQU	002h
-RAM_STATE_SUM		EQU	003h
-RAM_CHAN			EQU	010h
-RAM_MODE			EQU	011h
-RAM_SQUELCH			EQU	012h
-RAM_MAX_CHAN		EQU	013h
-RAM_SHIFT_HI		EQU	014h
-RAM_SHIFT_LO		EQU	015h
-RAM_PLL_DIV_HI		EQU	016h
-RAM_PLL_DIV_LO		EQU	017h
-RAM_SCAN_DURATION	EQU	018h
 
-ID_CODE			EQU	040h
-
-;----------------------------------------
-; Chargement des registre de frequence
-;  a partir du canal
-;----------------------------------------
+;--------------------------------------------------------------------------
+; Chargement des registre de frequence a partir du canal
+; Loading the frequency registers from the channel
+;--------------------------------------------------------------------------
 get_freq:
 	call	wdt_reset
-	; Recuperation du canal
+	; Recuperation du canal / channel recovery
 	mov	dph, #RAM_AREA_CONFIG
 	mov	dpl, #RAM_CHAN
 	movx	a, @dptr
-	mov	r1, a
+	mov	r1, a                                   ; r1 memorizes channel number
 get_freq_r1:	
 	; Recuperation du chan_state
 	mov	dph, #RAM_AREA_STATE
@@ -84,11 +67,53 @@ ELSEIF FREQ EQ 430
 	subb	a, #fi_hi
 	mov	rx_freq_hi, a
 ENDIF
+
+
 	; Activation du shift au besoin
-	; Shift activation as needed
-	jnb	chan_state.0, gfn_end
-	jnb	chan_state.2, gnf_shift_n	; Test si shift - ou +
-gnf_shift_p:		; Shift positif
+	; Shift activation as needed (add shift to Tx freq.)
+	;
+	; 2021-02: New feature channel specific shift by DC0CM
+	; If channel specific shift is available (!= 0) 
+	; use channel specific shift instead of global shift
+	
+
+
+
+	jnb	chan_state.0, gfn_end0			
+	
+get_ch_shift:
+	; Is there a channel specific shift stored?
+	clr 	b.0	                            ; will remember if ch_shift high byte != 0 
+
+	mov 	dph, # High Ch0_Shift_freq
+	mov		a, r1
+	rl		a
+	mov		dpl, a
+	movx	a, @dptr
+	mov		r0,a
+	jnz 	ch_shift_hi_nz
+	setb 	b.0	                            ; chx_shift high = 0!
+ch_shift_hi_nz:	
+	inc		dptr
+	movx	a, @dptr
+	jnz		ch_shift_nz					    ; if channel specific shift (lo and hi) are zero 
+	jnb		b.0, ch_shift_nz 	
+
+	mov		dph, #RAM_AREA_CONFIG		    ; ->  no channel specific shift !
+	mov		dpl, #RAM_SHIFT_HI			    ;
+	movx	a, @dptr					
+	mov		r0, a
+	inc		dptr
+	movx	a, @dptr
+
+ch_shift_nz:                                ; ->  channel specific shift !
+	mov		shift_hi, r0
+	mov		shift_lo, a
+ch_shift_end:
+
+
+	jnb	chan_state.2, gnf_shift_n           ; Test si shift - ou +
+gnf_shift_p:                                ; Shift positif
 	mov	r0, shift_lo
 	mov	a, tx_freq_lo
 	add	a, r0
@@ -96,8 +121,8 @@ gnf_shift_p:		; Shift positif
 	mov	a, shift_hi
 	addc	a, tx_freq_hi
 	mov	tx_freq_hi, a
-	jmp	gfn_end
-gnf_shift_n:		; Shift negatif
+	jmp	gfn_end0
+gnf_shift_n:                                ; Shift negatif
 	clr	c
 	mov	r0, shift_lo
 	mov	a, tx_freq_lo
@@ -106,7 +131,13 @@ gnf_shift_n:		; Shift negatif
 	mov	a, tx_freq_hi 
 	subb	a, shift_hi
 	mov	tx_freq_hi, a
-	
+
+gfn_end0:
+IF TARGET EQ 8070
+	call 	shift_dsp                       ; write shift value to dez. storage and display (PRM8070 only)
+	setb	ForceLCDrefresh	                ;
+ENDIF
+
 gfn_end:
 	ret
 
@@ -174,17 +205,18 @@ load_parameters:
 	call	test_checksums		;Test si la ram est valide
 	jz	lp_load		
 	call	bip
-	call	read_eeprom		; Si RAM invalide charger eeprom et retester
-	call	test_checksums		
+	call	read_eeprom			; Si RAM invalide charger eeprom et retester
+	call	test_checksums		; If RAM is invalid load eeprom and retest
 	jz	lp_load
 	call	load_ram_default	; Si eeprom invalide egalement alors reinit usine
-	call	bip
+	call	bip					; If the eeprom is also invalid, then it is reset to factory defaults.
 lp_load:
-	;Charger les donnees de la ram
+	;Charger les donnees de la ram / Load data from the ram
 	mov	dph, #RAM_AREA_CONFIG
 	mov	dpl, #RAM_MODE
 	movx	a, @dptr
 	mov	mode, a
+
 	
 	mov	dpl, #RAM_SHIFT_LO
 	movx	a, @dptr
@@ -234,6 +266,16 @@ tc_check_sum1:
 	movx	a, @dptr
 	clr	c
 	subb	a, r0
+	jz	tc_check_sum1a
+	inc	r7
+tc_check_sum1a:	
+	; Verfication checksum de la zone shift
+	call	load_shift_area_checksum
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_SHIFT_SUM
+	movx	a, @dptr
+	clr	c
+	subb	a, r0
 	jz	tc_check_sum2
 	inc	r7
 tc_check_sum2:
@@ -256,13 +298,15 @@ tc_check_sum_end:
 load_ram_default:
 	call	load_ram_default_config
 	call	load_ram_default_freq
+	call	load_ram_default_shift
 	call	load_ram_default_state
 	call	prog_eeprom
 	ret
 
 ;----------------------------------------
 ; Chargement des parametres generaux
-;  par defaut
+; par defaut
+; Loading Default general parameters 
 ;----------------------------------------
 load_ram_default_config:
 	call	wdt_reset
@@ -310,11 +354,12 @@ load_ram_default_config:
 	ret
 
 ;----------------------------------------
-; Chargement de la liste des cannaux
-;  par defaut
+; Chargement de la liste des cannaux par defaut
+;  
+;Load channels frequencies from program EPROM to RAM
 ;----------------------------------------
 load_ram_default_freq:	
-	;Load channels frequencies from program EPROM to RAM
+	
 	call	wdt_reset
 	mov	dph, #RAM_AREA_CONFIG	; Load max chan value in r0
 	mov	dpl, #RAM_MAX_CHAN
@@ -348,6 +393,46 @@ lrd_copyloop1:
 	mov	dpl, #RAM_FREQ_SUM
 	movx	@dptr, a
 	ret
+
+;----------------------------------------------
+;Load channels shift from program EPROM to RAM
+;----------------------------------------------
+load_ram_default_shift:	
+	
+	call	wdt_reset
+	mov	dph, #RAM_AREA_CONFIG	; Load max chan value in r0
+	mov	dpl, #RAM_MAX_CHAN
+	movx	a, @dptr
+	mov	r0, a
+lrds_copyloop1:
+	mov	dptr,	#shift_list		; Load shift value
+	mov	a, r0
+	rl	a
+	movc	a, @a+dptr
+	mov	r1, a					; r1 : shift_hi
+	mov	a, r0
+	rl	a
+	inc	a
+	movc	a, @a+dptr
+	mov	r2, a					; r2 : freq_lo
+	mov	dph, #RAM_AREA_SHIFT	; Copy to RAM
+	mov	a, r0
+	rl	a
+	mov	dpl, a
+	mov	a, r1
+	movx	@dptr, a
+	inc	dpl
+	mov	a, r2
+	movx	@dptr, a
+	dec	r0
+	cjne	r0, #0ffh, lrds_copyloop1
+	
+	call	load_shift_area_checksum
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_SHIFT_SUM
+	movx	@dptr, a
+	ret
+
 
 ;----------------------------------------
 ; Chargement des etats des cannaux
@@ -432,7 +517,12 @@ switch_shift_update:
 	mov	r0, rx_freq_lo
 	mov	r1, rx_freq_hi
 	call	load_synth
-	
+
+IF TARGET EQ 8070
+	call 	shift_dsp						; write shift value to dez. storage and display (PRM8070 only)
+	setb	ForceLCDrefresh
+ENDIF
+
 	ret
 
 ;----------------------------------------
@@ -440,7 +530,7 @@ switch_shift_update:
 ; and switch positive / negative
 ;----------------------------------------
 switch_shift_mode2:
-	jnb	mode2.0, switch_shift2_load	; Test if scanning, channel is not saved in the same place
+	jnb	mode2.0, switch_shift2_load			; Test if scanning, channel is not saved in the same place
 	mov	r0, chan_scan
 	jmp	switch_shift2_update
 switch_shift2_load:
@@ -480,6 +570,11 @@ ssm2_cont:
 	mov	r0, rx_freq_lo
 	mov	r1, rx_freq_hi
 	call	load_synth
+	
+IF TARGET EQ 8070
+	call 	shift_dsp						; write shift value to dez. storage and display (PRM8070 only)
+	setb	ForceLCDrefresh
+ENDIF
 	
 	ret
 
@@ -556,6 +651,24 @@ lfac_loop:
 	ret
 
 ;----------------------------------------
+; Calcul de la checksum de la zone shift
+;----------------------------------------	
+load_shift_area_checksum:	
+	mov	dph, #RAM_AREA_SHIFT
+	mov	dpl, #0
+	mov	r0, #0
+	mov	a, #0
+lshac_loop:
+	call	wdt_reset
+	movx	a, @dptr
+	add	a, r0
+	mov	r0, a
+	inc	dpl
+	mov	r1, dpl
+	cjne	r1, #0, lshac_loop
+	ret
+
+;----------------------------------------
 ; Calcul de la checksum de la zone config
 ;----------------------------------------
 load_config_area_checksum:	
@@ -580,6 +693,38 @@ switch_mode:
 	cpl	mode.0
 	call	update_lcd
 	ret
+
+IF TARGET EQ 8070
+;------------------------------------------
+; Inc / Dec Left 3 Segments (for Test only)
+;------------------------------------------
+L_Disp_inc:
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_L_Disp
+	movx	a, @dptr
+	inc	a
+	movx	@dptr, a
+	mov	b, a
+	jmp	L_Disp_update
+
+L_Disp_dec:
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_L_Disp
+	movx	a, @dptr
+	dec	a
+	movx	@dptr, a 
+
+L_Disp_update:
+	; Calcul de la checksum
+	call	load_config_area_checksum
+	mov	dph, #RAM_AREA_CONFIG
+	mov	dpl, #RAM_CONFIG_SUM
+	movx	@dptr, a
+	
+	call	update_L_lcd
+
+	ret
+ENDIF
 
 ;----------------------------------------
 ; Inc / Dec canal ou squelch
@@ -730,18 +875,36 @@ fin_rd_all:      POP        DPL            ;
                  POP        ACC            ; 
                  RET
 
+IF TARGET EQ 8070
 ;----------------------------------------
-; Mise a jour du lcd
+; Update left 3 digits of LCD
 ;----------------------------------------
-update_lcd:
-		jb	mode2.2, ul_end
+update_L_lcd:
 		call	wdt_reset
-		jb	mode.0, ul_sql			; Si mode sql aller plus loin
-		jnb	mode2.0, update_lcd_load	; Test if scanning, channel is not saved in the same place
+		mov	dph, #RAM_AREA_CONFIG		; Test Value currently only
+		mov	dpl, #RAM_L_Disp
+		movx	a, @dptr
+		mov	r0, a
+
+		setb	mode.7
+
+		ret		 
+ENDIF
+
+;---------------------------------------------
+; Mise a jour du lcd /  Update of the lcd
+; Update Channel/Squelch if no RSSI to display
+;----------------------------------------------
+update_lcd:
+
+		jb	mode2.2, ul_end					; RSSI to display? -> done
+		call	wdt_reset
+		jb	mode.0, ul_sql					; Si mode sql aller plus loin  / If sql mode go further
+		jnb	mode2.0, update_lcd_load		; Test if scanning, channel is not saved in the same place
 		mov	a, chan_scan
 		jmp	update_lcd_update
 update_lcd_load:
-		mov	dph, #RAM_AREA_CONFIG		; sinon charger canal
+		mov	dph, #RAM_AREA_CONFIG			; sinon charger canal
 		mov	dpl, #RAM_CHAN
 		movx	a, @dptr
 update_lcd_update:

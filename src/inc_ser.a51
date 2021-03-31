@@ -512,6 +512,7 @@ tch_5:           CJNE       A,#'5',tch_C       ; - Touche [5] ?
 tch_C:           CJNE       A,#'C',tch_D       ; - Touche [C] ?
 				 CALL	    list_chan
                  JMP        tch_suiv           ;
+
 tch_D:           CJNE       A,#'D',tch_E       ; - Touche [D] ?
                  MOV        DPTR,#Message39    ; 
                  call       MESS_RS232         ; 
@@ -598,8 +599,7 @@ tch_O:           CJNE       A,#'O',tch_P       ; - Touche [O] ?
                  call       MESS_RS232         ; 
                  call       DDinRS232          ; 
                  JNB        XXDD_OK, tch_o_end ; 
-				 cpl	    a
-				 swap	    a
+				 setb		VolDisabled		   ;   Disable Volume control via Poti
 				 call	    load_volume
 tch_o_end:
 				 JMP        tch_suiv           ;  
@@ -824,29 +824,30 @@ fin_mod:         call       CRLF_RS232         ;
                  RET                           ; 
 
 ; Liste les cannaux et leur configuration
+; List the channels and their configuration
+
 list_chan:
 	PUSH    ACC
-        PUSH    DPH
-        PUSH    DPL
+    PUSH    DPH
+    PUSH    DPL
 		 
 	MOV     DPTR,#Message31 
-        call    MESS_RS232
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_max_chan
+    call    MESS_RS232
+	mov		dph, #ram_area_config
+	mov		dpl, #ram_max_chan
 	movx	a, @dptr
-	mov	r1, a
-	inc	r1		; Nombre total de cannaux + 1
-	mov	r0, #0		; Boucle de comptage initialisee a 0
+	mov		r1, a
+	inc		r1					; Nombre total de cannaux + 1
+	mov		r0, #0				; Boucle de comptage initialisee a 0
 lc_loop:
 	; Envoi du numero du canal
-	mov	a, r0
+	; Send channel number
+	mov		a, r0
 	call	DEC_RS232
-	call	SPACE_RS232
-        mov	a,#':'
-        call	Write_RS232
 	call	SPACE_RS232
 		
 	; Envoi de la valeur de la pll
+	; Send pll value (nominal frequency)
 	mov	a, r0
 	mov	dph, #ram_area_freq
 	rl	a
@@ -858,7 +859,21 @@ lc_loop:
 	call	HEX_RS232
 	call	SPACE_RS232	
 	
+	; Envoi de la valeur de la shift
+	; Send shift value
+	mov	a, r0
+	mov	dph, #ram_area_shift
+	rl	a
+	mov	dpl, a
+	movx	a, @dptr
+	call	HEX_RS232
+	inc	dpl
+	movx	a, @dptr
+	call	HEX_RS232
+	call	SPACE_RS232	
+
 	; Envoi du chan state
+	; Send channel State
 	mov	dph, #ram_area_state
 	mov	dpl, r0
 	movx	a, @dptr
@@ -878,130 +893,161 @@ lc_loop:
 ; Programme un canal
 prog_chan:
 	PUSH    ACC
-        PUSH    DPH
-        PUSH    DPL
+    PUSH    DPH
+    PUSH    DPL
 	
 	MOV     DPTR,#Message32
-        CALL	MESS_RS232
+    CALL	MESS_RS232
 	CALL	DDinRS232
-        JB	XXDD_OK, pc_cont
+    JB	XXDD_OK, pc_cont
 	jmp	fin_progchan
 pc_cont:
-	mov	r0, a			; Copie le canal a modifier dans R0
+	mov		r0, a					; Copie le canal a modifier dans R0
 	call	CRLF_RS232
-	MOV     DPTR,#Message33
-        CALL	MESS_RS232
-        CALL	XXinRS232
-        JNB     XXDD_OK,fin_progchan
-        MOV     r1,A			; PLL MSB dans R1
-        CALL    XXinRS232
-        JNB     XXDD_OK,fin_progchan
-        MOV     r2,A			; PLL LSB dans R2
+	MOV     DPTR,#Message33			;PLL
+	CALL	MESS_RS232				;===
+	CALL	XXinRS232
+	JNB     XXDD_OK,fin_progchan1
+	MOV     r1,A					; PLL MSB dans R1
+	CALL    XXinRS232
+	JNB     XXDD_OK,fin_progchan1
+	MOV     r2,A					; PLL LSB dans R2
 	call	CRLF_RS232
-	MOV     DPTR,#Message20
-        CALL	MESS_RS232
-        CALL	XXinRS232
-        JNB     XXDD_OK,fin_progchan
-	mov	r3, a			; Etat du canal dans R3
+
+	MOV     DPTR,#Message34			;SHIFT
+	CALL	MESS_RS232				;=====
+	CALL	XXinRS232
+	JB    	XXDD_OK,shift_progchan
+fin_progchan1:						;(distance for JB/JNB too far)
+	LJMP	fin_progchan
+
+shift_progchan:
+	MOV     r6,A					; SHIFT MSB dans R6
+	CALL    XXinRS232
+	JNB     XXDD_OK,fin_progchan1
+	
+	MOV     r7,A					; SHIFT LSB dans R7
+	call	CRLF_RS232
+
+	MOV     DPTR,#Message20			;STATE
+	CALL	MESS_RS232				;=====
+	CALL	XXinRS232
+	JNB     XXDD_OK,fin_progchan
+	mov		r3, a					; Etat(State) du canal dans R3
 	call	CRLF_RS232
 	
 	; Test si le canal existe ou pas
-	mov	dph, #ram_area_config	; Load max chan value dans r4
-	mov	dpl, #ram_max_chan
+	mov		dph, #ram_area_config	; Load max chan value dans r4
+	mov		dpl, #ram_max_chan
 	movx	a, @dptr
-	mov	r4, a
-	clr	c
+	mov		r4, a
+	clr		c
 	subb	a, r0
-	jnb	cy, pc_write
+	jnb		cy, pc_write
 	; Si le canal n'existe pas alors demander une confirmation avant la creation
 	MOV     DPTR,#Message35
-        CALL	MESS_RS232
+    CALL	MESS_RS232
 	CALL    WaitRS232
-        CALL    AnalyseChar
-        MOV     A,RS_ASCmaj
+    CALL    AnalyseChar
+    MOV     A,RS_ASCmaj
 	call	CRLF_RS232
-        CJNE    A,#'Y',fin_progchan 
+    CJNE    A,#'Y',fin_progchan 
 	
 	; Creation d'un canal
-	inc	r4
-	mov	a, r4
-	mov	r0, a
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_max_chan
+	inc		r4
+	mov		a, r4
+	mov		r0, a
+	mov		dph, #ram_area_config
+	mov		dpl, #ram_max_chan
 	movx	@dptr, a
 	
 	
 	; Ecriture de la nouvelle valeur pour la pll
 	; Write the new value for the pll 
 pc_write:
-	mov	a, r0
-	mov	dph, #ram_area_freq
-	rl	a
-	mov	dpl, a
-	mov	a, r1
+	mov		a, r0
+	mov		dph, #ram_area_freq
+	rl		a
+	mov		dpl, a
+	mov		a, r1
 	movx	@dptr, a
-	inc	dpl
-	mov	a, r2
+	inc		dpl
+	mov		a, r2
 	movx	@dptr, a
 	
-	mov	dph, #ram_area_state
-	mov	dpl, r0
-	mov	a, r3
+	mov		a, r0
+	mov		dph, #ram_area_shift
+	rl		a
+	mov		dpl, a
+	mov		a, r6
+	movx	@dptr, a
+	inc		dpl
+	mov		a, r7
+	movx	@dptr, a
+
+	mov		dph, #ram_area_state
+	mov		dpl, r0
+	mov		a, r3
 	movx	@dptr, a
 	
 	; Calcul des checksums
 	call	load_freq_area_checksum
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_freq_sum
+	mov		dph, #ram_area_config
+	mov		dpl, #ram_freq_sum
+	movx	@dptr, a
+	call	load_shift_area_checksum
+	mov		dph, #RAM_AREA_CONFIG
+	mov		dpl, #RAM_SHIFT_SUM
 	movx	@dptr, a
 	call	load_state_area_checksum
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_state_sum
+	mov		dph, #ram_area_config
+	mov		dpl, #ram_state_sum
 	movx	@dptr, a
 	call	load_config_area_checksum
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_config_sum
+	mov		dph, #ram_area_config
+	mov		dpl, #ram_config_sum
 	movx	@dptr, a
 
 fin_progchan:
 	CALL	CRLF_RS232
 	POP     DPL
-        POP     DPH
-        POP     ACC
-        RET
+    POP     DPH
+    POP     ACC
+    RET
 	
 set_max_chan:
 	PUSH    ACC
-        PUSH    DPH
-        PUSH    DPL	
+    PUSH    DPH
+    PUSH    DPL	
 	MOV     DPTR,#Message36
-        CALL	MESS_RS232
+    CALL	MESS_RS232
 	CALL	DDinRS232
-        JNB	XXDD_OK,fin_set_max_chan
+    JNB		XXDD_OK,fin_set_max_chan
 
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_max_chan
+	mov		dph, #ram_area_config
+	mov		dpl, #ram_max_chan
 	movx	@dptr, a
-	mov	a, #0
-	mov	dpl, #ram_chan
+	mov		a, #0
+	mov		dpl, #ram_chan
 	movx	@dptr, a
 	; Rafraichir lcd
-	mov	r0, a
+	mov		r0, a
 	call	lcd_clear_digits_r
 	call	lcd_print_dec
 	setb	mode.7
 	; Calcul de la checksum
 	call	load_config_area_checksum
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_config_sum
+	mov		dph, #ram_area_config
+	mov		dpl, #ram_config_sum
 	movx	@dptr, a
 	
 fin_set_max_chan:
 	call	CRLF_RS232		
 	POP     DPL
-        POP     DPH
-        POP     ACC
-        RET
+    POP     DPH
+    POP     ACC
+    RET
+
 	
 ; Envoi l'etat du poste
 ; Sending the current status
@@ -1010,39 +1056,53 @@ send_state:
 	push	ACC
 	push	DPH
 	push	DPL
-	mov	a, mode
+	mov	    a, mode
 	call	HEX_RS232
-	mov	dph, #ram_area_config
-	mov	dpl, #ram_chan
+	mov	    dph, #ram_area_config
+	mov	    dpl, #ram_chan
 	movx	a, @dptr
 	call	HEX_RS232
-	mov	a, chan_state
+	mov	    a, chan_state
 	call	HEX_RS232
-	mov	dpl, #ram_squelch
+	mov	    dpl, #ram_squelch
 	movx	a, @dptr
 	call	HEX_RS232
-	mov	a, vol_hold
+    jnb     P4.1, rd_vol			        ; Volume (0x -> mute 1x -> min, Fx -> max)
+    clr     a                               ; if mute, return value = 0
+    sjmp    vol_out
+rd_vol:
+	mov	    a, vol_hold                 
+    cpl     a                               
+    swap    a
+    anl     a,#0FH                          ; max. 10H !
+    inc     a
+
+vol_out:
 	call	HEX_RS232
-	mov	a, lock
+	mov	    a, lock                         ; Lock byte
 	call	HEX_RS232
-	mov	a, rx_freq_hi
+	mov	    a, rx_freq_hi                   ; Rx freq
 	call	HEX_RS232
-	mov	a, rx_freq_lo
+	mov	    a, rx_freq_lo
 	call	HEX_RS232
-	mov	a, tx_freq_hi
+	mov	    a, tx_freq_hi                   ; Tx freq
 	call	HEX_RS232
-	mov	a, tx_freq_lo
+	mov	    a, tx_freq_lo
 	call	HEX_RS232
+	call 	read_rssi                       ; RSSI
+	mov 	a,R0
+	call	HEX_RS232
+
 	pop	DPL
 	pop	DPH
 	pop	ACC
 	RET
 
 set_chan_state:	
-            MOV         DPTR,#Message20 
-            call        MESS_RS232
-            call        DDinRS232
-            JNB         XXDD_OK, scs_end
+        MOV     DPTR,#Message20 
+        call    MESS_RS232
+        call    DDinRS232
+        JNB     XXDD_OK, scs_end
 	    mov		chan_state, a
 		 
 	    mov		dph, #ram_area_config
@@ -1127,7 +1187,7 @@ ELSEIF FREQ EQ 430
 			  DB   " 430"
 ENDIF
 			  DB   " Firmware (c) F4FEZ / F8EGQ / DC0CM",00Dh,00Ah
-              DB   "Version 4.0x Beta, 18/01/2021.",00Dh,00Ah
+              DB   "Version 5.0, 15/03/2021.",00Dh,00Ah
 			  DB   ">",0
 Message03:    DB   "P1 = $",0 
 Message04:    DB   "P2 = $",0 
@@ -1155,10 +1215,10 @@ Message26:    DB   "Erase RAM and channels (Y/N) ? ",0
 Message28:    DB   "N",00Dh,00Ah,"command canceled...",00Dh,00Ah,0
 Message29:    DB   "Display the 256 bytes from internal RAM : ",0
 Message30:    DB   "error I2C number ",0
-Message31:    DB   "Channels list :",0Dh,0Ah,0
+Message31:    DB   "Channel Frequency Shift State",0Dh,0Ah,0
 Message32:    DB   "Channel to set : ",0
 Message33:    DB   "PLL value to load : $",0
-
+Message34:	  DB   "Shift value : $",0
 Message35:    DB   "This channel number doesn't exist. Add new channel (Y/N) ? ", 0
 Message36:    DB   "Channels number (00 to 99) : ",0
 Message37:    DB   "Lock : ",0
@@ -1167,9 +1227,9 @@ Message39:    DB   "Mode : ",0
 
 MessageVersion: 
 IF TARGET EQ 8060
-              DB   "PRM8060 V4.0"
+              DB   "PRM8060 V5.0"
 ELSEIF TARGET EQ 8070
-              DB   "PRM8070 V4.0"
+              DB   "PRM8070 V5.0"
 ENDIF
 
 IF FREQ EQ 144

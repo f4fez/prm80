@@ -1,4 +1,8 @@
-This is the description of the computer commands for the [version 4](https://github.com/f4fez/prm80/blob/doc/Release%20note.md) firmware. See also the [computer interface](Computer control.md) for hardware and communication parameters.
+This is the description of the computer commands for the version 5 firmware. 
+If you plan to play arround with this version contact the author of this page.
+
+See also the [computer interface](Computer_control.md) for hardware and communication parameters.
+
 
 Memory description
 ==================
@@ -25,7 +29,7 @@ Mode byte
 This general variable hold the state of system basic features.
 
 * b0: Squelch mode is displayed on LCD if true. Channel mode if false.
-* b1: Power level (High or Low mode)
+* b1: Power level (High or Low mode, low Power Mode if true)
 * b2: Squelch open (Read only)
 * b3: TX mode (Read only)
 * b4: PLL locked (Read only)
@@ -87,7 +91,9 @@ Display the value on the internal CPU port P5. Used for debuging.
 
 C: Print channels list
 ----------------------
-List all saved channel. Print channel number, frequency and channel statebyte.
+List all saved channel. Print channel number, Rx frequency (PLL value, not considering 21.4 Mhz IF),
+Split frequency (PLL value) and channel statebyte.
+* RX frequency [Hz] = PLL value * 12500
 
 D: Set "Mode" byte
 ------------------
@@ -97,15 +103,19 @@ E: Show system state
 --------------------
 This command display the following internal variables :
 
-* Mode byte
-* Channel number
-* Channel state
-* Squelch level
-* Volume level
-* Lock byte
-* Current RX PLL word (2 bytes)
-* Current TX PLL word (2 bytes
-This is intended to be used by a non human device.
+| Index | Byte | Description  |
+|-|-|-|
+| 0 | Mode byte | see above |
+| 1 | Channel number | decimal values |
+| 2 | Channel state | see above |
+| 3 | Squelch level | hex values, 00..0F |
+| 4 | Volume level | hex value, high nibble only, <br /> 0x: min volume, Fx: max volume |
+| 5 | Lock byte | see above |
+| 6+7 | Current RX PLL word | 2 byte hex value, see "R" command |
+| 8+9 | Current TX PLL word | 2 byte hex value, see "R" command |
+| 10 | RSSI | hex value |
+
+This command is intended to be used by a non human device.
 
 F: Set squelch
 --------------
@@ -139,13 +149,14 @@ Switch the radio to the given channel.
 O: Set volume
 -------------
 Set the volume. The value use hexadecimal values between 00 and 0F.
-Allowed vaulues: "00" .. "09"; "10".. "15". Everything beside dez values will be rejected, other (higher) dez. values will lead to wrong settings 
+Allowed vaulues: "00" .. "09"; "10".. "15". Everything beside dez values will be rejected, other (higher) dez. values will lead to wrong settings
+New since V5: this command will also disable volume control via panel (poti)  
 
 The lock bit b2: "Volume button disabled" has to be set else this command will will not be persuit (See "K" command).
 
 P: Edit/Add channel
 -------------------
-This is the main function for editing a channel. Set the RX frequency as PLL word and the channel status byte. 
+This is the main function for editing a channel. Set the RX frequency as PLL word, the channel specific shift and the channel status byte. 
 
 To add a new channel, choose a not existing channel (i.e. 99). The next available number will be used.
 
@@ -155,7 +166,9 @@ This command set the total number of channel. Since there is no channel delete f
 
 R: Set synthetiser frequencies
 ------------------------------
-This command set the PLL words for RX and TX frequency. This function do not modify channels parameters. This is usefull for hardware check.
+This command set the PLL words for RX and TX frequency. This function do not modify channels parameters. This is usefull for hardware check. Please consider the 21.4 Mhz IF while calculating the RX PLL value.
+* RX PLL = (frequency [Hz] - 21400000Hz) / 12500
+* TX PLL =  frequency [Hz] / 12500
 
 U: Print 80c552 internal RAM
 ----------------------------

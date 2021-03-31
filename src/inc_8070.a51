@@ -144,6 +144,23 @@ ll_send:
 	nop
 	djnz	r0, ll_send	; fin de la boucle
 	ret
+
+;-------------------------------------------
+; Display of numbers on the left 3 lcd digits
+;-------------------------------------------
+; Afficher unites, valeur dans R0
+; Display units, value in R0
+
+lcd_print_digit_d100_l:
+    mov		dptr, #ld_l100_table
+	sjmp	lcd_print_digit
+lcd_print_digit_d10_l:
+    mov		dptr, #ld_l10_table
+	sjmp	lcd_print_digit
+lcd_print_digit_d1_l:
+	mov	dptr, #ld_l1_table
+	sjmp	lcd_print_digit
+
 	
 ;----------------------------------------
 ; Affichage de chiffres sur le lcd
@@ -152,47 +169,48 @@ ll_send:
 ; Afficher unites, valeur dans R0
 ; Display units, value in R0
 lcd_print_digit_d10:
-        mov	dptr, #ld_r10_table
+    mov		dptr, #ld_r10_table
 	sjmp	lcd_print_digit
 lcd_print_digit_d1:
-        mov	dptr, #ld_r1_table
+    mov		dptr, #ld_r1_table
+
 lcd_print_digit:
 	call	wdt_reset
 	mov 	a, r0
-	rl	a						; calculate position within _table (1..F)
-	rl	a
-	rl	a
-	mov	r0, a
+	rl		a						; calculate position within _table (1..F)
+	rl		a
+	rl		a
+	mov		r0, a
 	movc	a, @a+dptr			; fetch all 8 values
-	orl	lcd_dataB0,a
-	inc	r0
+	orl		lcd_dataB0,a
+	inc		r0
 	mov 	a, r0
 	movc	a, @a+dptr
-	orl	lcd_dataB1,a
-	inc	r0
+	orl		lcd_dataB1,a
+	inc		r0
 	mov 	a, r0
 	movc	a, @a+dptr
-	orl	lcd_dataB2,a
-	inc	r0
+	orl		lcd_dataB2,a
+	inc		r0
 	mov 	a, r0
 	movc	a, @a+dptr
-	orl	lcd_dataB3,a
-	inc	r0
+	orl		lcd_dataB3,a
+	inc		r0
 	mov 	a, r0
 	movc	a, @a+dptr
-	orl	lcd_dataA0,a
-	inc	r0
+	orl		lcd_dataA0,a
+	inc		r0
 	mov 	a, r0
 	movc	a, @a+dptr
-	orl	lcd_dataA1,a
-	inc	r0
+	orl		lcd_dataA1,a
+	inc		r0
 	mov 	a, r0
 	movc	a, @a+dptr
-	orl	lcd_dataA2,a
-	inc	r0
+	orl		lcd_dataA2,a
+	inc		r0
 	mov 	a, r0
 	movc	a, @a+dptr
-	orl	lcd_dataA3,a
+	orl		lcd_dataA3,a
 	ret
 
 ;----------------------------------------
@@ -210,8 +228,62 @@ lcd_print_dec:
 	mov	r0, b
 	call	lcd_print_digit_d1
 	ret
+
+;------------------------------------------------
+; Display a value in hexadecimal at left 3 digits
+;------------------------------------------------
+; Valeur dans R0
+lcd_print_hex_l:
+;	call	wdt_reset
+;	mov		a, r0
+;	mov		r2, a
+;	anl		a, #0fh
+;	mov		r0, a
+;	call	lcd_print_digit_d1_l
+;	mov		a, r2
+;	anl		a, #0fh
+;	mov		r0, a
+;	call	lcd_print_digit_d100_l		;for testing both digits will show the same value
+;	mov		a, r2
+;	swap	a
+;	anl		a, #0fh
+;	mov		r0, a
+;	call	lcd_print_digit_d10_l
+	ret
+
+;------------------------------------------
+; Display dezimal values of shift frequency 
+; at left 3 digits
+;------------------------------------------
+lcd_print_dez_l:
+	
+	call	wdt_reset
+
+	call	lcd_clear_digits_l
+
+	mov		a, shift_dLo
+
+	mov		r2, a						; digit 1
+	anl		a, #0fh
+	mov		r0, a
+	call	lcd_print_digit_d1_l		; value for lcd_print in R0
+
+	mov		a, r2						; digit 10
+	swap	a
+	anl		a, #0fh
+	mov		r0, a
+	call	lcd_print_digit_d10_l		
+
+	mov		a, shift_dHi				; digit 100
+	anl		a, #0fh
+	mov		r0, a
+	call	lcd_print_digit_d100_l		;
+	ret
+
+
 ;----------------------------------------
 ; Affichage d'une valeur en hexadecimal
+; Display a value in hexadecimal
 ;----------------------------------------
 ; Valeur dans R0
 lcd_print_hex:
@@ -238,6 +310,20 @@ lcd_clear_digits_r:
 	anl	lcd_dataA0, #0fch
 	anl	lcd_dataA3, #003h
 
+	ret
+	
+;------------------------------------------
+; Effacement des chiffres
+; Clearing the numbers of the left 3 digits
+;------------------------------------------
+lcd_clear_digits_l:
+	call	wdt_reset
+	anl	lcd_dataB0, #00001111b
+	anl	lcd_dataB1, #01111011b
+	anl	lcd_dataB2, #11110000b
+	anl	lcd_dataA0, #00000111b
+	anl	lcd_dataA1, #01111001b
+	anl	lcd_dataA2, #11110000b
 	ret
 
 ;----------------------------------------
@@ -402,12 +488,10 @@ b_but6: ;
 	call	switch_mode				; Switch Mode (Channel <-> Squelch)
 	jmp	b_endbut
 b_but7: ; 
-	cjne	a, #64, b_but8
-
+	cjne	a, #64, b_but8			; left Down button
 	jmp	b_endbut
 b_but8: ; 
-	cjne	a, #128, b_but16
-
+	cjne	a, #128, b_but16		; left Up button
 	jmp	b_endbut
 b_but16: ; 1 + 6
 	cjne	a, #33, b_endbut
@@ -450,6 +534,88 @@ b_but8l:
 	jmp	b_endbut
 
 b_endbut:
+	ret
+
+
+;------------------------------------------
+; Write Shift Frequency to display variable
+; Hex value High = R0, Hex value Low = A
+; dont modify accu and R0 ! 
+;------------------------------------------
+
+shift_dsp:
+	push 	acc
+	XCH		a,R0						; Push A, R0
+	push	acc
+	XCH		a,R0
+
+	jb		shift_active, shiftNzero	; shift active if 1
+	mov		a,#0
+	mov 	R0,#0
+	sjmp	shift_go
+
+shiftNzero:
+	mov		a, shift_lo
+	mov		R0, shift_hi
+
+shift_go:
+	mov		R3,a						; Low Shift
+
+										; shift frequency *12,5 (khz)
+	
+	mov		R2,#0
+
+	mov		a, R0						;Calculate frequency 7Mhz = 700(=PLL value * 125/100 = * 1,25 = *1 + 1/4)
+	mov		b, R3
+	clr		c
+	rrc		a							; /4
+	XCH		a,b
+	rrc		a
+	XCH		a,b
+	clr		c	
+	rrc		a
+	XCH		a,b
+	rrc		a							; a = shift_dLo/4
+
+	add		a, R3						; shift_d * (1+1/4=) 1,25
+	XCH		a,b
+	addc	a, R0
+	XCH		a,b							; b=high value, a=low value
+
+
+
+										; check how many times 100dez is inluded
+	clr		c
+
+check100:
+	subb 	a,#100						; check digit 100
+	XCH		a,b							;
+	subb	a,#0						; High Byte -1 if carry (Low Byte underflow)
+	XCH		a,b							;
+	jc		check100done				; if High Byte < 0: we are done
+	inc		R2							; next hundret
+	sjmp	check100					; (remember carry is zero now)
+
+check100done:
+	add		a,#100						; restore "rest" (0..99)
+	
+	mov		b,#10
+	div		ab
+	anl		a,#0Fh						;
+	SWAP	a							; *10 is high byte 
+	add		a,b							; add rest (*1)				
+	mov		shift_dLo,a					;	
+	
+	mov		a,R2						;
+	anl		a,#0Fh	
+	mov		shift_dHi,a					;	
+	
+	call	lcd_print_dez_l				; values to Disp Buffer
+
+	pop		acc
+	XCH		a, R0						; restore R0
+	pop 	acc
+
 	ret
 
 ;----------------------------------------
@@ -717,396 +883,442 @@ ld_r10_table:
 	db	0h
 	db	00Ch
 	
-;----------------------------------------
-; Tables for the additional 8070 digits 
+	
+;---------------------------------------------
+; Tables for the additional 3 left 8070 digits 
 ; Byte-Register order: B0..B3, A0..A3
-;----------------------------------------
+;---------------------------------------------
 ld_l1_table:
-	db	0h	; 0
-	db	0h
-	db	0Eh
-	db	0h
-	db	08h
-	db	0h
-	db	0Ah
-	db	0h
-	db	0h	; 1
-	db	0h
-	db	08h
-	db	0h
-	db	0h
-	db	0h
-	db	08h
-	db	0h
-	db	0h	; 2
-	db	0h
-	db	06h
-	db	0h
-	db	08h
-	db	0h
-	db	0Ch
-	db	0h
-	db	0h	; 3
-	db	0h
-	db	06h
-	db	0h
-	db	08h
-	db	0h
-	db	06h
-	db	0h
-	db	0h	; 4
-	db	0h
-	db	08h
-	db	0h
-	db	0h
-	db	0h
-	db	0Eh
-	db	0h
-	db	0h	; 5
-	db	0h
-	db	0Ch
-	db	0h
-	db	08h
-	db	0h
-	db	06h
-	db	0h
-	db	0h	; 6
-	db	0h
-	db	0Eh
-	db	0h
-	db	08h
-	db	0h
-	db	06h
-	db	0h
-	db	0h	; 7
-	db	0h
-	db	08h
-	db	0h
-	db	08h
-	db	0h
-	db	08h
-	db	0h
-	db	0h	; 8
-	db	0h
-	db	0Eh
-	db	0h
-	db	08h
-	db	0h
-	db	0Eh
-	db	0h
-	db	0h	; 9
-	db	0h
-	db	0Ch
-	db	0h
-	db	08h
-	db	0h
-	db	0Eh
-	db	0h
-	db	0h	; A
-	db	0h
-	db	0Ah
-	db	0h
-	db	08h
-	db	0h
-	db	0Eh
-	db	0h
-	db	0h	; B
-	db	0h
-	db	08h
-	db	0h
-	db	00h
-	db	0h
-	db	0Eh
-	db	0h
-	db	0h	; C
-	db	0h
-	db	06h
-	db	0h
-	db	08h
-	db	0h
-	db	02h
-	db	0h
-	db	0h	; D
-	db	0h
-	db	0Eh
-	db	0h
-	db	0h
-	db	0h
-	db	0Ch
-	db	0h
-	db	0h	; E
-	db	0h
-	db	06h
-	db	0h
-	db	08h
-	db	0h
-	db	06h
-	db	0h
-	db	0h	; F
-	db	0h
-	db	02h
-	db	0h
-	db	08h
-	db	0h
-	db	06h
-	db	0h
+	db	0b				; 0
+	db	0b
+	db	00001110b
+	db	0b
+	db	00001000b
+	db	0b
+	db	00001010b
+	db	0b
+	
+	db	0b				; 1
+	db	0b
+	db	00001000b
+	db	0b
+	db	0b
+	db	0b
+	db	00001000b
+	db	0b
+	
+	db	0b				; 2
+	db	0b
+	db	00000110b
+	db	0b
+	db	00001000b
+	db	0b
+	db	00001100b
+	db	0b
+	
+	db	0b				; 3
+	db	0b
+	db	00001100b
+	db	0b
+	db	00001000b
+	db	0b
+	db	00001100b
+	db	0b
+	
+	db	0b				; 4
+	db	0b
+	db	00001000b
+	db	0b
+	db	0b
+	db	0b
+	db	00001110b
+	db	0b
+	
+	db	0b				; 5
+	db	0b
+	db	00001100b
+	db	0b
+	db	00001000b
+	db	0b
+	db	00000110b
+	db	0b
+	
+	db	0b				; 6
+	db	0b
+	db	00001110b
+	db	0b
+	db	00001000b
+	db	0b
+	db	00000110b
+	db	0b
+	
+	db	0b				; 7
+	db	0b
+	db	00001000b
+	db	0b
+	db	00001000b
+	db	0b
+	db	00001000b
+	db	0b
+	
+	db	0b				; 8
+	db	0b
+	db	00001110b
+	db	0b
+	db	00001000b
+	db	0b
+	db	00001110b
+	db	0b
+	
+	db	0b				; 9
+	db	0b
+	db	00001100b
+	db	0b
+	db	00001000b
+	db	0b
+	db	00001110b
+	db	0b
+	
+	db	0b				; A
+	db	0b
+	db	00001010b
+	db	0b
+	db	00001000b
+	db	0b
+	db	00001110b
+	db	0b
+	
+	db	0b				; B
+	db	0b
+	db	00001110b
+	db	0b
+	db	00000000b
+	db	0b
+	db	00000110b
+	db	0b
+
+	db	0b				; C
+	db	0b
+	db	00000110b
+	db	0b
+	db	00001000b
+	db	0b
+	db	00000010b
+	db	0b
+	
+	db	0b				; D
+	db	0b
+	db	00001110b
+	db	0b
+	db	00000000b
+	db	0b
+	db	00001100b
+	db	0b
+	
+	db	0b				; E
+	db	0b
+	db	00000110b
+	db	0b
+	db	00001000b
+	db	0b
+	db	00000110b
+	db	0b
+	
+	db	0b				; F
+	db	0b
+	db	00000010b
+	db	0b
+	db	00001000b
+	db	0b
+	db	00000110b
+	db	0b
 
 ld_l10_table:
-	db	070h	; 0
-	db	0h
-	db	0h
-	db	0h
-	db	0D0h
-	db	0h
-	db	0h
-	db	0h
-	db	010h	; 1
-	db	0h
-	db	0h
-	db	0h
-	db	010h
-	db	0h
-	db	0h
-	db	0h
-	db	060h	; 2
-	db	0h
-	db	0h
-	db	0h
-	db	0B0h
-	db	0h
-	db	0h
-	db	0h
-	db	030h	; 3
-	db	0h
-	db	0h
-	db	0h
-	db	0Bh
-	db	0h
-	db	0h
-	db	0h
-	db	010h	; 4
-	db	0h
-	db	0h
-	db	0h
-	db	070h
-	db	0h
-	db	0h
-	db	0h
-	db	030h	; 5
-	db	0h
-	db	0h
-	db	0h
-	db	0E0h
-	db	0h
-	db	0h
-	db	0h
-	db	070h	; 6
-	db	0h
-	db	0h
-	db	0h
-	db	0E0h
-	db	0h
-	db	0h
-	db	0h
-	db	010h	; 7
-	db	0h
-	db	0h
-	db	0h
-	db	090h
-	db	0h
-	db	0h
-	db	0h
-	db	070h	; 8
-	db	0h
-	db	0h
-	db	0h
-	db	0F0h
-	db	0h
-	db	0h
-	db	0h
-	db	030h	; 9
-	db	0h
-	db	0h
-	db	0h
-	db	0F0h
-	db	0h
-	db	0h
-	db	0h
-	db	050h	; A
-	db	0h
-	db	0h
-	db	0h
-	db	0F0h
-	db	0h
-	db	0h
-	db	0h
-	db	070h	; B
-	db	0h
-	db	0h
-	db	0h
-	db	060h
-	db	0h
-	db	0h
-	db	0h
-	db	060h	; C
-	db	0h
-	db	0h
-	db	0h
-	db	0C0h
-	db	0h
-	db	0h
-	db	0h
-	db	070h	; D
-	db	0h
-	db	0h
-	db	0h
-	db	030h
-	db	0h
-	db	0h
-	db	0h
-	db	060h	; E
-	db	0h
-	db	0h
-	db	0h
-	db	0E0h
-	db	0h
-	db	0h
-	db	0h
-	db	040h	; F
-	db	0h
-	db	0h
-	db	0E0h
-	db	0h
+	db	01110000b		; 0
+	db	0b
+	db	0b
+	db	0b
+	db	11010000b
+	db	0b
+	db	0b
+	db	0b
+	
+	db	00010000b		; 1
+	db	0b
+	db	0b
+	db	0b
+	db	00010000b
+	db	0b
+	db	0b
+	db	0b
+	
+	db	01100000b		; 2
+	db	0b
+	db	0b
+	db	0b
+	db	10110000b
+	db	0b
+	db	0b
+	db	0b
+	
+	db	00110000b		; 3
+	db	0b
+	db	0b
+	db	0b
+	db	10110000b
+	db	0b
+	db	0b
+	db	0b
+	
+	db	00010000b		; 4
+	db	0b
+	db	0b
+	db	0b
+	db	01110000b
+	db	0b
+	db	0b
+	db	0b
+	
+	db	00110000b		; 5
+	db	0b
+	db	0b
+	db	0b
+	db	11100000b
+	db	0b
+	db	0b
+	db	0b
+	
+	db	01110000b		; 6
+	db	0b
+	db	0b
+	db	0b
+	db	11100000b
+	db	0b
+	db	0b
+	db	0b
+	
+	db	00010000b		; 7
+	db	0b
+	db	0b
+	db	0b
+	db	10010000b
+	db	0b
+	db	0b
+	db	0b
+	
+	db	01110000b		; 8
+	db	0b
+	db	0b
+	db	0b
+	db	11110000b
+	db	0b
+	db	0b
+	db	0b
+	
+	db	00110000b		; 9
+	db	0b
+	db	0b
+	db	0b
+	db	11110000b
+	db	0b
+	db	0b
+	db	0b
+	
+	db	01010000b		; A
+	db	0b
+	db	0b
+	db	0b
+	db	11110000b
+	db	0b
+	db	0b
+	db	0b
+	
+	db	01110000b		; B
+	db	0b
+	db	0b
+	db	0b
+	db	01100000b
+	db	0b
+	db	0b
+	db	0b
+	
+	db	01100000b		; C
+	db	0b
+	db	0b
+	db	0b
+	db	11000000b
+	db	0b
+	db	0b
+	db	0b
+	
+	db	01110000b		; D
+	db	0b
+	db	0b
+	db	0b
+	db	00110000b
+	db	0b
+	db	0b
+	db	0b
+	
+	db	01100000b		; E
+	db	0b
+	db	0b
+	db	0b
+	db	11100000b
+	db	0b
+	db	0b
+	db	0b
+	
+	db	01000000b		; F
+	db	0h
+	db	0h
+	db	0h
+	db	11100000b
 	db	0h
 	db	0h
 	db	0h
 	
 ld_l100_table:
-	db	0h	; 0
-	db	084h
-	db	01h
-	db	0h
-	db	0h
-	db	086h
-	db	0h
-	db	0h
-	db	0h	; 1
-	db	04h
-	db	0h
-	db	0h
-	db	0h
-	db	04h
-	db	0h
-	db	0h
-	db	0h	; 2
-	db	080h
-	db	01h
-	db	0h
-	db	0h
-	db	06h
-	db	01h
-	db	0h
-	db	0h	; 3
-	db	04h
-	db	01h
-	db	0h
-	db	0h
-	db	06h
-	db	01h
-	db	0h
-	db	0h	; 4
-	db	04h
-	db	0h
-	db	0h
-	db	0h
-	db	084h
-	db	01h
-	db	0h
-	db	0h	; 5
-	db	04h
-	db	01h
-	db	0h
-	db	0h
-	db	084h
-	db	01h
-	db	0h
-	db	0h	; 6
-	db	084h
-	db	01h
-	db	0h
-	db	0h
-	db	084h
-	db	01h
-	db	0h
-	db	0h	; 7
-	db	04h
-	db	0h
-	db	0h
-	db	0h
-	db	06h
-	db	0h
-	db	0h
-	db	0h	; 8
-	db	084h
-	db	01h
-	db	0h
-	db	0h
-	db	086h
-	db	01h
-	db	0h
-	db	0h	; 9
-	db	004h
-	db	01h
-	db	0h
-	db	0h
-	db	086h
-	db	01h
-	db	0h
-	db	0h	; A
-	db	084h
-	db	0h
-	db	0h
-	db	00h
-	db	086h
-	db	01h
-	db	0h
-	db	0h	; B
-	db	084h
-	db	01h
-	db	0h
-	db	0h
-	db	080h
-	db	01h
-	db	0h
-	db	0h	; C
-	db	080h
-	db	01h
-	db	0h
-	db	0h
-	db	082h
-	db	0h
-	db	0h
-	db	0h	; D
-	db	084h
-	db	01h
-	db	0h
-	db	0h
-	db	04h
-	db	01h
-	db	0h
-	db	0h	; E
-	db	080h
-	db	01h
-	db	0h
-	db	0h
-	db	082h
-	db	01h
-	db	0h
-	db	0h	; F
-	db	080h
-	db	0h
-	db	0h
-	db	0h
-	db	082h
-	db	01h
-	db	0h
+	db	0b			; 0
+	db	10000100b
+	db	00000001b
+	db	0b
+	db	0b
+	db	10000110b
+	db	0b
+	db	0b
+	
+	db	0b			; 1
+	db	00000100b
+	db	0b
+	db	0b
+	db	0b
+	db	00000100b
+	db	0b
+	db	0b
+	
+	db	0b			; 2
+	db	10000000b
+	db	00000001b
+	db	0b
+	db	0b
+	db	00000110b
+	db	00000001b
+	db	0b
+	
+	db	0b			; 3
+	db	00000100b
+	db	00000001b
+	db	0b
+	db	0b
+	db	00000110b
+	db	00000001b
+	db	0b
+	
+	db	0b			; 4
+	db	00000100b
+	db	0b
+	db	0b
+	db	0b
+	db	10000100b
+	db	00000001b
+	db	0b
+	
+	db	0b			; 5
+	db	00000100b
+	db	00000001b
+	db	0b
+	db	0b
+	db	10000010b
+	db	00000001b
+	db	0b
+	
+	db	0b			; 6
+	db	10000100b
+	db	00000001b
+	db	0b
+	db	0b
+	db	10000010b
+	db	00000001b
+	db	0b
+	
+	db	0b			; 7
+	db	00000100b
+	db	0b
+	db	0b
+	db	0b
+	db	00000110b
+	db	0b
+	db	0b
+	
+	db	0b			; 8
+	db	10000100b
+	db	00000001b
+	db	0b
+	db	0b
+	db	10000110b
+	db	00000001b
+	db	0b
+	
+	db	0b			; 9
+	db	00000100b
+	db	00000001b
+	db	0b
+	db	0b
+	db	10000110b
+	db	00000001b
+	db	0b
+	
+	db	0b			; A
+	db	10000100b
+	db	00000000b
+	db	0b
+	db	0b
+	db	10000110b
+	db	00000001b
+	db	0b
+	
+	db	0b			; B
+	db	10000100b
+	db	00000001b
+	db	0b
+	db	0b
+	db	10000000b
+	db	00000001b
+	db	0b
+	
+	db	0b			; C
+	db	10000000b
+	db	00000001b
+	db	0b
+	db	0b
+	db	10000010b
+	db	0b
+	db	0b
+	
+	db	0b			; D
+	db	10000100b
+	db	00000001b
+	db	0b
+	db	0b
+	db	00000100b
+	db	00000001b
+	db	0b
+	
+	db	0b			; E
+	db	10000000b
+	db	00000001b
+	db	0b
+	db	0b
+	db	10000010b
+	db	00000001b
+	db	0b
+	
+	db	0b			; F
+	db	10000000b
+	db	0b
+	db	0b
+	db	0b
+	db	10000010b
+	db	00000001b
+	db	0b

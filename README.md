@@ -13,7 +13,7 @@ Main features
 * Up to 100 channels. [VHF Channels frequencies](doc/Prm80x0_144.bin.md) - [UHF Channels frequencies](doc/Prm80x0_430.bin.md)
 * Power commutation (High/Low)
 * Shift for repeaters. Reverse mode available
-* [1750 Hz tone](1750Hz_tone.md) generator for repeaters
+* [1750 Hz tone](doc/1750Hz_tone.md) generator for repeaters
 * [Computer control](doc/Computer_control.md) and channels programming
 
 About PRM80

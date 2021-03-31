@@ -15,10 +15,10 @@ if not exist asem.exe   goto absent
 if not exist hexbin.exe goto absent
 if not exist 83c552.mcu goto absent
 
-if exist prm.a51 asem.exe prm.a51 8060_144.hex 8060_144.lst /INCLUDES:83C552.MCU /DEFINE:TARGET:8060 /DEFINE:FREQ:144
-if exist prm.a51 asem.exe prm.a51 8070_144.hex 8070_144.lst /INCLUDES:83C552.MCU /DEFINE:TARGET:8070 /DEFINE:FREQ:144
-if exist prm.a51 asem.exe prm.a51 8060_430.hex 8060_430.lst /INCLUDES:83C552.MCU /DEFINE:TARGET:8060 /DEFINE:FREQ:430
-if exist prm.a51 asem.exe prm.a51 8070_430.hex 8070_430.lst /INCLUDES:83C552.MCU /DEFINE:TARGET:8070 /DEFINE:FREQ:430
+if exist prm.a51 asem.exe prm.a51 8060_144.hex 8060_144.lst /INCLUDES:83C552.MCU /DEFINE:TARGET:8060 /DEFINE:FREQ:144 /DEFINE:DEBUG:0
+if exist prm.a51 asem.exe prm.a51 8070_144.hex 8070_144.lst /INCLUDES:83C552.MCU /DEFINE:TARGET:8070 /DEFINE:FREQ:144 /DEFINE:DEBUG:0
+if exist prm.a51 asem.exe prm.a51 8060_430.hex 8060_430.lst /INCLUDES:83C552.MCU /DEFINE:TARGET:8060 /DEFINE:FREQ:430 /DEFINE:DEBUG:0
+if exist prm.a51 asem.exe prm.a51 8070_430.hex 8070_430.lst /INCLUDES:83C552.MCU /DEFINE:TARGET:8070 /DEFINE:FREQ:430 /DEFINE:DEBUG:0
 
 if exist 8060_144.hex hexbin.exe 8060_144.hex 8060d144.bin > nul
 if exist 8060_144.hex hexbin.exe 8060_144.hex 8060_144.bin /LENGTH:20000 /FILL:FF > nul
