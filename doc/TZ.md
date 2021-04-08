@@ -31,6 +31,10 @@ RX Input filter DROs
 * Inject a frequency of 432MHz from a HF generator, something about -100dB. Control with a good resolution the RSSI signal (good voltmeter or oscilloscope).
 * Grind the 5 DROs (One by One) of the input filter and try to increase the RSSI signal. If you grind too much, the signal strength reduce. 
 
+Measuring RSSI can be done at following PCB location: 
+
+<img src="prm8070_MeasureRSSI.jpg" width="400" >
+
 At final we have obtained a sensibility of 2µV.
 
 TX PLL DRO
